@@ -15,11 +15,11 @@ The two routes share state, pair, and edge-chain count/residual events. The requ
 
 - Mode: GPT principal researcher; Claude Code auxiliary executor and independent verifier; user final arbiter.
 - Canonical rules: `../AGENTS.md`.
-- Active governance task: `docs/research_tasks/GOV-001.md` (`ACTIVE`).
+- Active governance task: `docs/research_tasks/GOV-001.md` (`VERIFYING`).
 - GPT branch: `codex/gpt-led-research-governance`.
 - Claude role for GOV-001: read-only pre-review and final verification.
-- Current blocker: none; Claude pre-review returned `APPROVED`.
-- Next action: implement and independently verify the governance files defined by GOV-001.
+- Current blocker: none; Claude pre-review returned `APPROVED` and GPT implementation verification returned `PASS`.
+- Next action: Claude performs the final read-only verification of the GOV-001 implementation diff.
 - Approved design: `docs/superpowers/specs/2026-08-31-gpt-led-claude-verified-research-governance-design.md`.
 
 ## Active implementation

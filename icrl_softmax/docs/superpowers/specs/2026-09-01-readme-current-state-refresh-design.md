@@ -1,8 +1,6 @@
 # README 当前状态重写设计
 
-> 日期：2026-09-01  
-> 状态：待用户复核  
-> 目标文件：`icrl_softmax/README.md`
+> 日期：2026-09-01｜状态：用户已批准｜目标文件：`icrl_softmax/README.md`
 
 ## 1. 背景
 
