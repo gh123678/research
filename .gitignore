@@ -1,0 +1,6 @@
+_archive/
+__pycache__/
+*.pyc
+*.pt
+icrl_softmax/results/
+icrl_softmax/papers/
