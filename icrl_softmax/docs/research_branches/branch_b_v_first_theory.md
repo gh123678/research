@@ -1,7 +1,7 @@
 # Branch B：V-first 理论草案
 
 > 日期：2026-08-29  
-> 状态：population recovery 与条件 finite-sample decomposition 已闭合；single-trajectory ratio rate 仍需显式常数  
+> 状态：population、stationary same-trajectory recovery 与显式共享事件均已闭合；更尖锐 rate 仍开放  
 > 主要来源：Xie et al. (2026), Fan et al. (2021), Pananjady and Wainwright (2020)
 
 ## 1. 目标与路线
@@ -378,7 +378,7 @@ Q^\pi(s,\pi'(s))
 
 \[
 V^{\pi'}
-\ge V^\pi-rac{2\xi_B}{1-\gamma}\mathbf1.
+\ge V^\pi-\frac{2\xi_B}{1-\gamma}\mathbf1.
 \]
 
 若
@@ -390,6 +390,49 @@ V^{\pi'}
 
 对所有状态成立，则选择动作相对旧策略具有非负 one-step advantage，可恢复单调 policy improvement。若希望精确识别唯一 greedy action，则 top-two action gap 需严格大于 \(2\xi_B\)。
 
+## 11.5 Same-sample no-split 闭合
+
+此前把 value estimate 与 recovery 共用同一条轨迹视为未闭合依赖问题，这是不必要的。完整证明见 [shared_fixed_policy_finite_sample_theory.md](shared_fixed_policy_finite_sample_theory.md)。
+
+对 full-coverage 轨迹定义 exact recovery 算子
+
+\[
+\widehat{\mathcal R}_{\mathrm{ex}}(W)(x)
+=\frac1{N_x}\sum_{t:X_t=x}
+\left[R_{t+1}+\gamma W(S_{t+1})\right].
+\]
+
+权重固定且归一化，因此逐轨迹有
+
+\[
+\|\widehat{\mathcal R}_{\mathrm{ex}}(W)
+-\widehat{\mathcal R}_{\mathrm{ex}}(W')\|_\infty
+\le\gamma\|W-W'\|_\infty.
+\]
+
+在同一个共享事件上，固定 \(V^\pi\) 的 ghost recovery residual 满足
+
+\[
+\|\widehat{\mathcal R}_{\mathrm{ex}}(V^\pi)-Q^\pi\|_\infty
+\le\varepsilon_X.
+\]
+
+所以即使 \(\widehat V_L\) 完全由同一数据生成，仍有
+
+\[
+\|\widehat{\mathcal R}_{\mathrm{ex}}(\widehat V_L)-Q^\pi\|_\infty
+\le
+\gamma\|\widehat V_L-V^\pi\|_\infty+\varepsilon_X.
+\]
+
+该分解不使用阶段独立、sample split、cross-fit 或 gap。finite-softmax recovery 的 plug-in 常数仍为 \(\gamma\)，另加
+
+\[
+L_\beta=2B[1-m_\beta(u_X)].
+\]
+
+一次 softmax recovery 不需要 pair kernel contraction margin；pair margin 只约束迭代 Direct-Q softmax。固定有限 \(\beta\) 下 \(L_\beta\) 可能不消失，所以 finite bound 与 consistency 必须分开陈述。
+
 ## 12. Branch B 当前判定
 
 ### 已闭合
@@ -398,12 +441,14 @@ V^{\pi'}
 - clipping 不增加 V error；
 - sample-split recovery 的 ratio decomposition；
 - 两阶段条件组合界；
+- same-sample no-split exact ghost-target 界；
+- finite-softmax no-split 的 \(\gamma\)-propagation 加显式 leakage 界；
 - oracle-V 仍受 pair coverage 控制的结论。
 
 ### 主要风险
 
 - Hoeffding/ratio 分析给出 \(1/\mu_{X,\min}\) 的保守依赖，可能掩盖实际优势；
-- 连续轨迹切分需条件化处理，不能声称无条件独立；
+- 连续轨迹切分若继续使用，仍需条件化处理；但它不是 no-split fixed-policy 定理的必要条件；
 - recovery 的 augmented chain 与随机 reward 常数尚未完全展开；
 - sample splitting 减少两个阶段各自的有效数据。
 
@@ -412,4 +457,3 @@ V^{\pi'}
 即使更尖锐的 concentration rate 尚未闭合，以下结果仍可独立成立：
 
 > V-first 将 long-horizon state-evaluation error 以因子 \(\gamma\) 传入 Q，并把剩余困难隔离为一次 action-conditioned recovery；该分解澄清了 state coverage 优势与 state-action coverage 下界同时存在。
-

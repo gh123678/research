@@ -2,6 +2,8 @@
 
 ## Current objective
 
+Status: completed and formally reproduced on 2026-08-31.
+
 Close two finite-sample fixed-policy results on one frozen stationary trajectory:
 
 1. a uniform-in-layer Direct-Q bound from empirical contraction and the fixed residual at \(Q^\pi\);
@@ -12,6 +14,9 @@ The two routes share state, pair, and edge-chain count/residual events. The requ
 ## Active implementation
 
 - `evaluate_fixed_policy_q_routes.py`
+- `fixed_policy_finite_sample_certificate.py`
+- `verify_finite_sample_theorems.py`
+- `analyze_fixed_policy_finite_sample_certificates.py`
 - `verify_fixed_policy_q_routes.py`
 - `crossfit_vfirst.py`
 - `markov_coverage_certificate.py`
@@ -25,11 +30,18 @@ The two routes share state, pair, and edge-chain count/residual events. The requ
 - `docs/superpowers/specs/2026-08-29-direct-q-v-first-balanced-exploration-design.md`
 - `docs/superpowers/specs/2026-08-29-crossfit-markov-certificate-design.md`
 - `docs/superpowers/specs/2026-08-31-shared-fixed-policy-finite-sample-theorem-design.md`
+- `docs/superpowers/plans/2026-08-31-shared-fixed-policy-finite-sample-theorem-plan.md`
+- `docs/research_branches/shared_fixed_policy_finite_sample_theory.md`
 - `docs/superpowers/plans/2026-08-29-direct-q-v-first-balanced-exploration-plan.md`
 - `docs/superpowers/plans/2026-08-29-crossfit-markov-certificate-plan.md`
 - `results/fixed_policy_q_routes/`
 - `results/fixed_policy_q_routes_crossfit/`
+- `results/fixed_policy_finite_sample_certificates/`
 - `results/blockwise_q_routes/`
+
+The new formal directory contains 480 same-seed comparisons, strict-JSON
+route certificates, a zero-mismatch regression against the old 10 routes,
+certificate/failure summaries, and exact-versus-softmax paired analysis.
 
 ## Historical archive
 

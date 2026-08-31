@@ -177,32 +177,45 @@ Y_{\max}
 
 这解释了 certificate 必须同时报告 pair-chain 与 edge-chain spectral factor。
 
-## 4. Direct-Q certificate 的边界
+## 4. Direct-Q certificate 已闭合的部分
 
-可直接证书化：
+2026-08-31 的共享事件证明关闭了“\(Q_\ell\) data-dependent，所以必须逐层 concentration”的旧缺口。经验算子在同一条冻结轨迹上固定；概率事件只需控制：
 
 - pair counts；
-- 固定 \(Q\) 下的 bounded reward/transition numerator；
-- population one-hot kernel diagonal；
-- empirical one-hot kernel matching mass；
-- diagonality threshold slack。
+- 真实 \(Q^\pi\) 处的固定 centered residual；
+- 由 count lower bound 推出的经验 one-hot diagonal；
+- exact/softmax 路线各自的 contraction margin。
 
-仍未闭合：
+对每个 pair \(z\)，
 
-1. 迭代中的 \(Q_\ell\) 由同一条轨迹产生，因此 residual function 是 data-dependent；
-2. 把 primitive count/numerator 界组合成所有层同时成立的 operator perturbation 界仍需单独证明；
-3. transition-dependent reward 需要 edge-chain bounded-function 处理，不能直接引用只依赖 state reward 的结论；
-4. 若不从平稳分布开始，需要 Theorem 12 的 burn-in 常数。
+\[
+\bar\delta_z^\pi
+=\frac1{N_z}\sum_{t:X_t=z}
+\left[R_{t+1}+\gamma Q^\pi(X_{t+1})-Q^\pi(z)\right],
+\]
 
-因此实现输出区分：
+且 full coverage 下
 
-- **coverage_certified**：pair-count Hoeffding 条件满足；
-- **kernel_certified**：population/empirical diagonal margin 为正；
-- **direct_operator_diagnostic**：尚未升级为完整迭代高概率定理。
+\[
+[\widehat{\mathcal F}_{Q,1}(Q^\pi)-Q^\pi](x)
+=\sum_z\widehat M(x,z)\bar\delta_z^\pi.
+\]
+
+所以经验 fixed-point bias 由 \(\max_z|\bar\delta_z^\pi|\) 控制。共享事件成立后，对所有层的递推是确定性的，无需 layerwise union bound。完整常数见 [shared_fixed_policy_finite_sample_theory.md](shared_fixed_policy_finite_sample_theory.md)。
+
+旧 **coverage_certified**、**kernel_certified** 和 **direct_operator_diagnostic** 字段为历史 primitive 诊断保留。新结果另存：
+
+- **high_probability_certified**；
+- **pathwise_bound_verified**；
+- route-level margin、\(\rho\)、optimization/statistical term 与 total bound。
+
+仍未覆盖的是非平稳起步、额外随机 reward noise、缺失 pair、随层改变的 score/operator 和 online control，而不是固定轨迹上的 iterate 自适应性。
 
 ## 5. Cross-fit gap 的理论等级
 
 Fan 等人的定理控制单个 Markov sample average，并不直接给出“两数据块近似独立”的 cross-fitting theorem。
+
+不过，fixed-target ghost 分解本身不要求两折独立。对每折分别控制固定 \(V^\pi\) recovery residual，并使用 recovery 算子的路径式 \(\gamma\)-Lipschitz 性，再对有限个事件做 union bound 即可。因而 gap 不是 fixed-policy no-split 证明的必要条件；它只在坚持“给定训练折后，把评估折当近似独立样本再 concentration”的替代证明中承担 coupling 作用。
 
 时间序列 sample splitting 在 \(\beta\)-mixing 或其他弱依赖条件下可获得渐近有效性，但这类结果的统计目标与本项目的 plug-in \(Q\) recovery 不同。[Lunde (2019)](https://arxiv.org/abs/1902.07425)
 
@@ -250,13 +263,15 @@ Xie 等人的 weighted-softmax TD 分析提供 state-value population contractio
 3. 固定 bounded target 的 ratio certificate 组成部分；
 4. kernel diagonality 的 population 与 empirical slack；
 5. cross-fit gap 的 exact total-variation dependency diagnostic；
-6. cross-fit 的数值误差分解。
+6. cross-fit 的数值误差分解；
+7. frozen-context Direct-Q 的 uniform-in-layer 高概率界；
+8. same-sample V-first no-split 的 fixed-ghost 高概率界与路径验证。
 
 仍不能报告：
 
 - blocked cross-fit 已经有限样本独立；
-- Direct-Q 全部迭代层已有统一高概率界；
 - certificate 可在未知环境中无需 transition model 计算；
+- 非平稳起步或额外随机 reward noise 沿用当前常数；
 - fixed-policy certificate 自动推出控制收敛。
 
 ## 8. 正式扫描后的校准
@@ -269,4 +284,18 @@ Xie 等人的 weighted-softmax TD 分析提供 state-value population contractio
 
 第三点尤其重要：当前 Hoeffding + union-bound certificate 是充分条件，不是必要条件。它的失败不能解释成 coverage 实际失败；更合理的下一步是推导 occupancy-adaptive/Bernstein 型界，或对 ratio 直接做 self-normalized 控制。
 
-这些结果只校准了 primitive certificate 的保守程度和 gap 的经验代价，没有改变第 5 节的证据等级：无 gap cross-fit 的经验追平不等于其 Markov 折间依赖已经得到有限样本证明。
+这些结果校准了 primitive certificate 的保守程度和 gap 的经验代价。第 5 节的 gap 仍只是 dependency diagnostic；但这不再阻止 fixed-policy Direct-Q/no-split 定理，因为新证明没有把折间独立作为前提。
+
+## 9. 共享事件正式复现
+
+新目录 results/fixed_policy_finite_sample_certificates/ 用相同 seed 和 480 个配置完成复现。旧 10 条路线的共同字段 mismatch 为 0，最大浮点差为 \(8.88\times10^{-16}\)。
+
+显式共享事件给出：
+
+- state/pair/edge 谱条件通过率 100%；
+- 数值 edge-support 截断率 0%；
+- conservative pair coverage lower bound 在全部长度上通过率 0%；
+- 因而先验高概率证书通过率为 0%，但这不否定定理，只说明 sufficient coverage 条件过于保守；
+- 观测 full-support 路径界在 \(N=4096,16384\) 时，Direct-Q exact 与 no-split exact/softmax 的验证率均为 100%。
+
+真正剩余的统计问题是更尖锐的 occupancy-adaptive coverage/residual rate，而不是对每层 iterate 或 no-split 阶段独立性再做额外 concentration。

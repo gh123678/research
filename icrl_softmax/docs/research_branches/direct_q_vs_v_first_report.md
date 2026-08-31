@@ -2,11 +2,11 @@
 
 > 日期：2026-08-29  
 > 范围：fixed-policy estimation 与 blockwise control  
-> 判定：理论上无统一支配；无 gap cross-fit 已在正式同预算实验中追平 Direct-Q，但 Direct-Q 仍是当前证明主线
+> 判定：理论上无统一支配；Direct-Q 与 V-first no-split 的 fixed-policy 证书均已闭合，control 仍开放
 
 ## 1. 结论先行
 
-在当前设定下，Direct-Q 应作为证明主路线继续推进；V-first 已从“备选消融”升级为实证上有竞争力的并行路线，但仍不应宣称其中一条在所有条件下支配另一条。
+在当前设定下，Direct-Q 与 V-first no-split 都可作为 fixed-policy 理论路线；仍不应宣称其中一条在所有条件下支配另一条。Direct-Q 更直接，V-first 把 long-horizon state evaluation 与一次 pair recovery 分离。
 
 理由分三层：
 
@@ -19,7 +19,7 @@
 2. **第二阶段正式 fixed-policy 实验**：480 个匹配比较中，Direct-Q exact 的平均误差为 0.5852；无 gap V-first cross-fit 为 0.5873，配对差 \(+0.0022\)，95% CI 为 \([-0.0079,0.0122]\)。这支持“经验追平”，不支持任一路线统一占优。
 3. **blockwise control 实验**：20 个任务、每任务 10 块、每块 1024 个新 transition 下，Direct-Q exact 的平均最终回报为 1.5793，V-first exact 为 1.5117；但两者都出现约三成非单调块，因此 fixed-policy 结果不能直接升级为单调控制定理。
 
-V-first 的 no-split 版本在第二阶段仍然最好：总体平均误差 0.5671，较 Direct-Q 的配对差为 \(-0.0180\)，95% CI 为 \([-0.0237,-0.0124]\)。不过它重复使用同一批数据做 \(V\) 估计和 \(Q\) recovery，当前高概率论证不能覆盖它。无 gap cross-fit 保留全部 recovery transition 并消除了大部分切分损失；带 gap cross-fit 则因删除短轨迹中的 15%–22% recovery 数据而退化到 0.6494。
+V-first 的 no-split exact 版本在第二阶段仍然最好：总体平均误差 0.5671，较 Direct-Q 的配对差为 \(-0.0180\)，95% CI 为 \([-0.0237,-0.0124]\)。同数据复用现已由固定-\(V^\pi\) ghost residual 与路径式 \(\gamma\)-Lipschitz 分解覆盖，不需要阶段独立。无 gap cross-fit 保留全部 recovery transition 并消除了大部分切分损失；带 gap cross-fit 则因删除短轨迹中的 15%–22% recovery 数据而退化到 0.6494。
 
 ## 2. 理论结构对照
 
@@ -30,14 +30,14 @@ V-first 的 no-split 版本在第二阶段仍然最好：总体平均误差 0.56
 | softmax kernel 主条件 | pair-kernel 对角质量足够大 | V 阶段需要 state-kernel；recovery 仍需要 pair-kernel 或条件均值 |
 | 一般步长收缩 | 若 \(M(x,x)\ge(1+\gamma)/2+C_A\)，则条件收缩因子为 \(1-2\alpha C_A\) | 继承 state-value 评估收缩；recovery 本身是一次 \(\gamma\)-Lipschitz 映射 |
 | coverage | 全程依赖 \((s,a)\) 访问 | 长时域迭代只依赖 state coverage，但最后一步不能消除 pair coverage |
-| 当前主要风险 | 稀有动作使 pair occupancy 与 kernel 对角条件恶化 | 样本切分损失一半 recovery 数据；no-split 数据依赖尚未闭合 |
+| 当前主要风险 | 稀有动作使 pair occupancy 与 kernel 对角条件恶化 | recovery 仍需 pair coverage；finite-softmax 留下显式 leakage |
 | 适合场景 | 目标就是 \(Q^\pi\)，且动作覆盖可控 | 已有高质量 \(V\) 估计器、预训练 value prior，或多个动作共享 state 表征 |
 
 Direct-Q 的完整推导见 [branch_a_direct_q_theory.md](branch_a_direct_q_theory.md)，V-first 的推导见 [branch_b_v_first_theory.md](branch_b_v_first_theory.md)。来源与假设逐项对照见 [source_assumption_matrix.md](source_assumption_matrix.md)。
 
 这里对 Xie 等人的结果只作 fixed-policy state-value 基线使用。其正式有限样本分析采用遍历有限状态 MRP、状态访问与特定 kernel 对角条件；把它迁移到 pair chain、随机 transition reward 和控制循环都需要新证明。[Xie et al. (2026)](https://arxiv.org/abs/2605.07333)
 
-Markov 轨迹的浓缩工具可从一般状态空间 Markov-chain Hoeffding 不等式继续推进，但尚未在本项目里代入所有 mixing 与 occupancy 常数。[Fan, Jiang & Sun (2021)](https://www.jmlr.org/papers/v22/19-479.html) 同时，同步生成模型下的 policy-evaluation 上界不能直接当成单轨迹结果。[Pananjady & Wainwright (2020)](https://arxiv.org/abs/1909.08749) 单轨迹 policy iteration 的已有正结果也依赖额外算法结构，说明从 fixed-policy 到 control 并非自动成立。[Winnicki & Srikant (2023)](https://proceedings.mlr.press/v206/winnicki23a.html)
+本项目现已把 stationary、time-independent right-gap Hoeffding 常数代入 state/pair/edge 的共享固定函数事件。[Fan, Jiang & Sun (2021)](https://www.jmlr.org/papers/v22/19-479.html) 这仍不能把同步生成模型上界当成单轨迹结论，也不能从 fixed-policy 自动推出 control。[Pananjady & Wainwright (2020)](https://arxiv.org/abs/1909.08749) [Winnicki & Srikant (2023)](https://proceedings.mlr.press/v206/winnicki23a.html)
 
 ## 3. 公式级契约验证
 
@@ -171,7 +171,7 @@ certificate 同时计算：
 | V-first cross-fit | +0.0022 | [-0.0079, 0.0122] | 50.6% / 13.3% / 36.0% |
 | V-first gap cross-fit | +0.0642 | [0.0425, 0.0860] | 44.8% / 9.2% / 46.0% |
 
-“胜”表示该 V-first 路线误差更低。无 gap cross-fit 与 Direct-Q 的配对区间跨过 0，现有扫描不能区分两者；no-split 的小幅优势稳定，但仍属于同样本 plug-in 诊断，不能借用 cross-fit 论证。
+“胜”表示该 V-first 路线误差更低。无 gap cross-fit 与 Direct-Q 的配对区间跨过 0，现有扫描不能区分两者；no-split 的小幅优势稳定。其正确证明不是借用 cross-fit 独立性，而是使用同一轨迹上的 fixed-ghost 与 \(\gamma\)-Lipschitz 分解。
 
 finite-softmax 没有形成统一收益：no-gap cross-fit 从 0.5873 变为 0.5941，gap cross-fit 从 0.6494 变为 0.6529。当前 \(\beta=8\) 下，平滑偏差与有限样本方差的净效应依场景变化。
 
@@ -199,8 +199,22 @@ finite-softmax 没有形成统一收益：no-gap cross-fit 从 0.5873 变为 0.5
 
 1. **cross-fit 已解决主要的样本切分损失。** 它把 recovery 预算从 \(N/2\) 恢复到 \(N\)，总体上追平 Direct-Q。
 2. **显式 gap 暂不适合作为默认估计器。** 它提供更清晰的依赖诊断，但短轨迹删除样本的代价显著；应作为理论消融保留。
-3. **no-split 仍是经验最优基线。** 下一理论问题不是再做更大扫描，而是用 stability、leave-neighbor-out 或直接 data-dependent operator perturbation 分析解释它。
-4. **primitive certificate 有用但未闭合。** edge-chain 的加入修正了把 TD numerator 错当 pair-state function 的问题；coverage radius 的保守性则明确指出下一步需要 occupancy-adaptive/Bernstein 型界，而不是扩大经验结论。
+3. **no-split 的同数据依赖已闭合。** 固定-\(V^\pi\) ghost recovery 与路径式 \(\gamma\)-Lipschitz 分解不需要 sample split、cross-fit 或 gap。
+4. **剩余瓶颈是 coverage rate。** edge-chain 固定 residual 已组合进全层定理；保守 Hoeffding lower bound 仍指出下一步需要 occupancy-adaptive/self-normalized 界。
+
+### 5.6 第三阶段：共享单事件证书
+
+完整理论见 [shared_fixed_policy_finite_sample_theory.md](shared_fixed_policy_finite_sample_theory.md)，新结果见 [fixed_policy_finite_sample_certificates](../../results/fixed_policy_finite_sample_certificates/)。
+
+相同 480 个任务和 seed 的重跑中，旧 10 条路线共同字段 mismatch 为 0，最大浮点差为 \(8.88\times10^{-16}\)。新增 no-split softmax 的总体平均误差为 0.5741；no-split exact 仍为 0.5671。
+
+共享事件的三条链谱条件全部通过，数值 support 截断率为 0；但 conservative pair occupancy lower bound 在所有长度上均未通过，所以先验高概率证书通过率为 0。该结果不应被调参“修好”：它诚实显示当前 sufficient coverage 条件太保守。
+
+观测路径界验证率随样本增长。Direct exact / no-split exact / no-split softmax 在 \(N=4096,16384\) 都达到 100%；Direct softmax 为 95.8% 和 100%，其额外拒绝来自经验 pair contraction margin。
+
+![Certificate rates](../../results/fixed_policy_finite_sample_certificates/certificate_rates.png)
+
+![No-split exact versus softmax](../../results/fixed_policy_finite_sample_certificates/nosplit_exact_vs_softmax.png)
 
 ## 6. Blockwise control 对照
 
@@ -240,6 +254,8 @@ finite-softmax 没有形成统一收益：no-gap cross-fit 从 0.5873 变为 0.5
 - one-hot pair kernel 的 sharpness—occupancy 关系；
 - V-first population recovery 的 \(\gamma\)-Lipschitz 界；
 - sample-split ratio 误差分解；
+- Direct-Q frozen empirical operator 的 uniform-in-layer fixed-residual 界；
+- same-sample V-first exact/softmax ghost-target 界；
 - exploratory-greedy 的保守单块回报下界。
 
 ### 数值契约验证
@@ -248,34 +264,34 @@ finite-softmax 没有形成统一收益：no-gap cross-fit 从 0.5873 变为 0.5
 - 未访问动作、确定性转移、正负 residual、零 action-gap。
 - two-fold block accounting、opposite-fold target isolation 与 full-budget recovery；
 - state/pair/edge chain 的谱、正反向 mixing、gap 截断与 coverage/kernel certificate。
+- 共享 \(M=2m+3d\) 事件、全部主要失败码、exact-\(\beta\) 解耦、early stopping 和 strict JSON。
 
 ### 正式扫描观察
 
 - sample-split V-first 的半预算 recovery 显著落后；
 - 无 gap cross-fit 已在配对置信区间意义上追平 Direct-Q；
-- V-first no-split 小幅领先，但其同样本依赖未闭合；
+- V-first no-split exact 小幅领先，且其同样本固定-ghost 分解已闭合；
 - 显式 gap 在短轨迹中产生明显删样本代价；
 - finite-softmax 在正式 \(\beta=8\) 扫描中没有统一优势；
 - blockwise 平均提升不意味着逐块单调。
 
 ### 尚未闭合
 
-1. 把已实现的 pair-count 与 edge-numerator primitive bounds 组合成所有 Direct-Q 迭代层同时成立的 operator perturbation theorem；
-2. 把 transition-dependent bounded reward 的 edge-chain 处理写成正式高概率定理，而不只停留在 certificate 组件；
-3. 为无 gap cross-fit 建立相邻 Markov 折的 coupling/stability 界，或直接闭合 V-first no-split 的同样本依赖；
-4. 优于保守 \(1/\mu_{X,\min}\) ratio 界的 \(1/\sqrt{n\mu_{X,\min}}\) 级结论；
-5. 随策略改变的 occupancy、mixing、kernel diagonality 与 action gap 的跨块联合控制；
-6. 在未知 transition kernel 下，用可观测量估计或上界 certificate 常数。
+1. 优于保守 \(1/\mu_{X,\min}\) conditional residual 界的 visit-indexed/self-normalized rate；
+2. 全 pair coverage 的 multiplicative Markov lower tail；
+3. 额外随机 reward noise 与非平稳起步；
+4. 随策略改变的 occupancy、mixing、kernel diagonality 与 action gap 的跨块联合控制；
+5. 在未知 transition kernel 下，用可观测量估计或上界 certificate 常数。
 
 ## 8. 路线判定与论文整合决定
 
 当前判定是：
 
-- **证明主线：Direct-Q。** 它与控制目标直接对齐，pair/edge-chain primitive certificate 已有明确接口；剩余工作是处理同轨迹迭代算子的 data dependence。
-- **并行实证路线：V-first no-gap cross-fit。** 它已消除半样本 recovery 代价并在 480 个匹配比较中追平 Direct-Q，值得保留为论文中的同预算对照和潜在第二定理。
-- **诊断上界：V-first no-split。** 它是当前经验最佳路线，但在同样本依赖闭合前，不作为理论主结果。
+- **理论路线一：Direct-Q。** 它与 \(Q^\pi\) 目标直接对齐，冻结经验算子的 all-layer 证书已闭合；主要代价是 pair occupancy 与 contraction margin。
+- **理论路线二：V-first no-split。** exact 与 finite-softmax ghost-target 界已闭合；它把 long-horizon evaluation 放在 state space，但一次 recovery 仍需 pair coverage。
+- **并行实证路线：V-first no-gap cross-fit。** 它在 480 个匹配比较中追平 Direct-Q，保留为同预算对照；gap 不是 no-split 证明的必要条件。
 - **理论消融：gap cross-fit。** 保留其依赖—样本量权衡，不作为默认算法。
 - **不进入 fully online control 定理。** blockwise 结果已说明非单调块普遍存在，尚缺跨块联合保证。
-- **可以进入论文附录候选，但不改主定理。** 正式长轨迹扫描、配对区间和 Markov primitive certificate 已完成，足以整理为 fixed-policy methodology/ablation 附录；完整高概率 cross-fit 或 Direct-Q 迭代定理完成后再升级正文主张。
+- **可以进入 fixed-policy 理论附录候选，但暂不改论文主文。** 共享事件定理、契约、同种子回归和证书扫描已经齐全；主文升级仍需作者决定并处理 conservative zero-pass coverage 结果。
 
-因此，这次探索不是简单选出“赢家”，而是把问题收敛为两个清晰的证明任务：Direct-Q 完成 pair/edge-chain 迭代扰动定理；V-first 解释为什么 full-budget cross-fit/no-split 能在不牺牲 recovery coverage 的情况下成立。
+因此，这次探索没有选出统一“赢家”，但已把两个 fixed-policy 证明任务闭合。下一研究问题转为更尖锐的 occupancy-adaptive rate，以及 fixed-policy 到策略变化 control 的跨块联合控制。

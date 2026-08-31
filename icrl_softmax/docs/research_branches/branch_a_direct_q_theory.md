@@ -1,7 +1,7 @@
 # Branch A：Direct-Q 理论草案
 
 > 日期：2026-08-29  
-> 状态：population 部分已闭合；single-trajectory 显式常数仍需完成  
+> 状态：population 与 stationary single-trajectory 显式证书均已闭合；coverage rate 仍保守  
 > 主要来源：Xie et al. (2026), Fan et al. (2021)
 
 ## 1. 目标与主张级别
@@ -12,7 +12,7 @@
 
 - **Proved here**：本文档中已给出完整代数证明；
 - **Conditional theorem**：在明确经验偏差事件上已证明；
-- **Proof gap**：仍需用 Markov concentration 闭合的概率常数；
+- **High-probability theorem**：由共享固定函数事件与路径递推闭合；
 - **Empirical question**：交由统一实验验证。
 
 ## 2. State-action MRP
@@ -368,44 +368,61 @@ e_{l+1}
 
 这个结果同时说明：在相同 empirical bias 定义下，减小固定步长只减慢深度收敛，不自动降低无限深度统计地板。
 
-## 8. 概率闭合路线与剩余缺口
+## 8. 共享事件闭合与剩余限制
 
-### 8.1 可直接复用的模板
+完整显式版本见 [shared_fixed_policy_finite_sample_theory.md](shared_fixed_policy_finite_sample_theory.md)。关键修正是：不需要对数据依赖的 \(Q_\ell\) 逐层做 concentration。
 
-Fan et al. (2021) 的 Markov Hoeffding inequality 可应用于 pair-chain 上的 bounded additive functionals。若 \(P_X^\pi\) ergodic，则经验 pair frequency 满足
-
-\[
-\|\widehat\mu_{X,n}-\mu_X^\pi\|_\infty
-=O_{\mathbb P}
-\left(\sqrt{\frac{\log(|\mathcal X|/\delta)}{n}}\right),
-\]
-
-其中隐藏常数依赖 pair-chain 的最小 stationary mass 与 spectral parameter。与 Xie Appendix D.1 相同的代数可把 frequency error 传递到 \(\widehat M_n\)。
-
-对 transition 部分，需要在链
+对每个 pair \(z\)，固定真实 \(Q^\pi\) 并定义
 
 \[
-(X_{k-1},X_k)
+\bar\delta_z^\pi
+=\frac1{N_z}\sum_{t:X_t=z}
+\left[R_{t+1}+\gamma Q^\pi(X_{t+1})-Q^\pi(z)\right].
 \]
 
-上集中 bounded centered function。其 stationary mass 为
+在 full coverage 下，冻结经验算子满足
 
 \[
-\widetilde\mu_X(x,z)
-=\mu_X^\pi(x)P_X^\pi(x,z).
+[\widehat{\mathcal F}_{A,1}(Q^\pi)-Q^\pi](x)
+=\sum_z\widehat M_n(x,z)\bar\delta_z^\pi.
 \]
 
-### 8.2 尚未闭合
+因此
 
-以下常数还未在本文档中展开：
+\[
+b_{A,n}\le\max_z|\bar\delta_z^\pi|.
+\]
 
-1. pair-chain additive reversiblization 的 right spectral gap；
-2. \(\widehat M_n\) Lipschitz constant 对 \(|\mathcal X|\) 和 feature norm 的依赖；
-3. transition-pair chain 的最小 stationary mass；
-4. 条件随机奖励的 martingale 或 augmented-chain concentration；
-5. 轨迹未覆盖某些 pair 时 operator 的定义与 visited-query gate。
+pair-count 与固定 \(Q^\pi\) residual 都是预先固定的 bounded functions。对 state、pair、edge 三条链使用 stationary right-gap Hoeffding，并在 \(M=2m+3d\) 个固定函数上做一次 union bound，即得到所有层共享的事件。事件成立后，Theorem A.6 的递推是纯路径代数，对全部 \(L\ge0\) 同时成立，也覆盖数据依赖的 early stopping 层数。
 
-第一版可证明定理将先采用 deterministic bounded pair reward，与 Xie 的 MRP reward 模型保持一致；随机奖励作为单独扩展项。
+one-hot softmax 的先验经验对角下界为
+
+\[
+m_\beta(u_X)
+=\frac{e^\beta u_X}{e^\beta u_X+1-u_X},
+\qquad
+u_X=\mu_{X,\min}-b_X.
+\]
+
+若 \(u_X>0\) 且 \(c_Q=m_\beta(u_X)-(1+\gamma)/2>0\)，则
+
+\[
+\rho_Q=1-2\alpha c_Q,
+\qquad
+\|Q_L-Q^\pi\|_\infty
+\le\rho_Q^L\|Q_0-Q^\pi\|_\infty
++\frac{1-\rho_Q^L}{2c_Q}\varepsilon_X.
+\]
+
+exact matching 取 \(c_Q=(1-\gamma)/2\)，且完全不依赖 \(\beta\)。
+
+仍未覆盖的是真实扩展问题：
+
+1. 额外随机 reward noise 的 martingale 或 augmented-chain concentration；
+2. 非平稳起步的 burn-in/初始分布 prefactor；
+3. 缺失 pair 时的全空间一致性不可能性；
+4. 策略或 attention score 随层改变；
+5. 更尖锐的 visit-indexed/self-normalized rate。
 
 ## 9. 与现有构造的关系
 
@@ -433,12 +450,13 @@ Q^+(x)=Q(x)
 - 一般 \(\alpha\) 的 diagonal contraction；
 - one-hot pair sharpness threshold；
 - empirical-event 条件递推。
+- stationary right-gap 下的共享固定 residual 事件与显式全层证书。
 
 ### 主要风险
 
 - \(\mu_{X,\min}^\pi=\mu_{S,\min}^\pi\pi_{\min}\) 同时恶化 kernel diagonal 与 concentration 常数；
 - 高 \(\gamma\) 把 diagonal threshold 推近 1；
-- 随机奖励需要新增分析；
+- 额外随机 reward noise 需要新增分析；
 - visited-only gate 与全查询 population operator 仍需统一。
 
 ### 最小可证贡献
