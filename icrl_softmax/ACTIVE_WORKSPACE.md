@@ -24,12 +24,14 @@ The two routes share state, pair, and edge-chain count/residual events. The requ
 
 ## Active documentation task
 
-- Task: `docs/research_tasks/DOC-001.md` (`VERIFYING`).
+- Task: `docs/research_tasks/DOC-001.md` (`VERIFIED`).
 - GPT branch: `codex/DOC-001`.
 - Implementation commit: `b165ab6`.
+- Frozen final-verification commit: `1a770e2`.
 - Scope: align `README.md` with the completed fixed-policy stage and remove stale or fragile formatting without changing code or scientific claims.
 - Evidence: 22/22 links and 8/8 Python entry points resolve; encoding checks and four local verifiers pass.
-- Claude pre-review: `APPROVED`; content review and restricted-shell supplemental verification returned `PASS` at `2c192cd`.
+- Claude pre-review: `APPROVED`; final independent verification returned `PASS` at `1a770e2`.
+- Next action: obtain explicit user approval before integrating DOC-001 into `main`.
 - Integration note: this branch predates GOV-001's adoption on `main`; any user-approved integration must preserve `main`'s verified GOV-001 record and revalidate the resolved tree.
 
 ## Active implementation
