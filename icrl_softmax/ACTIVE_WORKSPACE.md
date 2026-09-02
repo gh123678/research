@@ -15,11 +15,11 @@ The two routes share state, pair, and edge-chain count/residual events. The requ
 
 - Mode: GPT principal researcher; Claude Code auxiliary executor and independent verifier; user final arbiter.
 - Canonical rules: `../AGENTS.md`.
-- Active governance task: `docs/research_tasks/GOV-001.md` (`VERIFYING`).
+- Active governance task: `docs/research_tasks/GOV-001.md` (`VERIFIED`; adopted on `main` at `b4b2769`).
 - GPT branch: `codex/gpt-led-research-governance`.
 - Claude role for GOV-001: read-only pre-review and final verification.
-- Current blocker: none; Claude pre-review returned `APPROVED` and GPT implementation verification returned `PASS`.
-- Next action: Claude performs the final read-only verification of the GOV-001 implementation diff.
+- Current blocker: none; GPT and Claude verification returned `PASS`, and the user approved integration into `main`.
+- Next action: apply the verified governance rules to each new GPT-authored research task.
 - Approved design: `docs/superpowers/specs/2026-08-31-gpt-led-claude-verified-research-governance-design.md`.
 
 ## Active documentation task
@@ -29,7 +29,8 @@ The two routes share state, pair, and edge-chain count/residual events. The requ
 - Implementation commit: `b165ab6`.
 - Scope: align `README.md` with the completed fixed-policy stage and remove stale or fragile formatting without changing code or scientific claims.
 - Evidence: 22/22 links and 8/8 Python entry points resolve; encoding checks and four local verifiers pass.
-- Claude pre-review: `APPROVED`; final read-only verification pending.
+- Claude pre-review: `APPROVED`; content review and restricted-shell supplemental verification returned `PASS` at `2c192cd`.
+- Integration note: this branch predates GOV-001's adoption on `main`; any user-approved integration must preserve `main`'s verified GOV-001 record and revalidate the resolved tree.
 
 ## Active implementation
 
