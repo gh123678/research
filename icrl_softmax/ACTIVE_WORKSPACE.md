@@ -22,6 +22,15 @@ The two routes share state, pair, and edge-chain count/residual events. The requ
 - Next action: Claude performs the final read-only verification of the GOV-001 implementation diff.
 - Approved design: `docs/superpowers/specs/2026-08-31-gpt-led-claude-verified-research-governance-design.md`.
 
+## Active documentation task
+
+- Task: `docs/research_tasks/DOC-001.md` (`VERIFYING`).
+- GPT branch: `codex/DOC-001`.
+- Implementation commit: `b165ab6`.
+- Scope: align `README.md` with the completed fixed-policy stage and remove stale or fragile formatting without changing code or scientific claims.
+- Evidence: 22/22 links and 8/8 Python entry points resolve; encoding checks and four local verifiers pass.
+- Claude pre-review: `APPROVED`; final read-only verification pending.
+
 ## Active implementation
 
 - `evaluate_fixed_policy_q_routes.py`
