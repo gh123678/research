@@ -30,10 +30,14 @@ The two routes share state, pair, and edge-chain count/residual events. The requ
 - GPT branch: `codex/FP-MART-001`.
 - Claude role at this gate: independent construction on
   `claude/FP-MART-001`, followed by independent verification of the GPT route.
-- Current blocker: none; Claude's read-only pre-review returned `APPROVED` and
-  implementation and experiments have not started.
-- Next action: create the common activation commit and isolated Claude worktree,
-  then begin both routes without disclosing either first result.
+- Current blocker: Claude's read-only pre-review returned `APPROVED`, and the
+  common activation commit plus isolated worktree exist, but execution requires
+  the user's explicit authorization to send task-scoped private-repository
+  materials to the external Claude service and permit public-web source lookup.
+  No implementation or experiment has started.
+- Next action: obtain and record that user ruling; if approved, start both
+  routes from activation commit `c8ec7e5c` without disclosing either first
+  result.
 - Design: `docs/superpowers/specs/2026-09-03-visit-indexed-martingale-certificate-design.md`.
 - Plan: `docs/superpowers/plans/2026-09-03-visit-indexed-martingale-certificate-plan.md`.
 
