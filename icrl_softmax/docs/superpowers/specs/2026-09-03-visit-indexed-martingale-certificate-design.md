@@ -1,11 +1,13 @@
 # Visit-indexed martingale fixed-policy certificate design
 
 > Date: 2026-09-03
-> Status: approved in conversation; written-spec review pending
+> Status: approved by the user on 2026-09-03
 > Intended task: `FP-MART-001`
 > Scientific code baseline: `main` commit `b4b2769`
-> Execution-baseline rule: use the commit containing the frozen task, approved
-> design, and implementation plan; record its exact SHA before `REVIEW`
+> Task-definition baseline rule: commit the complete `DRAFT` contract, design,
+> and plan, then record that commit's SHA while moving the task to `REVIEW`
+> Execution-start rule: after Claude's approval is recorded, both routes begin
+> from the same activation commit
 
 ## 1. Motivation
 
@@ -273,11 +275,13 @@ frozen task, baseline, inputs, seed, and evaluation protocol:
 - GPT results: `results/FP-MART-001/codex/`;
 - Claude results: `results/FP-MART-001/claude/`.
 
-The scientific code baseline remains `b4b2769`. After the written design and
-implementation plan are approved, GPT records a separate frozen execution
-commit containing the formal task contract. Both execution branches start from
-that exact commit in separate Git worktrees; neither actor switches branches or
-writes results inside the other's worktree.
+The scientific code baseline remains `b4b2769`. GPT first commits the complete
+`DRAFT` task, approved design, and implementation plan. The next metadata-only
+commit records that task-definition baseline while moving the task to
+`REVIEW`. After Claude returns `APPROVED`, GPT records the review and activates
+the task in one activation commit. Both routes begin execution from that exact
+activation commit in separate Git worktrees; neither actor switches branches
+or writes results inside the other's worktree.
 
 Before execution, GPT creates the formal task in `DRAFT`, moves it to `REVIEW`,
 and Claude returns `APPROVED` or `OBJECTION` from a read-only review. Approval
