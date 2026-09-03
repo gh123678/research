@@ -11,6 +11,7 @@ hyperparameters only.  See
 from __future__ import annotations
 
 import math
+import operator
 from collections.abc import Sequence
 from typing import Any
 
@@ -29,6 +30,24 @@ _FAILURE_ORDER = (
     "numerical_nonfinite",
 )
 _FAILURE_RANK = {reason: rank for rank, reason in enumerate(_FAILURE_ORDER)}
+
+
+def _as_original_int(value: Any, name: str) -> int:
+    if isinstance(value, bool):
+        raise ValueError(f"{name} must be an original integer, not bool")
+    try:
+        return operator.index(value)
+    except TypeError as exc:
+        raise ValueError(f"{name} must be an original integer") from exc
+
+
+def _integer_vector(values: Sequence[Any], name: str) -> list[int]:
+    items = list(values)
+    if not items:
+        raise ValueError(f"{name} must be a nonempty sequence")
+    return [
+        _as_original_int(item, f"{name}[{index}]") for index, item in enumerate(items)
+    ]
 
 
 def _ordered(reasons: Sequence[str]) -> list[str]:
@@ -50,12 +69,12 @@ def _validate_structure(
 ) -> tuple[float, float, int]:
     gamma_value = float(gamma)
     alpha_value = float(alpha)
-    iterations = int(iterations_used)
+    iterations = _as_original_int(iterations_used, "iterations_used")
     if not math.isfinite(gamma_value) or not 0.0 < gamma_value < 1.0:
         raise ValueError("gamma must lie in (0,1)")
     if not math.isfinite(alpha_value) or not 0.0 < alpha_value <= 1.0:
         raise ValueError("alpha must lie in (0,1]")
-    if iterations != iterations_used or iterations < 0:
+    if iterations < 0:
         raise ValueError("iterations_used must be a nonnegative integer")
     return gamma_value, alpha_value, iterations
 
@@ -82,16 +101,16 @@ def hoeffding_radius(
     allocation over ``G`` groups and ``n`` counts is fixed before seeing data,
     so substituting an observed (random) count needs no reallocation.
     """
-    k = int(count)
-    groups = int(n_groups)
-    length = int(trajectory_length)
+    k = _as_original_int(count, "count")
+    groups = _as_original_int(n_groups, "n_groups")
+    length = _as_original_int(trajectory_length, "trajectory_length")
     confidence = float(delta)
     bound = float(value_bound)
-    if k != count or not 1 <= k <= length:
+    if not 1 <= k <= length:
         raise ValueError("count must be an integer in [1, trajectory_length]")
-    if groups != n_groups or groups <= 0:
+    if groups <= 0:
         raise ValueError("n_groups must be a positive integer")
-    if length != trajectory_length or length <= 0:
+    if length <= 0:
         raise ValueError("trajectory_length must be a positive integer")
     if not math.isfinite(confidence) or not 0.0 < confidence < 1.0:
         raise ValueError("delta must lie in (0,1)")
@@ -104,9 +123,9 @@ def hoeffding_radius(
 
 def support_summary(counts: Sequence[int]) -> dict[str, Any]:
     """Summarize observed visit counts for one residual family."""
-    observed = [int(count) for count in counts]
-    if not observed or any(count < 0 for count in observed):
-        raise ValueError("counts must be a nonempty list of nonnegative integers")
+    observed = _integer_vector(counts, "counts")
+    if any(count < 0 for count in observed):
+        raise ValueError("counts must be nonnegative integers")
     missing = sum(1 for count in observed if count == 0)
     return {
         "min_count": min(observed),
@@ -123,30 +142,62 @@ def shared_visit_event(
     state_counts: Sequence[int],
     pair_counts: Sequence[int],
     delta: float,
-    value_bound: float,
+    declared_reward_bound: float,
+    gamma: float,
     fixed_context: bool = True,
     synchronous_update: bool = True,
 ) -> dict[str, Any]:
-    """Build the simultaneous visit-indexed event from observed counts only."""
-    length = int(trajectory_length)
-    states = int(n_states)
-    pairs = int(n_pairs)
-    if length != trajectory_length or length <= 0:
+    """Build the simultaneous visit-indexed event from observed counts only.
+
+    ``declared_reward_bound`` is the reward-range declaration made before
+    sampling; the value bound is derived here as
+    ``declared_reward_bound / (1 - gamma)``.  No true-model quantity enters.
+    """
+    length = _as_original_int(trajectory_length, "trajectory_length")
+    states = _as_original_int(n_states, "n_states")
+    pairs = _as_original_int(n_pairs, "n_pairs")
+    if length <= 0:
         raise ValueError("trajectory_length must be a positive integer")
-    if states != n_states or states <= 0:
+    if states <= 0:
         raise ValueError("n_states must be a positive integer")
-    if pairs != n_pairs or pairs <= 0:
+    if pairs <= 0:
         raise ValueError("n_pairs must be a positive integer")
-    state_observed = [int(count) for count in state_counts]
-    pair_observed = [int(count) for count in pair_counts]
+    if pairs % states != 0:
+        raise ValueError("n_pairs must be a multiple of n_states")
+    state_observed = _integer_vector(state_counts, "state_counts")
+    pair_observed = _integer_vector(pair_counts, "pair_counts")
     if len(state_observed) != states or len(pair_observed) != pairs:
         raise ValueError("count vectors must match n_states and n_pairs")
     if any(count < 0 for count in state_observed + pair_observed):
         raise ValueError("counts must be nonnegative")
+    if sum(state_observed) != length:
+        raise ValueError("state_counts must sum to trajectory_length")
+    if sum(pair_observed) != length:
+        raise ValueError("pair_counts must sum to trajectory_length")
+    actions_per_state = pairs // states
+    for state_index in range(states):
+        aggregated = sum(
+            pair_observed[
+                state_index
+                * actions_per_state : (state_index + 1)
+                * actions_per_state
+            ]
+        )
+        if aggregated != state_observed[state_index]:
+            raise ValueError(
+                "state_counts must equal the per-state aggregation of pair_counts"
+            )
+    gamma_value = float(gamma)
+    if not math.isfinite(gamma_value) or not 0.0 < gamma_value < 1.0:
+        raise ValueError("gamma must lie in (0,1)")
+    declared = float(declared_reward_bound)
+    if math.isfinite(declared) and declared > 0.0:
+        bound = declared / (1.0 - gamma_value)
+    else:
+        bound = math.nan
 
     groups = states + 2 * pairs
     confidence = float(delta)
-    bound = float(value_bound)
     reasons: list[str] = []
     risk_valid = math.isfinite(confidence) and 0.0 < confidence < 1.0
     if not risk_valid:
@@ -161,7 +212,7 @@ def shared_visit_event(
     pair_radius: float | None = None
     if risk_valid:
         log_factor = math.log(2.0 * groups * length / confidence)
-        if not math.isfinite(bound) or bound < 0.0:
+        if not math.isfinite(bound):
             reasons.append("numerical_nonfinite")
         else:
             if state_support["full_support"]:
@@ -184,9 +235,12 @@ def shared_visit_event(
         "trajectory_length": length,
         "n_states": states,
         "n_pairs": pairs,
+        "n_actions_per_state": actions_per_state,
         "n_groups": groups,
         "delta": confidence,
+        "declared_reward_bound": declared,
         "value_bound": bound,
+        "value_bound_derivation": "value_bound = declared_reward_bound / (1 - gamma)",
         "log_factor": log_factor,
         "state_counts": state_observed,
         "pair_counts": pair_observed,
@@ -477,11 +531,13 @@ def vfirst_nosplit_certificate(
 def variance_adaptive_certificate(delta_share: float) -> dict[str, Any]:
     """Optional variance-adaptive constituent.
 
-    The conditional variance of the fixed-target residuals is not observable
-    from the trajectory without true values or the true kernel, so no
-    oracle-free Freedman/empirical-Bernstein radius exists in this contract.
-    The constituent is deterministically unavailable; it is never combined
-    with the Hoeffding radius by a post-hoc minimum.
+    No valid nontrivial observable variance proxy was proved or implemented
+    from the frozen allowed inputs: the conditional variance of the
+    fixed-target residuals is not observable from the trajectory without
+    true values or the true kernel, so no oracle-free Freedman/empirical-
+    Bernstein radius exists in this contract.  The constituent is
+    deterministically unavailable; it is never combined with the Hoeffding
+    radius by a post-hoc minimum.
     """
     share = float(delta_share)
     reasons: list[str] = []
@@ -495,7 +551,9 @@ def variance_adaptive_certificate(delta_share: float) -> dict[str, Any]:
         "status": "unavailable",
         "failure_reasons": _ordered(reasons),
         "explanation": (
-            "fixed-target conditional variance is not observable without "
-            "oracle quantities; Popoviciu recovers the Hoeffding radius"
+            "no valid nontrivial observable variance proxy was proved or "
+            "implemented from the frozen allowed inputs; the constituent is "
+            "deterministically unavailable and is never combined with the "
+            "Hoeffding radius by a post-hoc minimum"
         ),
     }

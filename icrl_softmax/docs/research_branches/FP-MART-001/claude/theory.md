@@ -4,7 +4,14 @@
 > Date: 2026-09-03. Branch `claude/FP-MART-001`.
 > Frozen contract: `docs/research_tasks/FP-MART-001.md` v1.0,
 > design `2026-09-03-visit-indexed-martingale-certificate-design.md`.
-> This document is written before any implementation. It derives every step of
+> Repaired 2026-09-03 after GPT verification of the sealed first result
+> (`c5da2430`) returned `FAIL`: Section 5 now proves the concentration step
+> via the compensated exponential supermartingale (the raw MGF iteration in
+> the sealed version was invalid and is replaced), Section 10 states the
+> narrowed optional-route conclusion, and Sections 1/5/8 keep the derived
+> `2B` conditional range and the same two-sided radius constant. The
+> historical sealed document remains intact at commit `c5da2430`.
+> This document derives every step of
 > the mandatory Hoeffding route from the frozen sampling order; the
 > concentration proof is fully self-contained so that no imported theorem's
 > assumptions are load-bearing (web fetch of primary PDFs was blocked in this
@@ -136,25 +143,58 @@ expectations and optimizing the resulting one-variable function
 `log(1 - p + p e^{lambda(b-a)}) - p lambda (b-a)` with `p = -a/(b-a)` gives
 the bound `lambda^2 (b-a)^2/8`.
 
-**Application.** Fix group `g` and count `k`. Iterate the conditional lemma
-along `t = n-1, ..., 0` for `D^{g,k}_t`:
+**Application (compensated exponential supermartingale).** Fix a group `g`,
+a count `k`, and `lambda > 0`. Iterating the conditional lemma *raw* along
+`t = n-1, ..., 0` is invalid here: the compensator factor
+`exp(lambda^2 (2B J^{g,k}_t)^2 / 8)` is `F_t`-measurable but the preceding
+exponential `exp(lambda sum_{u<t} D^{g,k}_u)` is only `F_t`-measurable too,
+and the lemma requires the multiplier to be pulled through a conditional
+expectation given `F_t` — correlation between the two is unrestricted, so
+`E exp(lambda sum D_t) <= E exp(lambda^2 sum (2B J_t)^2 / 8)` does not
+follow. (A two-step predictable Rademacher construction at `lambda = B = 1`
+gives approximately `2.281` on the left and `2.184` on the right.)
+
+The correct step compensates *inside* the exponent. Define
 
 ```
-E[ exp(lambda sum_t D^{g,k}_t) ]
-  <= E[ exp(lambda^2 sum_t (2B J^{g,k}_t)^2 / 8) ]
-  <= exp(lambda^2 B^2 k / 2),
+M_t = exp( lambda * sum_{u<t} D^{g,k}_u
+           - (lambda^2 B^2 / 2) * sum_{u<t} J^{g,k}_u ),   t = 0, ..., n,
 ```
 
-because `sum_t J^{g,k}_t <= k` pathwise. Exponential Markov and optimization
-at `lambda = epsilon / (B^2 k)` give, for every `epsilon > 0`,
+with `M_0 = 1`. Then `M_t` is `F_t`-measurable and, because
+`J^{g,k}_t in {0, 1}` so `(2B J^{g,k}_t)^2 / 8 = B^2 J^{g,k}_t / 2`,
+
+```
+E[ M_{t+1} | F_t ]
+  = M_t * exp(-lambda^2 B^2 J^{g,k}_t / 2) * E[ exp(lambda D^{g,k}_t) | F_t ]
+ <= M_t * exp(-lambda^2 B^2 J^{g,k}_t / 2) * exp(lambda^2 (2B J^{g,k}_t)^2 / 8)
+  = M_t,
+```
+
+using Hoeffding's lemma on `D^{g,k}_t` given `F_t`. Hence `(M_t)` is a
+positive supermartingale with `M_0 = 1`, so the tower property gives
+`E[M_n] <= 1`. Pathwise `sum_u J^{g,k}_u <= k` (the truncation enforces at
+most `k` selected visits), so pointwise
+
+```
+exp(lambda sum_u D^{g,k}_u)
+  = M_n * exp(lambda^2 B^2 / 2 * sum_u J^{g,k}_u)
+ <= M_n * exp(lambda^2 B^2 k / 2),
+```
+
+and therefore `E[ exp(lambda sum_u D^{g,k}_u) ] <= exp(lambda^2 B^2 k / 2)`.
+Exponential Markov and optimization at `lambda = epsilon / (B^2 k)` give,
+for every `epsilon > 0`,
 
 ```
 P( |sum_{j=1}^{min(k,N_g)} xi_{tau_g(j)}| >= epsilon )
-  <= 2 exp( - epsilon^2 / (2 B^2 k) ).
+  <= 2 exp( - epsilon^2 / (2 B^2 k) ),
 ```
 
-This is the Azuma-Hoeffding bound specialized to our MDS with conditional
-range width `2B`; the two-sided factor `2` is explicit.
+using the telescoping identity of Section 4 for the first equality inside
+the probability. This is the Azuma-Hoeffding bound specialized to our MDS
+with conditional range width `2B`; the two-sided factor `2` is explicit,
+and the constant is exactly the one the raw (invalid) iteration claimed.
 
 ## 6. The simultaneous visit-indexed event
 
@@ -265,14 +305,17 @@ A Freedman or empirical-Bernstein radius at the fixed targets `V^pi, Q^pi`
 needs the conditional variance (or an observable surrogate) of
 `xi_{tau_g(j)}`. The conditional variance depends on the true values and
 kernel; the realized residuals are not observable without the true targets.
-Any data-only variance proxy would therefore be an oracle quantity, which the
-frozen contract forbids. The only observable bound on the conditional variance
-is Popoviciu's `Var <= (b-a)^2/4`, which recovers exactly the Hoeffding
-constant already proved. Consequently the variance-adaptive constituent is
-reported as `variance_adaptive_unavailable` on every record: hypothesis 7 is a
-negative result within the oracle-free constraint, recorded accurately, with
-no post-hoc minimum across bounds (Section 11, fixture F2, demonstrates why an
-unadjusted minimum would break the risk budget). Hypotheses 1-6 are
+Under the frozen allowed inputs, **no valid nontrivial observable variance
+proxy was proved or implemented**: this records a gap in what this route
+constructed, not an impossibility theorem — a different construction from
+the same inputs might still exist. The only bound on the conditional
+variance established here is Popoviciu's `Var <= (b-a)^2/4`, which recovers
+exactly the Hoeffding constant already proved and is therefore not a
+tighter constituent. Consequently the variance-adaptive constituent is
+reported as `variance_adaptive_unavailable` on every record: hypothesis 7
+returns no valid constituent within this construction, recorded accurately,
+with no post-hoc minimum across bounds (Section 11, fixture F2, demonstrates
+why an unadjusted minimum would break the risk budget). Hypotheses 1-6 are
 unaffected.
 
 ## 11. Proof-level counterexample fixtures (used by the verifier)
@@ -327,9 +370,13 @@ depend on any unverifiable external claim.
   are out of scope.
 - The radius is range-based; at the frozen scale (`B ~ 5`, `G = 54`) emitted
   bounds are valid but typically numerically loose. Emission validity and
-  numerical nontriviality are reported separately.
+  numerical nontriviality are reported separately, under both deterministic
+  descriptive thresholds `total_bound < B` (primary,
+  improves-over-zero-initialization) and `total_bound < 2B` (secondary,
+  below-two-B-range), without selecting between them after seeing results.
 - Scope remains: one fixed policy, frozen trajectory, deterministic edge
   reward, finite state-action space, no stochastic reward noise, no
   nonstationary start, no online control.
-- The variance-adaptive refinement is unavailable under the oracle-free
-  input contract (Section 10).
+- The variance-adaptive refinement produced no valid observable constituent
+  under the frozen input contract (Section 10); this is a construction gap,
+  not a proved impossibility.

@@ -19,6 +19,7 @@ import math
 import numpy as np
 
 from fixed_policy_finite_sample_certificate import strict_json_ready
+import analyze_visit_indexed_certificates as analyze
 import visit_indexed_martingale_certificate as vimc
 
 
@@ -30,7 +31,8 @@ N_STATES = 6
 N_ACTIONS = 4
 N_PAIRS = N_STATES * N_ACTIONS
 G_GROUPS = N_STATES + 2 * N_PAIRS
-VALUE_BOUND = 5.0
+DECLARED_REWARD_BOUND = 1.5
+VALUE_BOUND = DECLARED_REWARD_BOUND / (1.0 - GAMMA)
 
 
 def check(condition: bool, message: str) -> None:
@@ -42,18 +44,29 @@ def approx_equal(left: float, right: float, tol: float = 1e-12) -> bool:
     return math.isclose(left, right, rel_tol=tol, abs_tol=tol)
 
 
+def _split_counts(total: int, parts: int) -> list[int]:
+    base = total // parts
+    counts = [base] * parts
+    for index in range(total - base * parts):
+        counts[index] += 1
+    return counts
+
+
 def make_event(
     state_counts: list[int] | None = None,
     pair_counts: list[int] | None = None,
     trajectory_length: int = 256,
     delta: float = DELTA,
-    value_bound: float = VALUE_BOUND,
+    declared_reward_bound: float = DECLARED_REWARD_BOUND,
     **flags: object,
 ) -> dict:
-    if state_counts is None:
-        state_counts = [trajectory_length // N_STATES] * N_STATES
     if pair_counts is None:
-        pair_counts = [trajectory_length // N_PAIRS] * N_PAIRS
+        pair_counts = _split_counts(trajectory_length, N_PAIRS)
+    if state_counts is None:
+        state_counts = [
+            sum(pair_counts[state * N_ACTIONS : (state + 1) * N_ACTIONS])
+            for state in range(N_STATES)
+        ]
     return vimc.shared_visit_event(
         trajectory_length=trajectory_length,
         n_states=N_STATES,
@@ -61,7 +74,8 @@ def make_event(
         state_counts=state_counts,
         pair_counts=pair_counts,
         delta=delta,
-        value_bound=value_bound,
+        declared_reward_bound=declared_reward_bound,
+        gamma=GAMMA,
         **flags,
     )
 
@@ -153,15 +167,22 @@ def test_support_summary_selection() -> None:
 
 def test_random_count_lookup_has_no_data_dependent_risk() -> None:
     n = 512
+    uniform_pairs = _split_counts(n, N_PAIRS)
     event_a = make_event(
-        state_counts=[n // N_STATES] * N_STATES,
-        pair_counts=[n // N_PAIRS] * N_PAIRS,
+        state_counts=[
+            sum(uniform_pairs[state * N_ACTIONS : (state + 1) * N_ACTIONS])
+            for state in range(N_STATES)
+        ],
+        pair_counts=uniform_pairs,
         trajectory_length=n,
     )
     skewed_pairs = [3] + [(n - 3) // (N_PAIRS - 1)] * (N_PAIRS - 1)
     skewed_pairs[-1] += n - sum(skewed_pairs)
     event_b = make_event(
-        state_counts=[n // N_STATES] * N_STATES,
+        state_counts=[
+            sum(skewed_pairs[state * N_ACTIONS : (state + 1) * N_ACTIONS])
+            for state in range(N_STATES)
+        ],
         pair_counts=skewed_pairs,
         trajectory_length=n,
     )
@@ -319,9 +340,13 @@ def test_direct_q_softmax_margin_gate() -> None:
 
 def test_state_value_and_vfirst_composition() -> None:
     n = 1024
+    uniform_pairs = _split_counts(n, N_PAIRS)
     event = make_event(
-        state_counts=[n // N_STATES] * N_STATES,
-        pair_counts=[n // N_PAIRS] * N_PAIRS,
+        state_counts=[
+            sum(uniform_pairs[state * N_ACTIONS : (state + 1) * N_ACTIONS])
+            for state in range(N_STATES)
+        ],
+        pair_counts=uniform_pairs,
         trajectory_length=n,
     )
     state = vimc.state_value_certificate(
@@ -445,12 +470,12 @@ def test_risk_budget_and_mode_rejection() -> None:
 def test_nonfinite_arithmetic_rejection() -> None:
     unit_pairs = [1] * (N_PAIRS - 1)
     unit_pairs.append(256 - (N_PAIRS - 1))
-    huge = make_event(value_bound=1e308, pair_counts=unit_pairs)
+    huge = make_event(declared_reward_bound=1e308, pair_counts=unit_pairs)
     check(
         "numerical_nonfinite" in huge["failure_reasons"],
         "overflowing radius must be rejected as nonfinite",
     )
-    nan_event = make_event(value_bound=math.nan)
+    nan_event = make_event(declared_reward_bound=math.nan)
     check(
         "numerical_nonfinite" in nan_event["failure_reasons"],
         "NaN value bound must be rejected as nonfinite",
@@ -709,6 +734,225 @@ def test_fixture_unadjusted_posthoc_minimum() -> None:
     )
 
 
+def test_rejects_nonoriginal_integer_counts() -> None:
+    """Counts must be original integers; floats, bools, and strings are rejected."""
+    valid_pairs = [256 // N_PAIRS] * N_PAIRS
+    valid_states = [256 // N_STATES] * N_STATES
+    for polluted in (
+        [float(valid_states[0])] + valid_states[1:],
+        [True] + valid_states[1:],
+        ["8"] + [int(item) for item in valid_states[1:]],
+        [256 // N_STATES + 0.5] + valid_states[1:],
+    ):
+        try:
+            vimc.shared_visit_event(
+                trajectory_length=256,
+                n_states=N_STATES,
+                n_pairs=N_PAIRS,
+                state_counts=polluted,
+                pair_counts=valid_pairs,
+                delta=DELTA,
+                declared_reward_bound=DECLARED_REWARD_BOUND,
+                gamma=GAMMA,
+            )
+        except (TypeError, ValueError):
+            continue
+        raise AssertionError(f"non-integer state counts accepted: {polluted!r}")
+    for polluted_pairs in (
+        [float(valid_pairs[0])] + valid_pairs[1:],
+        [False] + valid_pairs[1:],
+    ):
+        try:
+            vimc.shared_visit_event(
+                trajectory_length=256,
+                n_states=N_STATES,
+                n_pairs=N_PAIRS,
+                state_counts=valid_states,
+                pair_counts=polluted_pairs,
+                delta=DELTA,
+                declared_reward_bound=DECLARED_REWARD_BOUND,
+                gamma=GAMMA,
+            )
+        except (TypeError, ValueError):
+            continue
+        raise AssertionError(f"non-integer pair counts accepted: {polluted_pairs!r}")
+    try:
+        vimc.support_summary([3.0, 0, 5, 2])
+    except (TypeError, ValueError):
+        pass
+    else:
+        raise AssertionError("support_summary must reject float counts")
+    numpy_counts = [np.int64(4)] * 4
+    summary = vimc.support_summary(numpy_counts)
+    check(summary["min_count"] == 4, "numpy integer counts must be accepted")
+
+
+def test_rejects_out_of_horizon_visit_counterexample() -> None:
+    """GPT-verification counterexample: impossible counts must never emit."""
+    try:
+        vimc.shared_visit_event(
+            trajectory_length=8,
+            n_states=2,
+            n_pairs=4,
+            state_counts=[200, 200],
+            pair_counts=[100, 100, 100, 100],
+            delta=DELTA,
+            declared_reward_bound=DECLARED_REWARD_BOUND,
+            gamma=GAMMA,
+        )
+    except ValueError:
+        pass
+    else:
+        raise AssertionError(
+            "n=8 with state counts [200,200] and pair counts [100,100,100,100] "
+            "emitted a certificate event; the theorem only unions over 1 <= k <= n"
+        )
+
+
+def test_rejects_count_total_mismatch() -> None:
+    valid_pairs = [256 // N_PAIRS] * N_PAIRS
+    try:
+        vimc.shared_visit_event(
+            trajectory_length=256,
+            n_states=N_STATES,
+            n_pairs=N_PAIRS,
+            state_counts=[300] * N_STATES,
+            pair_counts=valid_pairs,
+            delta=DELTA,
+            declared_reward_bound=DECLARED_REWARD_BOUND,
+            gamma=GAMMA,
+        )
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("state counts not summing to the trajectory length accepted")
+    short_pairs = [10] * N_PAIRS
+    try:
+        vimc.shared_visit_event(
+            trajectory_length=256,
+            n_states=N_STATES,
+            n_pairs=N_PAIRS,
+            state_counts=[256 // N_STATES] * N_STATES,
+            pair_counts=short_pairs,
+            delta=DELTA,
+            declared_reward_bound=DECLARED_REWARD_BOUND,
+            gamma=GAMMA,
+        )
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("pair counts not summing to the trajectory length accepted")
+
+
+def test_rejects_state_pair_aggregation_mismatch() -> None:
+    pair_counts = [256 // N_PAIRS] * N_PAIRS
+    state_counts = [256 // N_STATES] * N_STATES
+    state_counts[0] += 1
+    state_counts[1] -= 1
+    try:
+        vimc.shared_visit_event(
+            trajectory_length=256,
+            n_states=N_STATES,
+            n_pairs=N_PAIRS,
+            state_counts=state_counts,
+            pair_counts=pair_counts,
+            delta=DELTA,
+            declared_reward_bound=DECLARED_REWARD_BOUND,
+            gamma=GAMMA,
+        )
+    except ValueError:
+        pass
+    else:
+        raise AssertionError(
+            "state counts inconsistent with aggregated pair counts accepted"
+        )
+
+
+def test_rejects_incompatible_pair_dimension() -> None:
+    try:
+        vimc.shared_visit_event(
+            trajectory_length=256,
+            n_states=N_STATES,
+            n_pairs=N_PAIRS + 1,
+            state_counts=[256 // N_STATES] * N_STATES,
+            pair_counts=[1] * (N_PAIRS + 1),
+            delta=DELTA,
+            declared_reward_bound=DECLARED_REWARD_BOUND,
+            gamma=GAMMA,
+        )
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("n_pairs incompatible with n_states accepted")
+
+
+def test_declared_reward_bound_derives_B() -> None:
+    """The module must derive B = R_star/(1-gamma) from the declared rule."""
+    event = make_event(declared_reward_bound=2.0)
+    expected_B = 2.0 / (1.0 - GAMMA)
+    check(
+        approx_equal(event["value_bound"], expected_B),
+        "event value bound must equal declared_reward_bound/(1-gamma)",
+    )
+    check(
+        approx_equal(event["declared_reward_bound"], 2.0),
+        "event must serialize the declared reward bound",
+    )
+    signature = inspect.signature(vimc.shared_visit_event)
+    check(
+        "declared_reward_bound" in signature.parameters
+        and "gamma" in signature.parameters,
+        "event constructor must accept the declared reward bound and gamma",
+    )
+    forbidden = {
+        "true_reward",
+        "reward_table",
+        "true_value",
+        "q_pi",
+        "v_pi",
+        "occupancy",
+        "transition",
+        "spectral",
+    }
+    check(
+        not (set(signature.parameters) & forbidden),
+        "event signature must not accept oracle quantities",
+    )
+
+
+def test_smoke_regression_requires_full_baseline_alignment() -> None:
+    """Smoke mode passes only when every new record key is a baseline key."""
+
+    def task(task_index: int, spawn_key: tuple[int, ...]) -> dict:
+        return {
+            "task_index": task_index,
+            "spawn_key": list(spawn_key),
+            "trajectory_length": 256,
+            "n_states": N_STATES,
+            "n_actions": N_ACTIONS,
+            "pi_min": 0.05,
+            "beta": 8.0,
+            "mixing": 0.08,
+            "gap_bonus": 0.0,
+            "legacy_value": 1.25,
+        }
+
+    baseline = [task(0, (0,)), task(1, (1,))]
+    aligned = [task(0, (0,)), task(1, (1,))]
+    report = analyze.legacy_regression(baseline, aligned, smoke=True)
+    check(
+        report["passed"] and report["new_only_keys"] == 0,
+        "fully aligned smoke regression must pass",
+    )
+    shifted = [task(0, (0,)), task(1, (5,))]
+    report = analyze.legacy_regression(baseline, shifted, smoke=True)
+    check(
+        not report["passed"] and report["new_only_keys"] == 1,
+        "smoke regression with any new-only key must fail, not pass on a "
+        "nonempty intersection",
+    )
+
+
 def main() -> None:
     tests = [
         test_risk_allocation_and_radius_constant,
@@ -731,6 +975,13 @@ def main() -> None:
         test_variance_adaptive_unavailable_and_risk_validation,
         test_fixture_wrong_state_filtration,
         test_fixture_unadjusted_posthoc_minimum,
+        test_rejects_nonoriginal_integer_counts,
+        test_rejects_out_of_horizon_visit_counterexample,
+        test_rejects_count_total_mismatch,
+        test_rejects_state_pair_aggregation_mismatch,
+        test_rejects_incompatible_pair_dimension,
+        test_declared_reward_bound_derives_B,
+        test_smoke_regression_requires_full_baseline_alignment,
     ]
     for test in tests:
         test()

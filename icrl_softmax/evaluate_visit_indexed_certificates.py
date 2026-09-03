@@ -60,6 +60,8 @@ DIAGNOSTIC_ABLATIONS = [
     "vfirst_oracle_exact",
 ]
 
+FROZEN_TASKS_PER_CELL = 30
+
 
 def git_revision() -> str | None:
     try:
@@ -92,6 +94,67 @@ def _audit_route(
     }
 
 
+def _per_group_residual_audit(
+    event: dict[str, Any], ghost: dict[str, Any]
+) -> dict[str, Any]:
+    """Audit each visited residual group against its own visit-indexed radius."""
+    delta = float(event["delta"])
+    bound = float(event["value_bound"])
+    length = int(event["trajectory_length"])
+    groups = int(event["n_groups"])
+    state_counts = [int(count) for count in event["state_counts"]]
+    pair_counts = [int(count) for count in event["pair_counts"]]
+
+    def _radius(count: int) -> float:
+        return vimc.hoeffding_radius(
+            count,
+            n_groups=groups,
+            trajectory_length=length,
+            delta=delta,
+            value_bound=bound,
+        )
+
+    violation_count = 0
+    visited_groups = 0
+    worst_margin: float | None = None
+    worst_group: str | None = None
+    per_family: dict[str, int] = {}
+    families = (
+        ("state", state_counts, ghost.get("state_residual_means")),
+        ("pair", pair_counts, ghost.get("pair_residual_means")),
+        ("recovery", pair_counts, ghost.get("recovery_residual_means")),
+    )
+    for family, counts, means in families:
+        if means is None:
+            continue
+        mean_values = list(means)
+        family_violations = 0
+        for index, count in enumerate(counts):
+            if count <= 0:
+                continue
+            visited_groups += 1
+            mean = mean_values[index] if index < len(mean_values) else None
+            radius = _radius(count)
+            if mean is None:
+                family_violations += 1
+                continue
+            margin = radius - abs(float(mean))
+            if margin < 0.0:
+                family_violations += 1
+            if worst_margin is None or margin < worst_margin:
+                worst_margin = margin
+                worst_group = f"{family}[{index}]"
+        per_family[family] = family_violations
+        violation_count += family_violations
+    return {
+        "per_family_violations": per_family,
+        "violation_count": violation_count,
+        "visited_groups": visited_groups,
+        "worst_margin": worst_margin,
+        "worst_group": worst_group,
+    }
+
+
 def build_visit_indexed_namespace(
     *,
     trajectory_length: int,
@@ -100,12 +163,13 @@ def build_visit_indexed_namespace(
     state_counts: np.ndarray,
     pair_counts: np.ndarray,
     delta: float,
-    value_bound: float,
+    declared_reward_bound: float,
     beta: float,
     gamma: float,
     alpha: float,
     routes: dict[str, dict[str, Any]],
     ghost: dict[str, Any],
+    true_reward_abs_max: float,
 ) -> dict[str, Any]:
     """Attach the new certificate namespace; inputs are observed-only."""
     event = vimc.shared_visit_event(
@@ -115,7 +179,8 @@ def build_visit_indexed_namespace(
         state_counts=[int(count) for count in state_counts],
         pair_counts=[int(count) for count in pair_counts],
         delta=delta,
-        value_bound=value_bound,
+        declared_reward_bound=declared_reward_bound,
+        gamma=gamma,
     )
     direct_exact = vimc.direct_q_certificate(
         event,
@@ -185,6 +250,13 @@ def build_visit_indexed_namespace(
         "note": (
             "truth-based audit only; never an input to certificate construction"
         ),
+        "reward_declaration": {
+            "declared_reward_bound": float(declared_reward_bound),
+            "true_reward_abs_max": float(true_reward_abs_max),
+            "declaration_verified": bool(
+                float(true_reward_abs_max) <= float(declared_reward_bound)
+            ),
+        },
         "routes": {
             "direct_exact": _audit_route(
                 direct_exact, float(routes["direct_exact"]["q_sup_error"])
@@ -214,6 +286,7 @@ def build_visit_indexed_namespace(
             "pair": ghost.get("pair_residual_sup"),
             "recovery": ghost.get("recovery_residual_sup"),
         },
+        "per_group_residual_audit": _per_group_residual_audit(event, ghost),
         "radius_margin": {
             "state": radius_margin(ghost.get("state_residual_sup"), radius_states),
             "pair": radius_margin(ghost.get("pair_residual_sup"), radius_pairs),
@@ -223,7 +296,7 @@ def build_visit_indexed_namespace(
         },
     }
 
-    return {
+    certificate = {
         "risk": {
             "delta": float(delta),
             "n_groups": int(event["n_groups"]),
@@ -231,6 +304,8 @@ def build_visit_indexed_namespace(
             "log_factor": event["log_factor"],
             "radius_form": "B*sqrt(2*log(2*G*n/delta)/k)",
             "probability_semantics": "P(Emit and bound violated) <= delta",
+            "declared_reward_rule": "declared before sampling; B = declared/(1-gamma)",
+            "value_bound_derivation": event["value_bound_derivation"],
         },
         "event": event,
         "routes": {
@@ -242,8 +317,8 @@ def build_visit_indexed_namespace(
             "vfirst_nosplit_softmax": vfirst_softmax,
         },
         "variance_adaptive": adaptive,
-        "oracle_audit": oracle_audit,
     }
+    return {**certificate, "oracle_audit": oracle_audit}
 
 
 def parse_args() -> argparse.Namespace:
@@ -298,8 +373,13 @@ def main() -> None:
     beta_grid = args.betas
     mixing_grid = args.mixing
     gap_grid = args.gap_bonuses
-    if args.tasks <= 0 or min(args.trajectory_lengths) < 4:
-        raise ValueError("tasks must be positive and trajectory lengths at least 4")
+    if args.tasks <= 0 or args.tasks > FROZEN_TASKS_PER_CELL:
+        raise ValueError(
+            f"tasks must lie in [1,{FROZEN_TASKS_PER_CELL}] so the frozen "
+            "per-cell seed stride is preserved"
+        )
+    if min(args.trajectory_lengths) < 4:
+        raise ValueError("trajectory lengths must be at least 4")
     if not 0.0 < args.gamma < 1.0 or not 0.0 < args.alpha <= 1.0:
         raise ValueError("gamma and alpha must lie in (0,1), with alpha allowing 1")
     if not 0.0 < args.certificate_delta < 1.0:
@@ -349,7 +429,7 @@ def main() -> None:
         * len(pi_min_grid)
         * len(mixing_grid)
         * len(gap_grid)
-        * args.tasks
+        * FROZEN_TASKS_PER_CELL
     )
     child_seeds = iter(seed_sequence.spawn(total_cells))
     task_results: list[dict[str, Any]] = []
@@ -359,8 +439,12 @@ def main() -> None:
         for pi_min in pi_min_grid:
             for mixing in mixing_grid:
                 for gap_bonus in gap_grid:
+                    cell_seeds = [
+                        next(child_seeds) for _ in range(FROZEN_TASKS_PER_CELL)
+                    ]
+                    declared_reward_bound = 1.0 + float(gap_bonus)
                     for task_index in range(args.tasks):
-                        child_seed = next(child_seeds)
+                        child_seed = cell_seeds[task_index]
                         rng = np.random.default_rng(child_seed)
                         mdp = make_mdp(
                             args.n_states,
@@ -421,10 +505,9 @@ def main() -> None:
                                     certificate,
                                     certificate_delta=args.certificate_delta,
                                 )
-                                reward_limit = float(
+                                true_reward_abs_max = float(
                                     np.max(np.abs(np.asarray(mdp["R"])))
                                 )
-                                value_limit = reward_limit / (1.0 - args.gamma)
                                 state_counts = np.bincount(
                                     states[:length], minlength=args.n_states
                                 )
@@ -438,12 +521,13 @@ def main() -> None:
                                     state_counts=state_counts,
                                     pair_counts=pair_counts,
                                     delta=args.certificate_delta,
-                                    value_bound=value_limit,
+                                    declared_reward_bound=declared_reward_bound,
                                     beta=beta,
                                     gamma=args.gamma,
                                     alpha=args.alpha,
                                     routes=routes,
                                     ghost=ghost,
+                                    true_reward_abs_max=true_reward_abs_max,
                                 )
                                 task_results.append(
                                     {
