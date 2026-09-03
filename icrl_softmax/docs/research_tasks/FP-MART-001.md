@@ -4,7 +4,7 @@
 
 - Created: 2026-09-03
 - Author: GPT
-- Status: `VERIFYING`
+- Status: `ACTIVE`
 - Task version: `1.0`
 - Scientific code baseline: `b4b2769c9b92007c5d6a65a1789149cd55ebd633`
 - Task-definition baseline: `2c5f59b25e20fb6db86cb9b308288dc47dc230ca`
@@ -400,8 +400,11 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
   `e0343871fd313c80f4f49ffa773db10eb75667d6`.
 - Repaired formal-evidence seal:
   `e3c37197905e3ced080197dba989cdab36b4d4e8`.
-- The repaired Claude branch is clean and has returned to `VERIFYING` for GPT
-  reproduction; no repaired result is accepted solely from the self-report.
+- GPT independently reproduced the repaired 480-record route exactly and found
+  no remaining proof or implementation defect, but its second verification
+  returned `FAIL` for incomplete smoke and acceptance evidence. The task is
+  `ACTIVE` for a narrow Claude evidence-only repair; no new formal matrix is
+  required.
 
 ## Claude read-only pre-review
 
@@ -533,6 +536,24 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
   seal or raw-output hashes exist.
 - Required next state: `ACTIVE` for Claude author repair, then return to
   `VERIFYING` for GPT re-verification.
+
+#### GPT verifies repaired Claude route
+
+- Status: `FAIL` for repaired seals `e0343871fd313c80f4f49ffa773db10eb75667d6`
+  and `e3c37197905e3ced080197dba989cdab36b4d4e8`; ordinary evidence repair, not
+  `OBJECTION`.
+- Reproduction performed: all five required verifiers and Ruff pass; a fresh
+  480-record run matches all deterministic core hashes and passes every strict
+  analyzer gate.
+- Evidence: `docs/research_branches/FP-MART-001/codex/verification_of_claude_repair.md`.
+- Remaining defects: the Claude repair-smoke record substituted
+  `verify_theory.py` for `verify_end_to_end_sarsa.py`, lacked `checks.log`,
+  omitted two existing smoke hashes, and did not provide a current numbered
+  1--18 task assessment.
+- Repair request:
+  `docs/research_branches/FP-MART-001/codex/claude_evidence_repair_request.md`.
+- Required next state: remain `ACTIVE` for the narrow evidence repair, then
+  return to `VERIFYING` without rerunning the formal matrix.
 
 ### Claude verifies GPT
 
