@@ -574,11 +574,18 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
 
 ### Claude verifies GPT
 
-- Status: not started.
-- Reproduction or inspection performed: not started.
-- Evidence: not started.
-- Acceptance-criteria mapping: not started.
-- Required next state: not started.
+- Status: requested after GPT passed the repaired Claude route.
+- Frozen GPT seals: implementation
+  `4cf6f50d69c5aa4937d181f758f546f9d2213c41`, first result
+  `e7c04111b7aec8c9dc5043883fcaa68cc158837b`, formal evidence
+  `63b84fd4295598c3e020d7e489552470ac1763c4`.
+- Request:
+  `docs/research_branches/FP-MART-001/codex/claude_verification_request.md`.
+- Reproduction or inspection performed: in progress.
+- Evidence: pending Claude report.
+- Acceptance-criteria mapping: pending Claude report.
+- Required next state: remain `VERIFYING` until Claude returns `PASS`, `FAIL`,
+  or `OBJECTION` with inspectable evidence.
 
 ## Definition of done
 
