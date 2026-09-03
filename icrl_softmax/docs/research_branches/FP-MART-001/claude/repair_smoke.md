@@ -54,15 +54,25 @@ python -B verify_visit_indexed_martingale_certificate.py
 python -B verify_fixed_policy_q_routes.py
 python -B verify_finite_sample_theorems.py
 python -B verify_crossfit_markov_certificate.py
+python -B verify_end_to_end_sarsa.py
 python -B verify_theory.py
 python -B evaluate_visit_indexed_certificates.py --tasks 2 --trajectory-lengths 256 1024 --n-states 6 --n-actions 4 --pi-mins 0.05 --betas 8.0 --mixing 0.08 0.5 --gap-bonuses 0.0 0.5 --gamma 0.7 --alpha 0.65 --iterations 160 --certificate-delta 0.05 --seed 20260829 --output-dir C:/Users/Admin/Desktop/research/icrl_softmax/results/FP-MART-001/claude/repair_smoke
 python -B analyze_visit_indexed_certificates.py --smoke --baseline-dir C:/Users/Admin/Desktop/research/icrl_softmax/results/fixed_policy_finite_sample_certificates --new-dir C:/Users/Admin/Desktop/research/icrl_softmax/results/FP-MART-001/claude/repair_smoke
 ```
 
+Timing disclosure: before the formal run, `verify_end_to_end_sarsa.py` was
+accidentally omitted from the verifier list, so only four of the five mandated
+verifiers were executed at that point. The full exact five (the four above plus
+`verify_end_to_end_sarsa.py`) were run only during the later evidence repair,
+after the formal seal `e3c3719`. `verify_theory.py` is additional only, not one
+of the mandated five. The complete outputs of all verifier runs, including the
+post-seal five-verifier rerun, are recorded in `checks.log`.
+
 ## Smoke result
 
-- Ruff: all checks passed. Five verifiers: all pass (27-test certificate contract
-  included; `verify_theory.py` exit 0).
+- Ruff: all checks passed. Five verifiers: all pass (27-test certificate
+  contract included), with the timing disclosure above;
+  `verify_theory.py` (additional) exit 0.
 - Analyzer smoke output: `compared_records 16`, `new_only_keys 0`,
   `mismatch_count 0`, `duplicate_record_keys 0`,
   `max_common_numeric_abs_difference 1.0459e-11`; final checks all true
@@ -88,12 +98,15 @@ could not be pinned to a source-code path and is recorded here as an open anomal
 It does not affect any gate (zero mismatches) and does not weaken certificates
 (certificate radii use the declared bound, which is conservative).
 
-## Raw-output hashes (repair_smoke)
+## Raw-output hashes (repair_smoke, seven files)
 
+- checks.log: 9a9a8aa35cfc3ab4fa4241dde935f5a8af6827212900120ad6f84536bbac26cf
+- commands.log: 414dc190fa92878e73fe79d646f961a4cb311bdfdc1f0e72f5db6b0b85d350d1
 - config.json: 67fe72e3d210890d1429091fcbe4a43de0593e39025e2c0b7f387de1c3ef13bf
 - environment.json: e4abe4ceb688d348cc715c17b1c0db89cefa88cad9cc4d8f7bb77fd5ba18b270
+- regression.json: 6627aced59195027fc949ad66cfe09ec8291472a3f5320cfede4cb9deac0c22e
+- summary.json: 74a984e4ebbfe0e5caf682e12787288e39b016cd5c25847f74e7707b7999d0c3
 - task_results.json: 27faedf6286b4f756cb869180c661a4c4bf176e3717ae4c86df9970b8a9236ee
-- commands.log: 414dc190fa92878e73fe79d646f961a4cb311bdfdc1f0e72f5db6b0b85d350d1
 
 ## Limitations
 

@@ -87,3 +87,76 @@ vfirst_nosplit_exact 0/0/0.2833/1.0; vfirst_nosplit_softmax
 6. Legacy config/task-record/176-summary-row preservation, strict JSON, schema/oracle-provenance separation, no baseline mutation: satisfied (0 mismatches, bit-identical).
 7. Both descriptive thresholds reported without selection: satisfied.
 8. Falsified statements corrected; historical first result preserved; new repair evidence written: satisfied.
+
+## Acceptance assessment (frozen task FP-MART-001, numbered 1-18)
+
+1. PASS. `theory.md` derives the sampling filtrations, visit stopping times,
+   measurability, martingale differences, conditional ranges, and the
+   optional-skipping step for all three residual families.
+2. PASS. The mandatory theorem gives one event over all `G = m + 2d` residual
+   groups and all `1 <= k <= n` with total failure probability at most `delta`,
+   via the compensated supermartingale `M_t = exp(lambda*S_t - lambda^2 B^2
+   J_{<t}/2)` with `E[M_n] <= 1` and pathwise `sum J <= k`.
+3. PASS. Random observed counts are substituted only through the simultaneous
+   event; no conditional-independence or fixed-count assumption (theory.md
+   Section 5; enforced by the 27/27 contract tests).
+4. PASS. The theorem and all outputs use the `selective_high_probability_certified`
+   emission semantics exactly; no prior full-support claim is made.
+5. PASS. Certificate functions accept no oracle model, occupancy, value,
+   residual, or true initial-error input; `declared_reward_bound = 1 +
+   gap_bonus` is declared before sampling and `B = declared/(1-gamma)` derived
+   in the pure module; the true max is read only post-construction inside
+   `oracle_audit.reward_declaration`, with `declaration_verified == True` on
+   all 480 formal records.
+6. PASS. Direct-Q all-layer and V-first no-split exact/softmax bounds compose
+   with the visit-indexed radii without changing the completed deterministic
+   recurrence; the formal run reproduces all legacy fields bit-identically
+   (max numeric difference 0.0).
+7. PASS. Required support, empirical margins, algorithm mode, risk budget, and
+   finite arithmetic are validated with deterministic ordered failures;
+   original-integer count, dimension, sum, and aggregation rejections are
+   tested, including the mandated counterexample `n=8, [200,200],
+   [100,100,100,100]`.
+8. PASS. New fields use the `visit_indexed_certificate` namespace and the
+   `selective_high_probability_certified` status; legacy status meanings are
+   unchanged (176-row summary regression, zero mismatches).
+9. PASS. All machine outputs are strict JSON (NaN/Infinity and duplicate-key
+   rejection), use `null` for unavailable values, and structurally separate
+   certificate inputs from `oracle_audit`; the schema/oracle-provenance audit
+   passes on smoke and formal outputs.
+10. PASS with disclosed timing anomaly. All five mandated verifiers
+    (`verify_visit_indexed_martingale_certificate.py`,
+    `verify_fixed_policy_q_routes.py`, `verify_finite_sample_theorems.py`,
+    `verify_crossfit_markov_certificate.py`, `verify_end_to_end_sarsa.py`) now
+    pass, but `verify_end_to_end_sarsa.py` was accidentally omitted before the
+    formal run; the full exact five were run only during the later evidence
+    repair, after formal seal `e3c3719`. `verify_theory.py` is additional only.
+    Complete outputs are in `checks.log`; see `repair_smoke.md`.
+11. PASS. The smoke strict-JSON, nonfinite, oracle-separation, and
+    legacy-regression gates did pass before the formal matrix began; the
+    anomaly in criterion 10 concerns verifier timing only, not these smoke
+    gates, which were satisfied at the required point.
+12. PASS. The formal result has exactly 480 records exactly matching the frozen
+    configuration and seed 20260829 (config/task-record regression passes).
+13. PASS. All legacy nonnumeric leaves match exactly; numeric leaves yield zero
+    mismatches under `math.isclose(rel_tol=1e-12, abs_tol=1e-12)` (formal max
+    difference 0.0; the smoke 1-ulp anomaly is within tolerance and disclosed).
+14. PASS. Exact-route emission is 100% at trajectory lengths 4096 and 16384;
+    all four rates (exact 0.025/0.85/1.0/1.0, softmax 0.025/0.6167/0.9583/1.0
+    at n=256/1024/4096/16384, both vfirst routes 0.025/0.85/1.0/1.0),
+    nontriviality rates, and deviations from 2.5%/85.0%/100%/100% are reported
+    without tuning.
+15. PASS. Every empirical audit violation would be reported with its
+    configuration; `audit_violations` and `per_group_residual_violations` are
+    empty across all 480 records, and no empirical coverage statistic is used
+    as proof.
+16. PASS. This route records exact commits (implementation seal `e034387`,
+    formal evidence seal `e3c3719`), environment (`environment.json`),
+    commands, raw-output hashes, anomalies, metrics, limitations, and numbered
+    acceptance assessments in `repair_smoke.md` and this file.
+17. PENDING. Reciprocal verification (GPT reproduces/verifies this route and
+    Claude reproduces/verifies the GPT route, each ending in `PASS`) has not
+    yet been completed.
+18. PENDING. The final synthesis explaining material route differences and the
+    `ACTIVE_WORKSPACE.md` update await the reciprocal verification and user
+    approval.
