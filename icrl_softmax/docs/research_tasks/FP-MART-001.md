@@ -4,7 +4,7 @@
 
 - Created: 2026-09-03
 - Author: GPT
-- Status: `ACTIVE`
+- Status: `VERIFYING`
 - Task version: `1.0`
 - Scientific code baseline: `b4b2769c9b92007c5d6a65a1789149cd55ebd633`
 - Task-definition baseline: `2c5f59b25e20fb6db86cb9b308288dc47dc230ca`
@@ -395,7 +395,13 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
   are now recorded, so reciprocal verification is authorized.
 - Initial GPT verification outcome: `FAIL` at commit
   `7555fdbd4d7bb794be880978f207a22519e7329b`; the task definition remains
-  valid and the Claude author repair is pending.
+  valid, so Claude author repair was authorized.
+- Repaired implementation/smoke seal:
+  `e0343871fd313c80f4f49ffa773db10eb75667d6`.
+- Repaired formal-evidence seal:
+  `e3c37197905e3ced080197dba989cdab36b4d4e8`.
+- The repaired Claude branch is clean and has returned to `VERIFYING` for GPT
+  reproduction; no repaired result is accepted solely from the self-report.
 
 ## Claude read-only pre-review
 
@@ -480,16 +486,16 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
 
 ## Quota or continuity handoff
 
-- Current branch, verification-report commit, and task version:
+- Current branch, initial verification-report commit, and task version:
   `codex/FP-MART-001`;
-  `7555fdbd4d7bb794be880978f207a22519e7329b`; task `1.0` returned to
-  `ACTIVE` for ordinary Claude author repair.
+  `7555fdbd4d7bb794be880978f207a22519e7329b`; task `1.0` in
+  `VERIFYING` after Claude author repair.
 - Completed, running, and pending work: both routes independently sealed first
   results, GPT sealed its formal evidence, and disclosure/reproduction began.
   GPT's initial verification of Claude returned `FAIL` without an objection.
-  Claude must repair its own route, rerun smoke and formal evidence in the
-  required commit order, and return for re-verification. Claude's verification
-  of GPT, final synthesis, and workspace update remain pending.
+  Claude then sealed repaired implementation/smoke and formal evidence in two
+  ordered commits. GPT re-verification is in progress. Claude's verification of
+  GPT, final synthesis, and workspace update remain pending.
 - Commands and outputs: exact GPT commands, environment, ignored-output hashes,
   anomalies, and metrics are in
   `docs/research_branches/FP-MART-001/codex/first_result.md`.
@@ -500,9 +506,8 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
 - Immutable boundaries: fixed scientific scope, hashes, 480-item protocol,
   risk semantics, route isolation, no oracle input, no tuning, and no `main`
   merge.
-- Claude's exact next actions: repair only its own allowed files according to
-  GPT's verification report, first commit the corrected implementation and
-  proof, then rerun/seal smoke and formal evidence in a second commit.
+- Claude's exact next actions: make no further author changes while GPT
+  reproduces the repaired route.
 - GPT's exact next actions: re-verify the repaired Claude route. Only after a
   `PASS` should Claude reproduce and verify the sealed GPT route and should GPT
   form the final synthesis.
