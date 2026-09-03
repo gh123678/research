@@ -4,7 +4,7 @@
 
 - Created: 2026-09-03
 - Author: GPT
-- Status: `ACTIVE`
+- Status: `VERIFYING`
 - Task version: `1.0`
 - Scientific code baseline: `b4b2769c9b92007c5d6a65a1789149cd55ebd633`
 - Task-definition baseline: `2c5f59b25e20fb6db86cb9b308288dc47dc230ca`
@@ -554,6 +554,23 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
   `docs/research_branches/FP-MART-001/codex/claude_evidence_repair_request.md`.
 - Required next state: remain `ACTIVE` for the narrow evidence repair, then
   return to `VERIFYING` without rerunning the formal matrix.
+
+#### GPT verifies Claude evidence repair
+
+- Status: `PASS` for Claude evidence-repair commit
+  `a559bd31769506565dd4503d8239d4a3f28ddf81`.
+- Scope check: exactly two Claude evidence documents changed; no Python or
+  formal raw-output file changed; branch clean; `git diff --check` passed.
+- Evidence closure: all seven repaired-smoke artifacts and hashes are now
+  recorded; Ruff and the exact five required verifiers pass; the post-formal
+  timing anomaly is explicitly preserved; a current numbered 1--18 acceptance
+  assessment is present.
+- Final GPT evidence:
+  `docs/research_branches/FP-MART-001/codex/verification_of_claude_evidence_repair.md`.
+- Reproduction basis: GPT's fresh 480-record output remains byte-identical to
+  Claude's deterministic formal core and every strict analyzer gate passes.
+- Required next state: `VERIFYING`; Claude must now independently reproduce and
+  verify the sealed GPT route.
 
 ### Claude verifies GPT
 
