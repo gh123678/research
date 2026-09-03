@@ -419,12 +419,13 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
 ## Claude execution-launch authorization
 
 - Date: 2026-09-03.
-- Status: `BLOCKED_BY_PERMISSION`; the Claude execution process did not start.
+- Status: `AUTHORIZED`; the user explicitly approved the task-scoped data
+  transfer and public-web source lookup on 2026-09-03.
 - Completed safe setup: the isolated worktree and branch
   `claude/FP-MART-001` were created at the common activation commit
   `c8ec7e5c3165930663e26a07f98b38cc9ec186ad`; both route worktrees were clean
   at that commit.
-- Blocker: the execution launch would send the designated private-repository
+- Prior blocker: the execution launch would send the designated private-repository
   research documents and code to the external model service used by local
   Claude Code and would permit source lookup on the public web. The standing
   authorization to launch local Claude does not, by itself, constitute explicit
@@ -432,10 +433,13 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
 - Safety outcome: the launch request was rejected before Claude read the
   execution materials or began proof, implementation, or experiments. No
   workaround was attempted.
-- Required user ruling: explicitly approve or decline sending the task-scoped
-  private-repository materials to the Claude service and allowing task-scoped
-  public-web lookup. Until then, neither independent route starts its first
-  result.
+- User ruling: `APPROVED`. The user explicitly replied “允许” after being told
+  that the execution would send FP-MART-001-scoped private-repository research
+  documents, code, and the three frozen baselines to the external Claude
+  service and would permit task-scoped public-web lookup of primary sources.
+- Remaining blocker: none. The authorization does not expand the frozen task,
+  permit reading the GPT route, or permit publishing, merging, messaging,
+  destructive actions, or new fee categories.
 
 ## Objections and user rulings
 
@@ -462,8 +466,8 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
   definition `2c5f59b`; task `1.0` in `ACTIVE`.
 - Completed, running, and pending work: design, plan, and complete DRAFT task
   are committed; Claude read-only pre-review returned `APPROVED`; isolated
-  worktree setup is complete; execution and all experiments remain pending on
-  the explicit data-transfer ruling recorded above.
+  worktree setup is complete; the explicit data-transfer ruling is approved;
+  execution and all experiments remain pending launch.
 - Commands and outputs: design/self-review evidence is in Git history; no
   research implementation or experiment has run.
 - Current findings and uncertainty: the visit-indexed Hoeffding route is the
@@ -475,11 +479,10 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
 - Claude's exact next actions: begin the independently constructed route only
   from the common activation commit, inside `claude/FP-MART-001` and the
   assigned worktree/result paths, without reading the GPT route's first result,
-  only after the required user authorization is recorded.
+  under the recorded task-scoped authorization.
 - GPT's required return verification: create and record the common activation
-  commit (completed as `c8ec7e5c`), obtain and record the data-transfer ruling,
-  then begin its independent route without reading the Claude route's first
-  result.
+  commit (completed as `c8ec7e5c`) and data-transfer ruling (approved), then
+  begin its independent route without reading the Claude route's first result.
 
 ## Verification reports
 
