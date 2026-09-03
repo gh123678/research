@@ -24,14 +24,16 @@ The two routes share state, pair, and edge-chain count/residual events. The requ
 
 ## Active research task
 
-- Task: `docs/research_tasks/FP-MART-001.md` (`REVIEW`).
+- Task: `docs/research_tasks/FP-MART-001.md` (`ACTIVE`).
 - Scientific code baseline: `b4b2769`.
 - Frozen task-definition baseline: `2c5f59b`.
 - GPT branch: `codex/FP-MART-001`.
-- Claude role at this gate: read-only pre-review; the execution branch and
-  worktree are created only after `APPROVED`.
-- Current blocker: none; implementation and experiments have not started.
-- Next action: Claude returns `APPROVED` or `OBJECTION` on the frozen task.
+- Claude role at this gate: independent construction on
+  `claude/FP-MART-001`, followed by independent verification of the GPT route.
+- Current blocker: none; Claude's read-only pre-review returned `APPROVED` and
+  implementation and experiments have not started.
+- Next action: create the common activation commit and isolated Claude worktree,
+  then begin both routes without disclosing either first result.
 - Design: `docs/superpowers/specs/2026-09-03-visit-indexed-martingale-certificate-design.md`.
 - Plan: `docs/superpowers/plans/2026-09-03-visit-indexed-martingale-certificate-plan.md`.
 

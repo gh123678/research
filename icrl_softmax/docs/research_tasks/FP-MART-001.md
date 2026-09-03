@@ -4,11 +4,13 @@
 
 - Created: 2026-09-03
 - Author: GPT
-- Status: `REVIEW`
+- Status: `ACTIVE`
 - Task version: `1.0`
 - Scientific code baseline: `b4b2769c9b92007c5d6a65a1789149cd55ebd633`
 - Task-definition baseline: `2c5f59b25e20fb6db86cb9b308288dc47dc230ca`
-- Execution-start commit: recorded only after Claude pre-review returns `APPROVED`
+- Execution-start commit: the `ACTIVE` activation commit containing the Claude
+  pre-review record below; its exact SHA is recorded before either route seals a
+  first-result commit
 - Design: `docs/superpowers/specs/2026-09-03-visit-indexed-martingale-certificate-design.md`
 - Plan: `docs/superpowers/plans/2026-09-03-visit-indexed-martingale-certificate-plan.md`
 - GPT branch and worktree: `codex/FP-MART-001` in the repository root
@@ -377,6 +379,43 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
 - Conclusion and limitations: preliminary until cross-verification.
 - Acceptance assessment: not started.
 
+## Claude read-only pre-review
+
+- Date: 2026-09-03.
+- Reviewed commit: `b386b62d4c6abf5aa7bb33e219e1af9fc55c93c1`.
+- Outcome: `APPROVED`.
+- Scope: task definition, design, implementation plan, shared fixed-policy
+  theory, existing certificate/evaluator/verifier feasibility, repository
+  state, and frozen baseline integrity. No implementation, experiment, branch
+  mutation, network access, or sealed-result inspection was authorized.
+- Repository checks: the worktree was clean on `codex/FP-MART-001`;
+  `git diff --check 2c5f59b..HEAD` passed; the only files changed between the
+  DRAFT baseline and REVIEW commit were this task record and
+  `ACTIVE_WORKSPACE.md`.
+- Frozen-input checks: the SHA-256 hashes of `config.json`,
+  `task_results.json`, and `summary.json` matched the three values frozen in
+  this task.
+- Itemized result: all 18 checks passed, covering falsifiability; the sampling
+  order and two filtration families; visit measurability and optional skipping;
+  `G = m + 2d` accounting; simultaneous-in-count substitution; selective
+  probability semantics; computable/oracle separation; mandatory and optional
+  risk allocation; positive and verified-negative paths; hashes, record count,
+  and tolerances; exact deliverables; lifecycle; common activation and isolated
+  worktrees/results; first-result nondisclosure; role boundaries; acceptance,
+  failure, and stopping criteria; resources; and executability without changing
+  the frozen contract.
+- Non-blocking cautions: derive the Hoeffding constant from the exact increment
+  range instead of copying the candidate radius; pin the exact centered state
+  Bellman residual before implementation; cite primary sources with their exact
+  assumptions; pre-register categories for explaining emission-rate deviations;
+  and use absolute canonical Windows paths for the Claude baseline and outputs.
+- Validity assessment: no blocking defect or task-level objection was found;
+  the five cautions are execution and verification checkpoints and require no
+  task-definition revision.
+- Session evidence: local Claude Code session
+  `cce80670-85d5-4fbe-8489-55100c444d51`, completed successfully within the
+  authorized read-only pre-review budget.
+
 ## Objections and user rulings
 
 ### Objection
@@ -399,9 +438,10 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
 ## Quota or continuity handoff
 
 - Current branch, commit, and task version: `codex/FP-MART-001`; frozen task
-  definition `2c5f59b`; task `1.0` in `REVIEW`.
+  definition `2c5f59b`; task `1.0` in `ACTIVE`.
 - Completed, running, and pending work: design, plan, and complete DRAFT task
-  are committed; Claude read-only pre-review and all execution remain pending.
+  are committed; Claude read-only pre-review returned `APPROVED`; isolated
+  execution and all experiments remain pending.
 - Commands and outputs: design/self-review evidence is in Git history; no
   research implementation or experiment has run.
 - Current findings and uncertainty: the visit-indexed Hoeffding route is the
@@ -410,10 +450,12 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
 - Immutable boundaries: fixed scientific scope, hashes, 480-item protocol,
   risk semantics, route isolation, no oracle input, no tuning, and no `main`
   merge.
-- Claude's exact next actions: perform only the read-only pre-review after the
-  task enters `REVIEW`.
-- GPT's required return verification: inspect and record the pre-review before
-  activating either route.
+- Claude's exact next actions: begin the independently constructed route only
+  from the common activation commit, inside `claude/FP-MART-001` and the
+  assigned worktree/result paths, without reading the GPT route's first result.
+- GPT's required return verification: create and record the common activation
+  commit, then begin its independent route without reading the Claude route's
+  first result.
 
 ## Verification reports
 
