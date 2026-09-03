@@ -8,9 +8,8 @@
 - Task version: `1.0`
 - Scientific code baseline: `b4b2769c9b92007c5d6a65a1789149cd55ebd633`
 - Task-definition baseline: `2c5f59b25e20fb6db86cb9b308288dc47dc230ca`
-- Execution-start commit: the `ACTIVE` activation commit containing the Claude
-  pre-review record below; its exact SHA is recorded before either route seals a
-  first-result commit
+- Execution-start commit:
+  `c8ec7e5c3165930663e26a07f98b38cc9ec186ad`
 - Design: `docs/superpowers/specs/2026-09-03-visit-indexed-martingale-certificate-design.md`
 - Plan: `docs/superpowers/plans/2026-09-03-visit-indexed-martingale-certificate-plan.md`
 - GPT branch and worktree: `codex/FP-MART-001` in the repository root
@@ -363,21 +362,32 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
 
 ### GPT route
 
-- Commit and environment: not started.
-- Commands: not started.
-- Outputs: not started.
-- Metrics and anomalies: not started.
-- Conclusion and limitations: preliminary until cross-verification.
-- Acceptance assessment: not started.
+- Implementation commit:
+  `4cf6f50d69c5aa4937d181f758f546f9d2213c41`.
+- Blind first-result seal commit:
+  `e7c04111b7aec8c9dc5043883fcaa68cc158837b`.
+- Environment, commands, output hashes, anomalies, smoke metrics, limitations,
+  and numbered acceptance assessment:
+  `docs/research_branches/FP-MART-001/codex/first_result.md`.
+- Smoke outcome: 16 records; all five preflight verifiers, Ruff, strict JSON,
+  complete matched-record regression, namespace audit, schema/oracle
+  separation, and empirical audit passed. Legacy mismatch count, namespace
+  problem count, schema problem count, and empirical violation count were all
+  zero.
+- Preliminary conclusion: positive mandatory construction; smoke emission was
+  support-selective but every emitted bound remained nontriviality-negative
+  under the preregistered `total_bound < B` metric.
+- Formal 480-record run: pending at the first-result seal.
+- Independence: no Claude theory, code, output, result, or conclusion was read
+  before the seal.
 
 ### Claude route
 
-- Commit and environment: not started.
-- Commands: not started.
-- Outputs: not started.
-- Metrics and anomalies: not started.
-- Conclusion and limitations: preliminary until cross-verification.
-- Acceptance assessment: not started.
+- Independent execution was launched from the common activation commit in the
+  isolated Claude worktree after the user's explicit data-transfer approval.
+- Commit, environment, commands, outputs, metrics, conclusion, and acceptance
+  assessment remain undisclosed to GPT until the two first-result seals permit
+  disclosure.
 
 ## Claude read-only pre-review
 
@@ -462,27 +472,28 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
 
 ## Quota or continuity handoff
 
-- Current branch, commit, and task version: `codex/FP-MART-001`; frozen task
-  definition `2c5f59b`; task `1.0` in `ACTIVE`.
-- Completed, running, and pending work: design, plan, and complete DRAFT task
-  are committed; Claude read-only pre-review returned `APPROVED`; isolated
-  worktree setup is complete; the explicit data-transfer ruling is approved;
-  execution and all experiments remain pending launch.
-- Commands and outputs: design/self-review evidence is in Git history; no
-  research implementation or experiment has run.
-- Current findings and uncertainty: the visit-indexed Hoeffding route is the
-  mandatory hypothesis; exact filtration constants and the optional
-  variance-adaptive result remain to be constructed independently.
+- Current branch, last sealed commit, and task version: `codex/FP-MART-001`;
+  `e7c04111b7aec8c9dc5043883fcaa68cc158837b`; task `1.0` in `ACTIVE`.
+- Completed, running, and pending work: GPT proof, implementation, verifier,
+  smoke run, and blind first-result seal are complete; Claude's independent
+  execution was launched but its work remains undisclosed; GPT formal run,
+  both formal seals, disclosure, and reciprocal verification remain pending.
+- Commands and outputs: exact GPT commands, environment, ignored-output hashes,
+  anomalies, and metrics are in
+  `docs/research_branches/FP-MART-001/codex/first_result.md`.
+- Current findings and uncertainty: GPT found a valid mandatory Hoeffding route
+  and no observable count-only variance proxy for the optional route. The smoke
+  certificates were empirically valid but not tighter than `B`; formal results
+  and independent agreement remain unknown.
 - Immutable boundaries: fixed scientific scope, hashes, 480-item protocol,
   risk semantics, route isolation, no oracle input, no tuning, and no `main`
   merge.
-- Claude's exact next actions: begin the independently constructed route only
-  from the common activation commit, inside `claude/FP-MART-001` and the
-  assigned worktree/result paths, without reading the GPT route's first result,
-  under the recorded task-scoped authorization.
-- GPT's required return verification: create and record the common activation
-  commit (completed as `c8ec7e5c`) and data-transfer ruling (approved), then
-  begin its independent route without reading the Claude route's first result.
+- Claude's exact next actions: complete and seal its independent route from the
+  common activation commit inside its assigned branch, worktree, and result
+  directory without reading GPT's first result.
+- GPT's exact next actions: run and seal the frozen 480-record formal matrix
+  without inspecting Claude content, then confirm Claude's seal identity and
+  begin reciprocal verification only after both seals exist.
 
 ## Verification reports
 
