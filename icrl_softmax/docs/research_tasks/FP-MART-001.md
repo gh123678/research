@@ -4,10 +4,10 @@
 
 - Created: 2026-09-03
 - Author: GPT
-- Status: `DRAFT`
-- Task version: `0.1`
+- Status: `REVIEW`
+- Task version: `1.0`
 - Scientific code baseline: `b4b2769c9b92007c5d6a65a1789149cd55ebd633`
-- Task-definition baseline: recorded when this complete DRAFT moves to `REVIEW`
+- Task-definition baseline: `2c5f59b25e20fb6db86cb9b308288dc47dc230ca`
 - Execution-start commit: recorded only after Claude pre-review returns `APPROVED`
 - Design: `docs/superpowers/specs/2026-09-03-visit-indexed-martingale-certificate-design.md`
 - Plan: `docs/superpowers/plans/2026-09-03-visit-indexed-martingale-certificate-plan.md`
@@ -398,10 +398,10 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
 
 ## Quota or continuity handoff
 
-- Current branch, commit, and task version: `codex/FP-MART-001`; DRAFT commit to
-  be recorded at the REVIEW transition; task `0.1`.
-- Completed, running, and pending work: design approved and committed; plan and
-  DRAFT task being recorded; pre-review and all execution remain pending.
+- Current branch, commit, and task version: `codex/FP-MART-001`; frozen task
+  definition `2c5f59b`; task `1.0` in `REVIEW`.
+- Completed, running, and pending work: design, plan, and complete DRAFT task
+  are committed; Claude read-only pre-review and all execution remain pending.
 - Commands and outputs: design/self-review evidence is in Git history; no
   research implementation or experiment has run.
 - Current findings and uncertainty: the visit-indexed Hoeffding route is the
