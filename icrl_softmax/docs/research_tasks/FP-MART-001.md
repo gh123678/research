@@ -4,7 +4,7 @@
 
 - Created: 2026-09-03
 - Author: GPT
-- Status: `VERIFYING`
+- Status: `VERIFIED`
 - Task version: `1.0`
 - Scientific code baseline: `b4b2769c9b92007c5d6a65a1789149cd55ebd633`
 - Task-definition baseline: `2c5f59b25e20fb6db86cb9b308288dc47dc230ca`
@@ -487,33 +487,30 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
   by instructing GPT to continue.
 - Required GPT task revision: none.
 
-## Quota or continuity handoff
+## Quota or continuity record
 
-- Current branch, initial verification-report commit, and task version:
-  `codex/FP-MART-001`;
-  `7555fdbd4d7bb794be880978f207a22519e7329b`; task `1.0` in
-  `VERIFYING` after Claude author repair.
-- Completed, running, and pending work: both routes independently sealed first
-  results, GPT sealed its formal evidence, and disclosure/reproduction began.
-  GPT's initial verification of Claude returned `FAIL` without an objection.
-  Claude then sealed repaired implementation/smoke and formal evidence in two
-  ordered commits. GPT re-verification is in progress. Claude's verification of
-  GPT, final synthesis, and workspace update remain pending.
+- Current branch and task version: `codex/FP-MART-001`; task `1.0`, status
+  `VERIFIED`.
+- Completed work: both routes independently sealed first results and formal
+  evidence. GPT's initial Claude verification exposed ordinary defects; Claude
+  repaired its own route and evidence. GPT then reproduced and passed the final
+  Claude route, Claude independently reproduced and passed the GPT route, and
+  GPT completed the shared theory, final report, and workspace update.
 - Commands and outputs: exact GPT commands, environment, ignored-output hashes,
   anomalies, and metrics are in
   `docs/research_branches/FP-MART-001/codex/first_result.md`.
-- Current findings and uncertainty: GPT found a valid mandatory Hoeffding route
-  and no observable count-only variance proxy for the optional route. The smoke
-  certificates were empirically valid but not tighter than `B`; formal results
-  and independent agreement remain unknown.
+- Current findings and uncertainty: the mandatory observed-count Hoeffding
+  route is verified. Primary-useful bounds occur only for V-first at length
+  16384 in this grid. No observable variance-adaptive constituent was
+  constructed; that remains an open construction problem rather than an
+  impossibility result.
 - Immutable boundaries: fixed scientific scope, hashes, 480-item protocol,
   risk semantics, route isolation, no oracle input, no tuning, and no `main`
   merge.
-- Claude's exact next actions: make no further author changes while GPT
-  reproduces the repaired route.
-- GPT's exact next actions: re-verify the repaired Claude route. Only after a
-  `PASS` should Claude reproduce and verify the sealed GPT route and should GPT
-  form the final synthesis.
+- Claude's exact next actions: none for this verified task.
+- GPT's exact next actions: preserve the verified state; do not merge to
+  `main` without explicit user approval. Any variance-adaptive continuation
+  requires a new frozen task.
 
 ## Verification reports
 
@@ -574,25 +571,52 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
 
 ### Claude verifies GPT
 
-- Status: requested after GPT passed the repaired Claude route.
+- Status: `PASS` at Claude commit
+  `5999b889a3336866b3eec7099f74080b9b253ce5`.
 - Frozen GPT seals: implementation
   `4cf6f50d69c5aa4937d181f758f546f9d2213c41`, first result
   `e7c04111b7aec8c9dc5043883fcaa68cc158837b`, formal evidence
   `63b84fd4295598c3e020d7e489552470ac1763c4`.
 - Request:
   `docs/research_branches/FP-MART-001/codex/claude_verification_request.md`.
-- Reproduction or inspection performed: in progress.
-- Evidence: pending Claude report.
-- Acceptance-criteria mapping: pending Claude report.
-- Required next state: remain `VERIFYING` until Claude returns `PASS`, `FAIL`,
-  or `OBJECTION` with inspectable evidence.
+- Reproduction or inspection performed: independent proof/code/history audit,
+  Ruff, all five verifiers, and a fresh frozen 480-record matrix plus strict
+  analyzer in the Claude-owned verification directory.
+- Evidence:
+  `docs/research_branches/FP-MART-001/claude/verification_of_codex.md`.
+- Acceptance-criteria mapping: criteria 1--17 `PASS`; criterion 18 was pending
+  this final synthesis and workspace update and is now satisfied.
+- Reproduction outcome: config, task records, and summary are byte-identical to
+  GPT; regression differs only in the isolated output-directory field; all
+  scientific metrics and gates agree.
+- Required next state: completed by final synthesis; task is `VERIFIED`.
+
+## Final synthesis
+
+- Shared verified theory:
+  `docs/research_branches/visit_indexed_martingale_certificate_theory.md`.
+- Shared verified report:
+  `docs/research_branches/visit_indexed_martingale_certificate_report.md`.
+- Mandatory outcome: positive. The observed-count Hoeffding event is valid and
+  composes with all four fixed-policy routes under selective emission.
+- Optional outcome: no valid observable variance-adaptive constituent was
+  constructed; this is not an impossibility theorem.
+- Route agreement: identical frozen protocol, radius constant, probability
+  semantics, emission rates, usefulness rates, and zero-violation audits.
+- Material route difference: equivalent stopped-process versus predictable
+  transform proof presentations and different software decomposition/schema;
+  all differences are reconciled in the shared report.
+- Governance outcome: no unresolved objection; both reciprocal verification
+  reports end `PASS`; `ACTIVE_WORKSPACE.md` is current; `main` is unchanged
+  pending explicit user approval.
 
 ## Definition of done
 
-- [ ] No unresolved objection remains.
-- [ ] Both independent routes are reproducible.
-- [ ] Both verification reports are recorded.
-- [ ] Every acceptance criterion has evidence.
-- [ ] Discrepancies are reconciled or ruled on by the user.
-- [ ] `ACTIVE_WORKSPACE.md` is current.
-- [ ] The user approved any merge into `main`.
+- [x] No unresolved objection remains.
+- [x] Both independent routes are reproducible.
+- [x] Both verification reports are recorded.
+- [x] Every acceptance criterion has evidence.
+- [x] Discrepancies are reconciled in the final synthesis.
+- [x] `ACTIVE_WORKSPACE.md` is current.
+- [x] `main` remains unchanged; any future merge still requires explicit user
+  approval.

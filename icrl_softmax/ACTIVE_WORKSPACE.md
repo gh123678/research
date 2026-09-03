@@ -2,14 +2,21 @@
 
 ## Current objective
 
-Status: completed and formally reproduced on 2026-08-31.
+Status: `FP-MART-001` verified by reciprocal reproduction on 2026-09-04.
 
-Close two finite-sample fixed-policy results on one frozen stationary trajectory:
+The current verified extension closes a visit-indexed martingale certificate
+for the two finite-sample fixed-policy routes on one frozen stationary
+trajectory:
 
 1. a uniform-in-layer Direct-Q bound from empirical contraction and the fixed residual at \(Q^\pi\);
 2. a same-trajectory V-first no-split bound using a fixed-\(V^\pi\) ghost recovery target and deterministic \(\gamma\)-Lipschitz stability.
 
-The two routes share state, pair, and edge-chain count/residual events. The required deliverables are explicit theorems, computable certificates, contract tests, and an updated comparison report. Fully online control, nonstationary starts, and general stochastic reward noise are outside the current scope.
+The certificate replaces unknown occupancy denominators by observed visit
+counts under the selective guarantee
+`P(Emit and bound violated) <= delta`. The mandatory Hoeffding route is
+verified; no observable variance-adaptive constituent was established. Fully
+online control, nonstationary starts, and general stochastic reward noise
+remain outside scope.
 
 ## Research governance
 
@@ -24,19 +31,18 @@ The two routes share state, pair, and edge-chain count/residual events. The requ
 
 ## Active research task
 
-- Task: `docs/research_tasks/FP-MART-001.md` (`ACTIVE`).
+- Task: `docs/research_tasks/FP-MART-001.md` (`VERIFIED`).
 - Scientific code baseline: `b4b2769`.
 - Frozen task-definition baseline: `2c5f59b`.
 - GPT branch: `codex/FP-MART-001`.
-- Claude role at this gate: independent construction on
-  `claude/FP-MART-001`, followed by independent verification of the GPT route.
-- Current blocker: none. Claude's read-only pre-review returned `APPROVED`, the
-  common activation commit plus isolated worktree exist, and the user explicitly
-  authorized task-scoped private-repository processing by the external Claude
-  service plus public-web source lookup. No implementation or experiment has
-  started.
-- Next action: start both routes from activation commit `c8ec7e5c` without
-  disclosing either first result.
+- Claude role: independent construction on `claude/FP-MART-001` and independent
+  verification of the GPT route, completed with `PASS` at `5999b889`.
+- Current blocker: none. GPT's final verification of the repaired Claude route
+  and Claude's verification of the GPT route both returned `PASS`; all 480
+  records were independently reproduced.
+- Next action: user review of the verified report and, only if explicitly
+  approved, merge planning for `main`; otherwise open a new frozen task for a
+  less conservative observable boundary.
 - Design: `docs/superpowers/specs/2026-09-03-visit-indexed-martingale-certificate-design.md`.
 - Plan: `docs/superpowers/plans/2026-09-03-visit-indexed-martingale-certificate-plan.md`.
 
@@ -52,6 +58,10 @@ The two routes share state, pair, and edge-chain count/residual events. The requ
 - `verify_crossfit_markov_certificate.py`
 - `evaluate_blockwise_q_routes.py`
 - `mdps.py`
+- `visit_indexed_martingale_certificate.py`
+- `evaluate_visit_indexed_certificates.py`
+- `analyze_visit_indexed_certificates.py`
+- `verify_visit_indexed_martingale_certificate.py`
 
 ## Active evidence
 
@@ -67,10 +77,16 @@ The two routes share state, pair, and edge-chain count/residual events. The requ
 - `results/fixed_policy_q_routes_crossfit/`
 - `results/fixed_policy_finite_sample_certificates/`
 - `results/blockwise_q_routes/`
+- `docs/research_branches/visit_indexed_martingale_certificate_theory.md`
+- `docs/research_branches/visit_indexed_martingale_certificate_report.md`
+- `results/FP-MART-001/codex/`
+- `results/FP-MART-001/claude/`
 
-The new formal directory contains 480 same-seed comparisons, strict-JSON
-route certificates, a zero-mismatch regression against the old 10 routes,
-certificate/failure summaries, and exact-versus-softmax paired analysis.
+Each independent formal route contains 480 same-seed comparisons, strict-JSON
+route certificates, zero-mismatch legacy regression, certificate/failure
+summaries, exact/softmax analysis, and complete execution evidence. Exact
+emission is 2.5%/85%/100%/100%; primary usefulness (`total_bound < B`) appears
+only at length 16384 for V-first exact (40%) and V-first softmax (3.33%).
 
 ## Historical archive
 
