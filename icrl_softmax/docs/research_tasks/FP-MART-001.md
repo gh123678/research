@@ -4,7 +4,7 @@
 
 - Created: 2026-09-03
 - Author: GPT
-- Status: `ACTIVE`
+- Status: `VERIFYING`
 - Task version: `1.0`
 - Scientific code baseline: `b4b2769c9b92007c5d6a65a1789149cd55ebd633`
 - Task-definition baseline: `2c5f59b25e20fb6db86cb9b308288dc47dc230ca`
@@ -377,7 +377,10 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
 - Preliminary conclusion: positive mandatory construction; smoke emission was
   support-selective but every emitted bound remained nontriviality-negative
   under the preregistered `total_bound < B` metric.
-- Formal 480-record run: pending at the first-result seal.
+- Formal 480-record result and exact hashes:
+  `docs/research_branches/FP-MART-001/codex/formal_result.md`.
+- Formal-evidence seal commit:
+  `63b84fd4295598c3e020d7e489552470ac1763c4`.
 - Independence: no Claude theory, code, output, result, or conclusion was read
   before the seal.
 
@@ -385,9 +388,11 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
 
 - Independent execution was launched from the common activation commit in the
   isolated Claude worktree after the user's explicit data-transfer approval.
-- Commit, environment, commands, outputs, metrics, conclusion, and acceptance
-  assessment remain undisclosed to GPT until the two first-result seals permit
-  disclosure.
+- Blind first-result seal commit:
+  `c5da2430d00e11414723d85cf42293dddae07183`.
+- The Claude branch was clean at its seal. Its content remained undisclosed
+  until after GPT's first-result and formal-evidence seals; both seal identities
+  are now recorded, so reciprocal verification is authorized.
 
 ## Claude read-only pre-review
 
@@ -472,12 +477,13 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
 
 ## Quota or continuity handoff
 
-- Current branch, last sealed commit, and task version: `codex/FP-MART-001`;
-  `e7c04111b7aec8c9dc5043883fcaa68cc158837b`; task `1.0` in `ACTIVE`.
-- Completed, running, and pending work: GPT proof, implementation, verifier,
-  smoke run, and blind first-result seal are complete; Claude's independent
-  execution was launched but its work remains undisclosed; GPT formal run,
-  both formal seals, disclosure, and reciprocal verification remain pending.
+- Current branch, last sealed evidence commit, and task version:
+  `codex/FP-MART-001`;
+  `63b84fd4295598c3e020d7e489552470ac1763c4`; task `1.0` in `VERIFYING`.
+- Completed, running, and pending work: both routes independently sealed first
+  results from the common activation commit; GPT also sealed its formal 480-
+  record evidence. Disclosure is now permitted. Reciprocal reproduction,
+  difference resolution, final synthesis, and workspace update remain pending.
 - Commands and outputs: exact GPT commands, environment, ignored-output hashes,
   anomalies, and metrics are in
   `docs/research_branches/FP-MART-001/codex/first_result.md`.
@@ -488,12 +494,11 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
 - Immutable boundaries: fixed scientific scope, hashes, 480-item protocol,
   risk semantics, route isolation, no oracle input, no tuning, and no `main`
   merge.
-- Claude's exact next actions: complete and seal its independent route from the
-  common activation commit inside its assigned branch, worktree, and result
-  directory without reading GPT's first result.
-- GPT's exact next actions: run and seal the frozen 480-record formal matrix
-  without inspecting Claude content, then confirm Claude's seal identity and
-  begin reciprocal verification only after both seals exist.
+- Claude's exact next actions: reproduce and verify the sealed GPT route without
+  editing it, then record `PASS`, `FAIL`, or `OBJECTION` on the Claude branch.
+- GPT's exact next actions: reproduce and verify the sealed Claude route without
+  editing it, record `PASS`, `FAIL`, or `OBJECTION`, and reconcile all material
+  route differences.
 
 ## Verification reports
 
