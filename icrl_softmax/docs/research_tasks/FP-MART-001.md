@@ -593,6 +593,8 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
 
 ## Final synthesis
 
+- Final synthesis and workspace-update commit:
+  `0f5f822dc62b31cda608ea21c96b2e53fe6e3f45`.
 - Shared verified theory:
   `docs/research_branches/visit_indexed_martingale_certificate_theory.md`.
 - Shared verified report:
