@@ -4,7 +4,7 @@
 
 - Created: 2026-09-03
 - Author: GPT
-- Status: `VERIFYING`
+- Status: `ACTIVE`
 - Task version: `1.0`
 - Scientific code baseline: `b4b2769c9b92007c5d6a65a1789149cd55ebd633`
 - Task-definition baseline: `2c5f59b25e20fb6db86cb9b308288dc47dc230ca`
@@ -393,6 +393,9 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
 - The Claude branch was clean at its seal. Its content remained undisclosed
   until after GPT's first-result and formal-evidence seals; both seal identities
   are now recorded, so reciprocal verification is authorized.
+- Initial GPT verification outcome: `FAIL` at commit
+  `7555fdbd4d7bb794be880978f207a22519e7329b`; the task definition remains
+  valid and the Claude author repair is pending.
 
 ## Claude read-only pre-review
 
@@ -477,13 +480,16 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
 
 ## Quota or continuity handoff
 
-- Current branch, last sealed evidence commit, and task version:
+- Current branch, verification-report commit, and task version:
   `codex/FP-MART-001`;
-  `63b84fd4295598c3e020d7e489552470ac1763c4`; task `1.0` in `VERIFYING`.
+  `7555fdbd4d7bb794be880978f207a22519e7329b`; task `1.0` returned to
+  `ACTIVE` for ordinary Claude author repair.
 - Completed, running, and pending work: both routes independently sealed first
-  results from the common activation commit; GPT also sealed its formal 480-
-  record evidence. Disclosure is now permitted. Reciprocal reproduction,
-  difference resolution, final synthesis, and workspace update remain pending.
+  results, GPT sealed its formal evidence, and disclosure/reproduction began.
+  GPT's initial verification of Claude returned `FAIL` without an objection.
+  Claude must repair its own route, rerun smoke and formal evidence in the
+  required commit order, and return for re-verification. Claude's verification
+  of GPT, final synthesis, and workspace update remain pending.
 - Commands and outputs: exact GPT commands, environment, ignored-output hashes,
   anomalies, and metrics are in
   `docs/research_branches/FP-MART-001/codex/first_result.md`.
@@ -494,21 +500,34 @@ reproduces the other route without editing it and records `PASS`, `FAIL`, or
 - Immutable boundaries: fixed scientific scope, hashes, 480-item protocol,
   risk semantics, route isolation, no oracle input, no tuning, and no `main`
   merge.
-- Claude's exact next actions: reproduce and verify the sealed GPT route without
-  editing it, then record `PASS`, `FAIL`, or `OBJECTION` on the Claude branch.
-- GPT's exact next actions: reproduce and verify the sealed Claude route without
-  editing it, record `PASS`, `FAIL`, or `OBJECTION`, and reconcile all material
-  route differences.
+- Claude's exact next actions: repair only its own allowed files according to
+  GPT's verification report, first commit the corrected implementation and
+  proof, then rerun/seal smoke and formal evidence in a second commit.
+- GPT's exact next actions: re-verify the repaired Claude route. Only after a
+  `PASS` should Claude reproduce and verify the sealed GPT route and should GPT
+  form the final synthesis.
 
 ## Verification reports
 
 ### GPT verifies Claude
 
-- Status: not started.
-- Reproduction or inspection performed: not started.
-- Evidence: not started.
-- Acceptance-criteria mapping: not started.
-- Required next state: not started.
+- Status: `FAIL` for sealed Claude commit
+  `c5da2430d00e11414723d85cf42293dddae07183`; ordinary repair, not
+  `OBJECTION`.
+- Reproduction or inspection performed: all five verifiers and Ruff passed;
+  the complete 480-record Claude output reproduced byte-identically for the
+  deterministic core files; proof, code, schema, smoke, history, and ignored
+  outputs were independently inspected.
+- Evidence and full acceptance mapping:
+  `docs/research_branches/FP-MART-001/codex/verification_of_claude.md`, commit
+  `7555fdbd4d7bb794be880978f207a22519e7329b`.
+- Blocking findings: an invalid written MGF iteration; true `mdp["R"]` maximum
+  used as certificate `B`; out-of-horizon and inconsistent counts can emit;
+  only 4/16 smoke records align while the gate passes; config/summary and
+  per-group oracle audits are incomplete; and no pre-formal implementation
+  seal or raw-output hashes exist.
+- Required next state: `ACTIVE` for Claude author repair, then return to
+  `VERIFYING` for GPT re-verification.
 
 ### Claude verifies GPT
 
