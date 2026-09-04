@@ -487,6 +487,22 @@ evidence.
   ruling does not authorize scope changes, external publication or messaging,
   unsafe permission bypass, merge, or a new fee category.
 
+### Independent-execution authorization
+
+- Date: 2026-09-05.
+- Status: `AUTHORIZED`.
+- User ruling: after being told that Claude's independent route would send the
+  task-scoped private code, frozen baseline, task, design, plan, and prior
+  verified theory to the external Claude service, the user replied “好的”.
+- Scope: Claude may independently construct the proof, tests, implementation,
+  smoke evidence, and one frozen formal result in its assigned branch,
+  worktree, evidence directory, and canonical result directory. It may perform
+  task-scoped read-only primary-source lookup.
+- Exclusions: no access to GPT's first result before both seals, no task
+  redefinition, no write outside Claude-owned paths, no external publication
+  or messaging, no merge, no unsafe permission bypass, and no new fee
+  category.
+
 ## Objections and user rulings
 
 ### Objection
@@ -515,10 +531,10 @@ evidence.
 
 ### Claude route
 
-- Status: `WORKTREE_READY_EXECUTION_NOT_STARTED`; isolated worktree
+- Status: `EXECUTION_AUTHORIZED_NOT_STARTED`; isolated worktree
   `C:\tmp\research-FP-TU-001-claude` and branch `claude/FP-TU-001` are clean at
-  `0ce18b4676f70ca0556496e804aa65563efa63da`. No implementation or
-  execution-bundle transfer has started yet.
+  `0ce18b4676f70ca0556496e804aa65563efa63da`. No implementation has started
+  yet.
 
 ## Verification reports
 

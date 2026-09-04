@@ -40,13 +40,11 @@ constants, and post-hoc certificate selection remain outside scope.
 - GPT branch: `codex/FP-TU-001`.
 - Claude role: read-only pre-review completed with `APPROVED`; next,
   independent construction on `claude/FP-TU-001` and reciprocal verification.
-- Current blocker: none for activation. Baseline hashes, REVIEW scope, and
-  both old-radius interpretations were independently checked. A separate
-  explicit data-transfer authorization is still required before Claude's
-  independent execution bundle is sent.
-- Next action: record the clean isolated worktrees, obtain explicit
-  authorization for Claude's broader execution bundle, and then begin both
-  blind independent routes from the common activation commit.
+- Current blocker: none. Baseline hashes, REVIEW scope, and both old-radius
+  interpretations were independently checked, and the user authorized the
+  task-scoped Claude execution data transfer on 2026-09-05.
+- Next action: begin both blind independent routes from the common activation
+  commit and seal each first result before disclosure.
 - Design:
   `docs/superpowers/specs/2026-09-04-time-uniform-mixture-certificate-design.md`.
 - Plan:
