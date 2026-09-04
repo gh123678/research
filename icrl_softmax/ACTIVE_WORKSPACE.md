@@ -2,21 +2,21 @@
 
 ## Current objective
 
-Status: `FP-MART-001` verified by reciprocal reproduction on 2026-09-04.
+Status: `FP-TU-001` is in `REVIEW`; implementation has not started.
 
-The current verified extension closes a visit-indexed martingale certificate
-for the two finite-sample fixed-policy routes on one frozen stationary
-trajectory:
+The current task asks whether a preregistered finite geometric mixture of
+exponential supermartingales can replace the verified count-wise Hoeffding
+union while preserving the same fixed-policy assumptions, no-oracle inputs,
+selective probability statement, and deterministic route recurrences.
 
-1. a uniform-in-layer Direct-Q bound from empirical contraction and the fixed residual at \(Q^\pi\);
-2. a same-trajectory V-first no-split bound using a fixed-\(V^\pi\) ghost recovery target and deterministic \(\gamma\)-Lipschitz stability.
+The mandatory target is a time-uniform mixture radius no wider than the old
+radius for every count through 16384. Analytic line stitching is audit-only;
+observable transition variance is feasibility-only. The frozen 480-record
+protocol is retained for paired evaluation after activation.
 
-The certificate replaces unknown occupancy denominators by observed visit
-counts under the selective guarantee
-`P(Emit and bound violated) <= delta`. The mandatory Hoeffding route is
-verified; no observable variance-adaptive constituent was established. Fully
-online control, nonstationary starts, and general stochastic reward noise
-remain outside scope.
+`FP-MART-001` remains the verified scientific baseline. Fully online control,
+nonstationary starts, general stochastic reward noise, outcome-tuned mixture
+constants, and post-hoc certificate selection remain outside scope.
 
 ## Research governance
 
@@ -31,20 +31,22 @@ remain outside scope.
 
 ## Active research task
 
-- Task: `docs/research_tasks/FP-MART-001.md` (`VERIFIED`).
-- Scientific code baseline: `b4b2769`.
-- Frozen task-definition baseline: `2c5f59b`.
-- GPT branch: `codex/FP-MART-001`.
-- Claude role: independent construction on `claude/FP-MART-001` and independent
-  verification of the GPT route, completed with `PASS` at `5999b889`.
-- Current blocker: none. GPT's final verification of the repaired Claude route
-  and Claude's verification of the GPT route both returned `PASS`; all 480
-  records were independently reproduced.
-- Next action: user review of the verified report and, only if explicitly
-  approved, merge planning for `main`; otherwise open a new frozen task for a
-  less conservative observable boundary.
-- Design: `docs/superpowers/specs/2026-09-03-visit-indexed-martingale-certificate-design.md`.
-- Plan: `docs/superpowers/plans/2026-09-03-visit-indexed-martingale-certificate-plan.md`.
+- Task: `docs/research_tasks/FP-TU-001.md` (`REVIEW`).
+- Scientific baseline: `28b71685ca05ae073cc847fdea230019e4bd63ea`.
+- Frozen task-definition baseline:
+  `0a66c4c583678e3186af7c5dbcff02779436329c`.
+- GPT branch: `codex/FP-TU-001`.
+- Claude role: pending read-only pre-review; after approval, independent
+  construction on `claude/FP-TU-001` and reciprocal verification.
+- Current blocker: no scientific objection; implementation is gated on Claude
+  returning `APPROVED` for the frozen task.
+- Next action: commit the `REVIEW` pointer, run Claude's read-only pre-review,
+  and either record `OBJECTION` or activate from one common commit.
+- Design:
+  `docs/superpowers/specs/2026-09-04-time-uniform-mixture-certificate-design.md`.
+- Plan:
+  `docs/superpowers/plans/2026-09-04-time-uniform-mixture-certificate-plan.md`.
+- Prior verified task: `docs/research_tasks/FP-MART-001.md` (`VERIFIED`).
 
 ## Active implementation
 
@@ -81,6 +83,9 @@ remain outside scope.
 - `docs/research_branches/visit_indexed_martingale_certificate_report.md`
 - `results/FP-MART-001/codex/`
 - `results/FP-MART-001/claude/`
+- `docs/superpowers/specs/2026-09-04-time-uniform-mixture-certificate-design.md`
+- `docs/superpowers/plans/2026-09-04-time-uniform-mixture-certificate-plan.md`
+- `docs/research_tasks/FP-TU-001.md`
 
 Each independent formal route contains 480 same-seed comparisons, strict-JSON
 route certificates, zero-mismatch legacy regression, certificate/failure

@@ -4,13 +4,14 @@
 
 - Created: 2026-09-04.
 - Author: GPT.
-- Status: `DRAFT`.
+- Status: `REVIEW`.
 - Task version: `1.0`.
 - Scientific baseline:
   `28b71685ca05ae073cc847fdea230019e4bd63ea`.
 - Approved design commit:
   `0c0c63dd8defbb606dc6f51190d914e33c9da526`.
-- Task-definition baseline: `PENDING_DRAFT_COMMIT`.
+- Task-definition baseline:
+  `0a66c4c583678e3186af7c5dbcff02779436329c`.
 - Execution-start commit: `PENDING_REVIEW_AND_ACTIVATION`.
 - Design:
   `docs/superpowers/specs/2026-09-04-time-uniform-mixture-certificate-design.md`.
@@ -401,8 +402,8 @@ evidence.
 
 ## Claude read-only pre-review
 
-- Status: `PENDING`.
-- Reviewed commit: `PENDING`.
+- Status: `PENDING_REVIEW_COMMIT`.
+- Reviewed commit: `PENDING_REVIEW_COMMIT`.
 - Outcome: `PENDING`.
 - Required response: `APPROVED` with criterion-by-criterion checks, or
   `OBJECTION` with disputed clause, evidence, validity impact, and user ruling
