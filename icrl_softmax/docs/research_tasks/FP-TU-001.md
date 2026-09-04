@@ -4,7 +4,7 @@
 
 - Created: 2026-09-04.
 - Author: GPT.
-- Status: `REVIEW`.
+- Status: `ACTIVE`.
 - Task version: `1.0`.
 - Scientific baseline:
   `28b71685ca05ae073cc847fdea230019e4bd63ea`.
@@ -12,7 +12,9 @@
   `0c0c63dd8defbb606dc6f51190d914e33c9da526`.
 - Task-definition baseline:
   `0a66c4c583678e3186af7c5dbcff02779436329c`.
-- Execution-start commit: `PENDING_REVIEW_AND_ACTIVATION`.
+- Execution-start commit: the `ACTIVE` activation commit containing the Claude
+  pre-review record below; its exact SHA is recorded before either route seals
+  a first-result commit.
 - Design:
   `docs/superpowers/specs/2026-09-04-time-uniform-mixture-certificate-design.md`.
 - Plan:
@@ -54,8 +56,13 @@ outputs?
    line-stitching upper bracket, with no oracle input or outcome-dependent
    tuning.
 4. For the frozen dimensions and risk budget, the resulting radius satisfies
-   `r_mix(k) <= r_old(k)` for every integer `1 <= k <= 16384`, with at least one
-   strict inequality, and is nonincreasing over that range.
+   `r_mix(k) <= r_old(k; n)` for every frozen trajectory length `n` and every
+   integer `1 <= k <= n`, with at least one strict inequality, and is
+   nonincreasing through 16384. Here
+   `r_old(k; n) = B sqrt(2 log(2 G n/delta)/k)` is exactly the legacy radius
+   used by each record. The design's global `n_max = 16384` comparison remains
+   a separate formula audit, not a substitute for this stricter per-record
+   preservation check.
 5. Replacing only the residual-radius primitive preserves every deterministic
    emission decision and makes every emitted Direct-Q and V-first exact or
    finite-softmax total bound nonincreasing.
@@ -299,8 +306,9 @@ cannot replace it.
    only from the declared pre-sampling reward bound.
 6. Every count `1 <= k <= 16384` passes stable inversion, conservative-root,
    finiteness, `q_mix <= q_stitch`, and mixture-radius monotonicity checks.
-7. `r_mix(k) <= r_old(k)` holds for every frozen count, with at least one
-   strict inequality.
+7. For every `n` in `{256, 1024, 4096, 16384}` and every `1 <= k <= n`,
+   `r_mix(k) <= r_old(k; n)` holds with at least one strict inequality overall;
+   the separate global-`n_max` design audit also passes through 16384.
 8. Direct-Q and V-first no-split exact/softmax composition uses the unchanged
    deterministic recurrences; every old emitted total bound is nonincreasing.
 9. Required support, relevant empirical margins, fixed-context mode, risk,
@@ -402,12 +410,83 @@ evidence.
 
 ## Claude read-only pre-review
 
-- Status: `PENDING_REVIEW_COMMIT`.
-- Reviewed commit: `PENDING_REVIEW_COMMIT`.
-- Outcome: `PENDING`.
-- Required response: `APPROVED` with criterion-by-criterion checks, or
-  `OBJECTION` with disputed clause, evidence, validity impact, and user ruling
-  options.
+- Date: 2026-09-05.
+- Status: `COMPLETED`.
+- Reviewed commit: `b63557fff5f98f71228ad9ad66a345bbc7b45883`.
+- Outcome: `APPROVED`.
+- Tool boundary: local Claude Code 2.1.138, `plan` permission mode, and only
+  `Read`, `Glob`, and `Grep`; no write/edit tool, Git mutation, experiment, or
+  future route result was available.
+- Session evidence: the first two non-TTY invocations returned no auditable
+  text and were rejected as review evidence. A terminal-mode retry completed
+  with exit code 0 in Codex terminal session 31798 and returned the approval
+  below.
+- Itemized result:
+  1. lifecycle, task version, DRAFT/REVIEW commits, design identity, workspace
+     pointer, and user ruling are consistent;
+  2. the exponential-supermartingale constant matches the conditional width
+     already verified by `FP-MART-001`;
+  3. the cosh mixture starts at one and allocates exactly `delta/G` per group,
+     while the factor two in `L_j` belongs to the signed line audit;
+  4. the displayed `cosh` inequality proves
+     `M(k,q_stitch(k)) >= G/delta`, and `M(k,0) < G/delta`;
+  5. continuity and strict increase give a unique root, while the maintained
+     upper endpoint makes the bisection result conservative;
+  6. all-count dominance is coherent, falsifiable, and design-time feasible;
+  7. radius monotonicity is an exhaustive, falsifiable numerical contract;
+  8. the no-oracle interface is compatible with the verified visit-indexed
+     certificate structure;
+  9. existing route recurrences are monotone in the radius and their emission
+     gates do not depend on the radius value;
+  10. selective probability semantics and random-count substitution are
+      preserved exactly;
+  11. the three frozen baseline files exist, contain the expected protocol,
+      and are appropriate for new legacy regression;
+  12. branch, worktree, result, evidence, and nondisclosure boundaries satisfy
+      the governance rules;
+  13. all 20 acceptance items plus failure, stopping, positive, and negative
+      tracks are testable and complete;
+  14. the frozen formal command, existing helpers, six-verifier preflight, and
+      seven core result artifacts are executable; and
+  15. transition variance is safely isolated as feasibility-only work.
+- Non-blocking cautions recorded for execution:
+  1. GPT must independently verify baseline hashes, clean status, and REVIEW
+     changed paths before activation;
+  2. distinguish the design's global `n_max = 16384` audit from the legacy
+     per-record trajectory-length radius;
+  3. the new namespace audit must allow only
+     `time_uniform_certificate`, treating `visit_indexed_certificate` as
+     legacy;
+  4. preflight must contain all five existing verifiers plus the new one;
+  5. both routes must recompute, not cite, the design-time ratio values; and
+  6. bisection must maintain its bracket invariant and satisfy both stopping
+     tests within 200 iterations.
+- GPT closure of cautions 1--2 before activation:
+  - `git diff --check` passed from the DRAFT baseline to the REVIEW commit; the
+    only changed files were `ACTIVE_WORKSPACE.md` and this task;
+  - all three SHA-256 hashes exactly matched the frozen values and the task
+    record count remained 480;
+  - exhaustive formula checks gave maximum per-record radius ratios of
+    `0.9573574`, `0.9263356`, `0.8975201`, and `0.8793887` for trajectory
+    lengths 256, 1024, 4096, and 16384 respectively, always below one; and
+  - the task now states the stricter per-record interpretation explicitly.
+- Validity assessment: no blocking defect or task-level objection. The six
+  cautions are implementation/verification checkpoints and require no change
+  to the approved formulas, risk budget, protocol, or route allocation.
+
+## Claude data-transfer authorization
+
+- Date: 2026-09-05.
+- Status: `AUTHORIZED`.
+- User ruling: after being told that the designated `FP-TU-001` private task,
+  design, plan, prior verified theory, and relevant code would be sent to the
+  external Claude service for read-only pre-review, the user replied
+  “允许”.
+- Scope: this authorization covers only the task-scoped read-only pre-review.
+  The later independent Claude construction would send a broader execution
+  bundle and requires a separate explicit data-transfer authorization. This
+  ruling does not authorize scope changes, external publication or messaging,
+  unsafe permission bypass, merge, or a new fee category.
 
 ## Objections and user rulings
 
@@ -436,7 +515,8 @@ evidence.
 
 ### Claude route
 
-- Status: `NOT_STARTED_BEFORE_ACTIVATION`.
+- Status: `PRE_REVIEW_APPROVED_EXECUTION_NOT_STARTED`; no implementation or
+  execution-bundle transfer has started yet.
 
 ## Verification reports
 

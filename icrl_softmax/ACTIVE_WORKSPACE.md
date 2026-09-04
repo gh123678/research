@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Status: `FP-TU-001` is in `REVIEW`; implementation has not started.
+Status: `FP-TU-001` is `ACTIVE` after Claude's read-only `APPROVED` pre-review.
 
 The current task asks whether a preregistered finite geometric mixture of
 exponential supermartingales can replace the verified count-wise Hoeffding
@@ -31,17 +31,20 @@ constants, and post-hoc certificate selection remain outside scope.
 
 ## Active research task
 
-- Task: `docs/research_tasks/FP-TU-001.md` (`REVIEW`).
+- Task: `docs/research_tasks/FP-TU-001.md` (`ACTIVE`).
 - Scientific baseline: `28b71685ca05ae073cc847fdea230019e4bd63ea`.
 - Frozen task-definition baseline:
   `0a66c4c583678e3186af7c5dbcff02779436329c`.
 - GPT branch: `codex/FP-TU-001`.
-- Claude role: pending read-only pre-review; after approval, independent
-  construction on `claude/FP-TU-001` and reciprocal verification.
-- Current blocker: no scientific objection; implementation is gated on Claude
-  returning `APPROVED` for the frozen task.
-- Next action: commit the `REVIEW` pointer, run Claude's read-only pre-review,
-  and either record `OBJECTION` or activate from one common commit.
+- Claude role: read-only pre-review completed with `APPROVED`; next,
+  independent construction on `claude/FP-TU-001` and reciprocal verification.
+- Current blocker: none for activation. Baseline hashes, REVIEW scope, and
+  both old-radius interpretations were independently checked. A separate
+  explicit data-transfer authorization is still required before Claude's
+  independent execution bundle is sent.
+- Next action: commit this activation record, create the isolated Claude
+  worktree from that commit, begin GPT's blind route, and obtain explicit
+  authorization before sending Claude's independent execution bundle.
 - Design:
   `docs/superpowers/specs/2026-09-04-time-uniform-mixture-certificate-design.md`.
 - Plan:
