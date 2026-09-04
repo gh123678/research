@@ -12,9 +12,8 @@
   `0c0c63dd8defbb606dc6f51190d914e33c9da526`.
 - Task-definition baseline:
   `0a66c4c583678e3186af7c5dbcff02779436329c`.
-- Execution-start commit: the `ACTIVE` activation commit containing the Claude
-  pre-review record below; its exact SHA is recorded before either route seals
-  a first-result commit.
+- Execution-start commit:
+  `0ce18b4676f70ca0556496e804aa65563efa63da`.
 - Design:
   `docs/superpowers/specs/2026-09-04-time-uniform-mixture-certificate-design.md`.
 - Plan:
@@ -511,11 +510,14 @@ evidence.
 
 ### GPT route
 
-- Status: `NOT_STARTED_BEFORE_ACTIVATION`.
+- Status: `READY_AT_ACTIVATION`; root worktree is clean at
+  `0ce18b4676f70ca0556496e804aa65563efa63da` and implementation has not started.
 
 ### Claude route
 
-- Status: `PRE_REVIEW_APPROVED_EXECUTION_NOT_STARTED`; no implementation or
+- Status: `WORKTREE_READY_EXECUTION_NOT_STARTED`; isolated worktree
+  `C:\tmp\research-FP-TU-001-claude` and branch `claude/FP-TU-001` are clean at
+  `0ce18b4676f70ca0556496e804aa65563efa63da`. No implementation or
   execution-bundle transfer has started yet.
 
 ## Verification reports

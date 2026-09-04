@@ -35,6 +35,8 @@ constants, and post-hoc certificate selection remain outside scope.
 - Scientific baseline: `28b71685ca05ae073cc847fdea230019e4bd63ea`.
 - Frozen task-definition baseline:
   `0a66c4c583678e3186af7c5dbcff02779436329c`.
+- Common execution-start commit:
+  `0ce18b4676f70ca0556496e804aa65563efa63da`.
 - GPT branch: `codex/FP-TU-001`.
 - Claude role: read-only pre-review completed with `APPROVED`; next,
   independent construction on `claude/FP-TU-001` and reciprocal verification.
@@ -42,9 +44,9 @@ constants, and post-hoc certificate selection remain outside scope.
   both old-radius interpretations were independently checked. A separate
   explicit data-transfer authorization is still required before Claude's
   independent execution bundle is sent.
-- Next action: commit this activation record, create the isolated Claude
-  worktree from that commit, begin GPT's blind route, and obtain explicit
-  authorization before sending Claude's independent execution bundle.
+- Next action: record the clean isolated worktrees, obtain explicit
+  authorization for Claude's broader execution bundle, and then begin both
+  blind independent routes from the common activation commit.
 - Design:
   `docs/superpowers/specs/2026-09-04-time-uniform-mixture-certificate-design.md`.
 - Plan:
