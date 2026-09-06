@@ -6,6 +6,8 @@ import json
 import math
 from decimal import Decimal, localcontext
 
+import time_uniform_mixture_certificate as module
+
 from time_uniform_mixture_certificate import (
     DEFAULT_COMPONENTS,
     DEFAULT_MAX_COUNT,
@@ -251,12 +253,41 @@ def test_input_failures_and_posthoc_minimum_counterexample() -> None:
     assert 1.0 - (1.0 - delta) ** 2 > delta
 
 
+def test_ordered_inversion_nonemission_without_fallback() -> None:
+    original = module.stitch_boundary
+
+    def invalid_upper(count: int, grid: object) -> float:
+        del count, grid
+        return 1e-12
+
+    module.stitch_boundary = invalid_upper  # type: ignore[assignment]
+    try:
+        certificate = _base_certificate()
+    finally:
+        module.stitch_boundary = original
+    event = certificate["event"]
+    assert isinstance(event, dict)
+    for family_name in ("state_bellman", "pair_bellman", "recovery"):
+        family = event[family_name]
+        assert family["inversion_failure_reasons"] == [
+            "mixture_inversion_unbracketed"
+        ]
+        assert family["max_radius"] is None
+        assert all(value is None for value in family["radius_by_group"])
+        assert all(value is not None for value in family["legacy_radius_by_group"])
+    for route in certificate["routes"].values():
+        assert route["status"] == "not_certified"
+        assert "mixture_inversion_unbracketed" in route["failure_reasons"]
+        assert route["total_bound"] is None
+
+
 def main() -> None:
     test_grid_and_stable_math()
     test_independent_high_precision_roots()
     test_solver_and_all_count_contract()
     test_builder_composition_and_preservation()
     test_input_failures_and_posthoc_minimum_counterexample()
+    test_ordered_inversion_nonemission_without_fallback()
     print("time-uniform mixture certificate checks passed")
 
 

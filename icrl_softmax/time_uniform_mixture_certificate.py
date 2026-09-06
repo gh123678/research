@@ -21,6 +21,39 @@ DEFAULT_MAX_COUNT = 16384
 DEFAULT_TOLERANCE = 1e-12
 DEFAULT_MAX_ITERATIONS = 200
 
+STATUS_SELECTIVE_HIGH_PROBABILITY = "selective_high_probability_certified"
+STATUS_NOT_CERTIFIED = "not_certified"
+_FAILURE_ORDER = (
+    "algorithm_mode_mismatch",
+    "divergence_guard_triggered",
+    "state_support_missing",
+    "pair_support_missing",
+    "state_kernel_margin_nonpositive",
+    "pair_kernel_margin_nonpositive",
+    "mixture_inversion_unbracketed",
+    "mixture_inversion_not_converged",
+    "mixture_root_not_conservative",
+    "numerical_nonfinite",
+)
+_FAILURE_RANK = {reason: index for index, reason in enumerate(_FAILURE_ORDER)}
+
+
+class MixtureInversionError(RuntimeError):
+    """Numerical failure carrying the frozen ordered non-emission reason."""
+
+    def __init__(self, reason: str, message: str) -> None:
+        if reason not in _FAILURE_RANK:
+            raise ValueError(f"unknown inversion failure reason {reason}")
+        super().__init__(message)
+        self.reason = reason
+
+
+def _canonical_reasons(reasons: Sequence[str]) -> list[str]:
+    return sorted(
+        set(reasons),
+        key=lambda reason: (_FAILURE_RANK.get(reason, len(_FAILURE_ORDER)), reason),
+    )
+
 
 def _finite(name: str, value: float) -> float:
     number = float(value)
@@ -188,8 +221,14 @@ def solve_mixture_boundary(
     upper = stitch_boundary(visits, rows)
     lower_value = log_mixture(visits, lower, rows)
     upper_value = log_mixture(visits, upper, rows)
+    if not all(math.isfinite(value) for value in (lower_value, upper_value)):
+        raise MixtureInversionError(
+            "numerical_nonfinite", "mixture inversion bracket is nonfinite"
+        )
     if not lower_value < target <= upper_value:
-        raise ValueError("mixture inversion bracket is invalid")
+        raise MixtureInversionError(
+            "mixture_inversion_unbracketed", "mixture inversion bracket is invalid"
+        )
 
     used = 0
     for used in range(1, iterations_cap + 1):
@@ -207,10 +246,15 @@ def solve_mixture_boundary(
         if width_ok and residual_ok:
             break
     else:
-        raise ValueError("mixture inversion did not converge")
+        raise MixtureInversionError(
+            "mixture_inversion_not_converged", "mixture inversion did not converge"
+        )
 
     if not lower_value < target <= upper_value:
-        raise ValueError("mixture inversion lost its conservative bracket")
+        raise MixtureInversionError(
+            "mixture_root_not_conservative",
+            "mixture inversion lost its conservative bracket",
+        )
     return {
         "boundary": upper,
         "lower_boundary": lower,
@@ -284,6 +328,7 @@ def _family_summary(
     stitch_radii: list[float | None] = []
     old_radii: list[float | None] = []
     ratios: list[float | None] = []
+    inversion_reasons: list[str] = []
     value_bound = reward_bound / (1.0 - gamma)
     for count in counts:
         if count == 0:
@@ -292,12 +337,16 @@ def _family_summary(
             old_radii.append(None)
             ratios.append(None)
             continue
-        if count not in cache:
-            cache[count] = solve_mixture_boundary(
-                count, grid, n_groups=n_groups, delta=delta
-            )
-        q_mix = float(cache[count]["boundary"])
-        new_radius = value_bound * q_mix / count
+        try:
+            if count not in cache:
+                cache[count] = solve_mixture_boundary(
+                    count, grid, n_groups=n_groups, delta=delta
+                )
+            q_mix = float(cache[count]["boundary"])
+            new_radius: float | None = value_bound * q_mix / count
+        except MixtureInversionError as error:
+            new_radius = None
+            inversion_reasons.append(error.reason)
         audit_radius = value_bound * stitch_boundary(count, grid) / count
         old_radius = old_visit_indexed_radius(
             count,
@@ -310,10 +359,10 @@ def _family_summary(
         radii.append(new_radius)
         stitch_radii.append(audit_radius)
         old_radii.append(old_radius)
-        ratios.append(new_radius / old_radius)
+        ratios.append(None if new_radius is None else new_radius / old_radius)
     visited = [float(value) for value in radii if value is not None]
-    full_support = all(count > 0 for count in counts)
-    return {
+    full_support = all(count > 0 for count in counts) and not inversion_reasons
+    result = {
         "counts": list(counts),
         "missing_groups": sum(count == 0 for count in counts),
         "full_support": full_support,
@@ -324,15 +373,38 @@ def _family_summary(
         "legacy_radius_by_group": old_radii,
         "mixture_to_legacy_ratio_by_group": ratios,
         "max_radius": max(visited) if full_support else None,
-        "max_visited_radius": max(visited),
+        "max_visited_radius": max(visited) if visited else None,
     }
+    if inversion_reasons:
+        result["inversion_failure_reasons"] = _canonical_reasons(inversion_reasons)
+    return result
 
 
 def _replace_uniform_radius(
-    route: dict[str, Any], residual_radius: float | None
+    route: dict[str, Any],
+    residual_radius: float | None,
+    inversion_reasons: Sequence[str] = (),
 ) -> dict[str, Any]:
     result = copy.deepcopy(route)
     result["residual_radius"] = residual_radius
+    if inversion_reasons:
+        result.update(
+            {
+                "rho": None,
+                "residual_radius": None,
+                "optimization_term": None,
+                "statistical_term": None,
+                "total_bound": None,
+                "finite_bound_emitted": False,
+                "improves_over_zero_initialization": False,
+                "selective_high_probability_certified": False,
+                "status": STATUS_NOT_CERTIFIED,
+                "failure_reasons": _canonical_reasons(
+                    [*result["failure_reasons"], *inversion_reasons]
+                ),
+            }
+        )
+        return result
     if not bool(result["selective_high_probability_certified"]):
         return result
     if residual_radius is None:
@@ -365,10 +437,32 @@ def _replace_vfirst_radius(
     recovery_radius: float | None,
     *,
     gamma: float,
+    inversion_reasons: Sequence[str] = (),
 ) -> dict[str, Any]:
     result = copy.deepcopy(route)
     result["value_total_bound"] = state_bound["total_bound"]
     result["fixed_recovery"] = recovery_radius
+    new_reasons = _canonical_reasons(
+        [
+            *result["failure_reasons"],
+            *state_bound["failure_reasons"],
+            *inversion_reasons,
+        ]
+    )
+    if new_reasons != result["failure_reasons"]:
+        result.update(
+            {
+                "value_propagation": None,
+                "fixed_recovery": None,
+                "total_bound": None,
+                "finite_bound_emitted": False,
+                "improves_over_zero_initialization": False,
+                "selective_high_probability_certified": False,
+                "status": STATUS_NOT_CERTIFIED,
+                "failure_reasons": new_reasons,
+            }
+        )
+        return result
     if not bool(result["selective_high_probability_certified"]):
         return result
     if state_bound["total_bound"] is None or recovery_radius is None:
@@ -424,21 +518,33 @@ def build_time_uniform_certificate(**arguments: Any) -> dict[str, Any]:
         grid=grid,
         cache=cache,
     )
-    state_exact = _replace_uniform_radius(old["state_value"]["exact"], state_family["max_radius"])
-    state_softmax = _replace_uniform_radius(old["state_value"]["softmax"], state_family["max_radius"])
-    direct_exact = _replace_uniform_radius(old["routes"]["direct_exact"], pair_family["max_radius"])
-    direct_softmax = _replace_uniform_radius(old["routes"]["direct_softmax"], pair_family["max_radius"])
+    state_inversion = state_family.get("inversion_failure_reasons", [])
+    pair_inversion = pair_family.get("inversion_failure_reasons", [])
+    state_exact = _replace_uniform_radius(
+        old["state_value"]["exact"], state_family["max_radius"], state_inversion
+    )
+    state_softmax = _replace_uniform_radius(
+        old["state_value"]["softmax"], state_family["max_radius"], state_inversion
+    )
+    direct_exact = _replace_uniform_radius(
+        old["routes"]["direct_exact"], pair_family["max_radius"], pair_inversion
+    )
+    direct_softmax = _replace_uniform_radius(
+        old["routes"]["direct_softmax"], pair_family["max_radius"], pair_inversion
+    )
     vfirst_exact = _replace_vfirst_radius(
         old["routes"]["vfirst_nosplit_exact"],
         state_exact,
         pair_family["max_radius"],
         gamma=gamma,
+        inversion_reasons=pair_inversion,
     )
     vfirst_softmax = _replace_vfirst_radius(
         old["routes"]["vfirst_nosplit_softmax"],
         state_softmax,
         pair_family["max_radius"],
         gamma=gamma,
+        inversion_reasons=pair_inversion,
     )
     event = {
         "method": "finite_geometric_time_uniform_cosh_mixture",
