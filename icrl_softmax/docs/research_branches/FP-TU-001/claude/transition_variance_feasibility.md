@@ -3,8 +3,8 @@
 Feasibility-only assessment required by plan Task 8. Nothing in this document
 enters the mandatory certificate, receives risk allocation, or modifies the
 frozen mixture. The mandatory certificate remains the width-`2B` conditional
-Hoeffding supermartingale of `theory.md` section 4 with variance proxy 1 for
-the normalized increments.
+Hoeffding supermartingale of `theory.md` section 4 (interval form) with
+variance proxy `(width/2)^2 <= 1` for the normalized increments.
 
 ## Question
 
@@ -20,18 +20,19 @@ Var_P[ R(s,a,S') + gamma V(S') ]
 simultaneously for all candidate targets `V in [-B, B]^m`, including mass on
 unseen successors, by strictly less than the trivial range bound `B^2`?
 
-## Answer: no (deterministic obstruction)
+## Answer: the structure-free uniform worst case equals `B^2`
 
-The certificate must hold for the unknown fixed target `V^pi`, over which the
+Without extra structure beyond the width-`2B` range, the answer is no: the
+certificate must hold for the unknown fixed target `V^pi`, over which the
 data carry no information beyond `V^pi in [-B, B]^m`. Hence any valid
-observable bound must dominate
+bound that uses only the width-`2B` range must dominate
 
 ```text
 sup over P consistent with the data, sup over V in [-B,B]^m of Var_P[...].
 ```
 
-Two configurations show this supremum equals `B^2` exactly, so no observable
-strict tightening exists.
+Two configurations show this structure-free uniform supremum equals `B^2`
+exactly.
 
 1. Fully observed support, aligned corners. Take two successors `s1, s2`,
    both observed with empirical frequency one half, deterministic edge
@@ -54,28 +55,50 @@ strict tightening exists.
    probability `p > 0` carrying the aligned corner value `B`. The true
    variance is `p(1 - p) B^2 > 0` while every observable functional of the
    seen samples is consistent with variance zero. Observed data therefore
-   cannot even upper-bound the contribution of unseen mass below the trivial
-   range bound.
+   cannot upper-bound the contribution of unseen mass at a fixed sample size.
+   Note, however, that the unseen mass itself shrinks with sample confidence:
+   a successor of mass `p` stays unseen after `n` observations with
+   probability `(1 - p)^n`, and standard high-probability ceilings on the
+   total unseen mass (of order `log(1/delta)/n`) decrease in `n`. This
+   configuration therefore does not by itself rule out data-dependent
+   tightening at large `n`; the binding obstruction is configuration 1.
 
 By Popoviciu's inequality no assignment within the width-`2B` range exceeds
-`B^2`, so the two configurations exactly sandwich the uniform supremum at
-`B^2`.
+`B^2`, so the configurations exactly sandwich the structure-free uniform
+supremum at `B^2`.
+
+## Scope of the conclusion
+
+This is a statement about the uniform worst case without extra structure. It
+does NOT claim that data-dependent adaptive tightening is impossible in
+general. A construction that couples an empirical confidence set for the
+transition law (and rewards) with the Bellman fixed-point constraint on the
+admissible targets `V` could in principle restrict `V` below the full cube
+`[-B, B]^m` and yield a strict tightening below `B^2`; that confidence-set +
+Bellman-coupling proof is currently not completed, and this task neither
+relies on it nor rules it out.
 
 ## Consequence for FP-TU-001
 
 The variance proxy `sigma^2 = (range/2)^2 = B^2` (normalized proxy 1) used by
-the mandatory mixture is already the exact uniform optimum over
-`V in [-B,B]^m`; there is nothing observable left to estimate. This is
-distinct from Waudby-Smith and Ramdas (2024,
-https://doi.org/10.1093/jrsssb/qkad009), whose variance-adaptive empirical
-bounds require the variance of the *observed* sequence to be identifiable;
-here the relevant variance is that of an *unobservable* fixed-target residual
-under adversarial `V`, and the observed-sequence construction does not apply.
+the mandatory mixture is the exact optimum among constructions that use only
+the width-`2B` range without extra structure: configuration 1 is compatible
+with arbitrarily large observed counts, so no structure-free observable
+bound can go below `B^2`. Whether a data-dependent construction exploiting
+additional structure (confidence sets, Bellman coupling) can strictly tighten
+remains open and unproved here. This is distinct from Waudby-Smith and
+Ramdas (2024, https://doi.org/10.1093/jrsssb/qkad009), whose
+variance-adaptive empirical bounds require the variance of the *observed*
+sequence to be identifiable; here the relevant variance is that of an
+*unobservable* fixed-target residual under adversarial `V`, and the
+observed-sequence construction does not apply.
 
 ## Numeric verification
 
 `verify_time_uniform_mixture_certificate.py::verify_transition_variance_obstruction`
 checks the corner saturation (`Var = B^2` at the aligned configuration), the
 unseen-mass invisibility fixture (observed variance zero, true variance
-`p(1-p) B^2`), and 2000 random six-successor assignments confirming the
-Popoviciu ceiling `B^2`. Status: PASS.
+`p(1-p) B^2`), the shrinkage of unseen mass with sample size
+(`(1-p)^n` and `log(1/delta)/n` both decreasing in `n`), and 2000 random
+six-successor assignments confirming the Popoviciu ceiling `B^2`.
+Status: PASS.

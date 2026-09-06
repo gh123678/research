@@ -174,8 +174,10 @@ def verify_log_domain_stability() -> None:
 
 
 def verify_conditional_mgf_fixtures() -> None:
-    # Conditional Hoeffding on exhaustive centered two-point fixtures, which
-    # are the extreme points of centered distributions on an interval.
+    # Interval-form conditional Hoeffding: centered Y on any [c, d] with
+    # d - c <= 2 has MGF at most exp(a^2/2); symmetry about 0 is not assumed.
+    # Exhaustive centered two-point fixtures, which are the extreme points of
+    # centered distributions on an interval.
     for width in (0.25, 0.5, 1.0, 1.5, 2.0):
         proxy = (0.5 * width) ** 2
         for fraction in np.arange(0.05, 1.0, 0.05):
@@ -188,6 +190,18 @@ def verify_conditional_mgf_fixtures() -> None:
                 mgf = p_hi * math.exp(float(a) * hi) + (1.0 - p_hi) * math.exp(float(a) * lo)
                 bound = math.exp(0.5 * float(a) ** 2 * proxy)
                 assert mgf <= bound * (1.0 + 1e-14) + 1e-15, (width, lo, a, mgf, bound)
+    # Asymmetric, zero-mean, width-exactly-2 two-point fixtures whose support
+    # exceeds [-1, 1]: width alone must still deliver proxy (d - c)^2/4 = 1.
+    for lo, hi in ((-1.5, 0.5), (-0.5, 1.5), (-1.25, 0.75), (-0.75, 1.25)):
+        assert hi - lo == 2.0
+        assert hi > 1.0 or lo < -1.0  # support escapes [-1, 1]
+        assert lo != -hi  # asymmetric
+        p_hi = -lo / (hi - lo)
+        assert math.isclose(p_hi * hi + (1.0 - p_hi) * lo, 0.0, abs_tol=1e-15)
+        for a in np.arange(-6.0, 6.01, 0.125):
+            mgf = p_hi * math.exp(float(a) * hi) + (1.0 - p_hi) * math.exp(float(a) * lo)
+            bound = math.exp(0.5 * float(a) ** 2)
+            assert mgf <= bound * (1.0 + 1e-14) + 1e-15, (lo, hi, a, mgf, bound)
     # The chord argument's terminal inequality cosh(a) <= exp(a^2/2).
     for a in np.arange(-6.0, 6.01, 0.125):
         assert math.cosh(float(a)) <= math.exp(0.5 * float(a) ** 2) * (1.0 + 1e-15)
@@ -359,6 +373,57 @@ def verify_count_validation() -> None:
         state_exact_iterations=1,
         state_softmax_iterations=1,
     )
+
+
+def verify_grid_isolation_and_iteration_cap() -> None:
+    # Callers cannot pollute the internally cached frozen grid.
+    grid = mixture_grid(FROZEN_GROUPS, FROZEN_DELTA)
+    original = {key: (list(v) if isinstance(v, list) else v) for key, v in grid.items()}
+    grid["weights"][0] = 999.0
+    grid["rates"][0] = -1.0
+    grid["count_grid"][0] = -7
+    grid["log_terms"][0] = math.nan
+    grid["log_weights"][0] = math.nan
+    grid["half_squared_rates"][0] = math.nan
+    grid["n_groups"] = 1
+    grid["delta"] = 0.99
+    fresh = mixture_grid(FROZEN_GROUPS, FROZEN_DELTA)
+    assert fresh == original
+    assert fresh is not grid
+    assert fresh["weights"] is not grid["weights"]
+    # Downstream certificates are unaffected by caller mutation.
+    radius = mixture_radius(2, reward_bound=1.5, gamma=0.7, n_groups=10, delta=0.05)
+    assert radius == mixture_radius(2, reward_bound=1.5, gamma=0.7, n_groups=10, delta=0.05)
+
+    # A caller-supplied grid must agree with the frozen n_groups/delta.
+    mismatched_groups = mixture_grid(FROZEN_GROUPS + 1, FROZEN_DELTA)
+    expect_value_error(
+        mixture_root, 3, n_groups=FROZEN_GROUPS, delta=FROZEN_DELTA, grid=mismatched_groups
+    )
+    mismatched_delta = mixture_grid(FROZEN_GROUPS, 0.1)
+    expect_value_error(
+        mixture_root, 3, n_groups=FROZEN_GROUPS, delta=FROZEN_DELTA, grid=mismatched_delta
+    )
+    consistent = mixture_grid(FROZEN_GROUPS, FROZEN_DELTA)
+    result = mixture_root(3, n_groups=FROZEN_GROUPS, delta=FROZEN_DELTA, grid=consistent)
+    assert math.isfinite(result["q_mix"])
+
+    # max_iterations above the frozen cap of 200 is rejected; the cap itself
+    # is accepted and suffices.
+    expect_value_error(
+        mixture_root,
+        3,
+        n_groups=FROZEN_GROUPS,
+        delta=FROZEN_DELTA,
+        max_iterations=INVERSION_MAX_ITERATIONS + 1,
+    )
+    capped = mixture_root(
+        3,
+        n_groups=FROZEN_GROUPS,
+        delta=FROZEN_DELTA,
+        max_iterations=INVERSION_MAX_ITERATIONS,
+    )
+    assert capped["iterations"] <= INVERSION_MAX_ITERATIONS
 
 
 def verify_route_composition() -> None:
@@ -656,10 +721,14 @@ def verify_unadjusted_posthoc_min_counterexample() -> None:
 
 
 def verify_transition_variance_obstruction() -> None:
-    # Feasibility-only study (plan Task 8): no observable construction can
-    # upper-bound Var_P[R(s,a,S') + gamma V(S')] uniformly over all
-    # V in [-B,B]^m by less than B^2. Two successors with equal probability,
-    # aligned edge rewards, and V at the corners saturate Popoviciu.
+    # Feasibility-only study (plan Task 8), narrowed conclusion: without extra
+    # structure beyond the width-2B range, the uniform worst case over
+    # data-consistent laws P and all targets V in [-B, B]^m attains B^2
+    # (aligned corners saturate Popoviciu). This is a statement about the
+    # structure-free uniform supremum only; it does NOT claim that
+    # data-dependent adaptive tightening is impossible in general -- a
+    # confidence-set plus Bellman-coupling construction is a separate,
+    # currently uncompleted proof.
     gamma, reward = 0.7, 1.0
     bound_b = reward / (1.0 - gamma)
     values = np.asarray([reward + gamma * bound_b, -reward - gamma * bound_b])
@@ -678,6 +747,21 @@ def verify_transition_variance_obstruction() -> None:
     observed_only = float(np.var(mixed[:2]))
     assert observed_only == 0.0
     assert observed_only < mixed_variance  # unseen mass is invisible to data
+    # But the unseen mass itself shrinks with sample confidence: a successor
+    # of mass p stays unseen with probability (1 - p)^n, and the standard
+    # high-probability ceiling on total unseen mass, log(1/delta)/n,
+    # decreases in n. Unseen mass therefore cannot by itself rule out
+    # data-dependent tightening at large n; the binding obstruction is the
+    # fully observed aligned-corner configuration above.
+    delta = 0.05
+    sample_sizes = (10, 100, 1000, 10000)
+    escape = [(1.0 - p_unseen) ** n for n in sample_sizes]
+    ceilings = [math.log(1.0 / delta) / n for n in sample_sizes]
+    for index in range(len(sample_sizes) - 1):
+        assert escape[index + 1] < escape[index]
+        assert ceilings[index + 1] < ceilings[index]
+    assert escape[-1] < 1e-40
+    assert ceilings[-1] < p_unseen
     # Popoviciu: every assignment within the width-2B range stays below B^2.
     rng = np.random.default_rng(20260904)
     for _ in range(2000):
@@ -695,6 +779,7 @@ def main() -> None:
     verify_exhaustive_counts()
     verify_high_precision_roots()
     verify_count_validation()
+    verify_grid_isolation_and_iteration_cap()
     verify_route_composition()
     verify_rejections_and_ordering()
     verify_strict_json_and_oracle_separation()

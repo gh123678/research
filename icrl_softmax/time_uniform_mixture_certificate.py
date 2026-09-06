@@ -98,8 +98,21 @@ def _canonical_reasons(reasons: Sequence[str]) -> list[str]:
 _GRID_CACHE: dict[tuple[int, float], dict[str, Any]] = {}
 
 
+def _grid_copy(grid: dict[str, Any]) -> dict[str, Any]:
+    # Every mutable value in a grid is a list of immutable numbers; copying
+    # the outer dict and each list isolates the caller from the frozen cache.
+    return {
+        key: list(value) if isinstance(value, list) else value
+        for key, value in grid.items()
+    }
+
+
 def mixture_grid(n_groups: int, delta: float) -> dict[str, Any]:
-    """Build and validate the frozen geometric grid, weights, and rates."""
+    """Build and validate the frozen geometric grid, weights, and rates.
+
+    The frozen grid is cached internally; every call returns an isolated
+    copy so callers cannot pollute subsequent certificates.
+    """
     groups = _positive_integer("n_groups", n_groups)
     confidence = _finite_number("delta", delta)
     if not 0.0 < confidence < 1.0:
@@ -107,7 +120,7 @@ def mixture_grid(n_groups: int, delta: float) -> dict[str, Any]:
     key = (groups, confidence)
     cached = _GRID_CACHE.get(key)
     if cached is not None:
-        return cached
+        return _grid_copy(cached)
     count_grid = [2**j for j in range(MIXTURE_GRID_SIZE)]
     raw = [(j + 1) ** -2 for j in range(MIXTURE_GRID_SIZE)]
     norm = math.fsum(raw)
@@ -129,7 +142,7 @@ def mixture_grid(n_groups: int, delta: float) -> dict[str, Any]:
         "log_weights": [math.log(w) for w in weights],
         "half_squared_rates": [0.5 * a * a for a in rates],
     }
-    _GRID_CACHE[key] = grid
+    _GRID_CACHE[key] = _grid_copy(grid)
     return grid
 
 
@@ -186,8 +199,17 @@ def mixture_root(
     if tolerance <= 0.0:
         raise ValueError("tol must be positive")
     iteration_cap = _positive_integer("max_iterations", max_iterations)
+    if iteration_cap > INVERSION_MAX_ITERATIONS:
+        raise ValueError("max_iterations must not exceed the frozen cap 200")
     if grid is None:
         grid = mixture_grid(n_groups, delta)
+    else:
+        groups = _positive_integer("n_groups", n_groups)
+        confidence = _finite_number("delta", delta)
+        if grid.get("n_groups") != groups or grid.get("delta") != confidence:
+            raise ValueError(
+                "grid is inconsistent with the frozen n_groups/delta parameters"
+            )
     target = math.log(float(grid["n_groups"]) / float(grid["delta"]))
     q_lo = 0.0
     q_hi = stitch_boundary(visits, grid=grid)

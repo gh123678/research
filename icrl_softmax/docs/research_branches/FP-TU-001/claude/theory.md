@@ -56,26 +56,58 @@ visit count `C_t^g = sum_{u<=t} I_u^g`, both predictable in the same sense:
 
 By `[MART]` section 2, given the appropriate field the subtracted
 current-target term is fixed and the varying term lies in
-`[-R_star - gamma B, R_star + gamma B]`, so every conditional range has width
-at most `2B`. Hence the normalized increment `xi_t / B` is conditionally
-centered and lies in `[-1, 1]` on `I_t^g = 1`.
+`[-R_star - gamma B, R_star + gamma B]`. Writing `mu_t` for the conditional
+mean of that varying term, the residual `xi_t` is conditionally centered and
+supported in the shifted interval
+`[-R_star - gamma B - mu_t, R_star + gamma B - mu_t]`, whose width is at most
+`2B` and which contains `0` (the conditional mean of a centered variable lies
+in its support interval). Width alone does NOT imply that this interval
+equals `[-B, B]`: the conditional mean `mu_t` need not vanish, so the support
+can be asymmetric or even partly outside `[-B, B]`. The normalized increment
+`Y = xi_t / B` is therefore conditionally centered with support in an
+interval `[c, d]` satisfying `d - c <= 2` and `c <= 0 <= d`. Section 4 uses
+exactly these two properties and nothing stronger.
 
 ## 4. Fixed-rate exponential supermartingale
 
-Conditional Hoeffding lemma: if `Y` is conditionally centered given a field
-`F` and `Y in [-1, 1]` almost surely, then for every real `a`,
+Conditional Hoeffding lemma, interval form: if `Y` is conditionally centered
+given a field `F` and `Y in [c, d]` almost surely with `d - c <= 2`, then for
+every real `a`,
 
 ```text
-E[exp(a Y) | F] <= exp(a^2 / 2).
+E[exp(a Y) | F] <= exp(a^2 (d - c)^2 / 8) <= exp(a^2 / 2).
 ```
 
-Proof: `y -> exp(a y)` is convex, so on `[-1, 1]` it lies below the chord
-`exp(a y) <= ((1 - y)/2) exp(-a) + ((1 + y)/2) exp(a)`. Taking conditional
-expectations kills the linear term and leaves `cosh(a) <= exp(a^2/2)`, the
-last inequality by comparing Taylor series term by term:
-`a^{2m}/(2m)! <= a^{2m}/(2^m m!)`. This is the classical Hoeffding (1963)
-lemma in normalized width-2 form; the mapping is variance proxy
-`sigma^2 = (range/2)^2 = 1` (Howard et al. 2020, equation 2.1).
+Proof: `y -> exp(a y)` is convex, so on `[c, d]` it lies below the chord
+
+```text
+exp(a y) <= ((d - y) exp(a c) + (y - c) exp(a d)) / (d - c).
+```
+
+Taking conditional expectations kills the `y`-terms by centering and leaves
+
+```text
+E[exp(a Y) | F] <= (d exp(a c) - c exp(a d)) / (d - c).
+```
+
+With `p = -c / (d - c) in [0, 1]` and `u = a (d - c)` the right side is
+`exp(phi(u))` where
+
+```text
+phi(u) = -p u + log(1 - p + p exp(u)).
+```
+
+Now `phi(0) = phi'(0) = 0` and
+`phi''(u) = p (1 - p) exp(u) / (1 - p + p exp(u))^2 <= 1/4`, because `phi''`
+is the variance of a `Bernoulli`-tilted variable taking values in `{0, 1}`.
+Taylor's theorem then gives `phi(u) <= u^2 / 8`, i.e.
+`E[exp(a Y) | F] <= exp(a^2 (d - c)^2 / 8) <= exp(a^2 / 2)` whenever
+`d - c <= 2`. This is Hoeffding (1963) lemma 1 in conditional form; the
+variance proxy is `sigma^2 = (d - c)^2 / 4 <= 1 = (range/2)^2` (Howard et al.
+2020, equation 2.1). No symmetry of `[c, d]` about zero is assumed or used;
+the asymmetric, mean-zero, width-2 two-point distributions with support
+partly outside `[-1, 1]` are exactly the extremal cases, and the verifier
+checks them explicitly.
 
 For one residual group `g`, define in the original time index `t`
 
@@ -297,15 +329,17 @@ confirmed record-by-record by the analyzer against the frozen baseline).
 ## Primary sources and assumption mapping
 
 - W. Hoeffding (1963), https://doi.org/10.1080/01621459.1963.10500830:
-  the conditional lemma of section 4. Assumptions: bounded support and
-  conditional centering; mapped in sections 2-3 from the `[MART]`-verified
-  filtrations and width `2B`.
+  the interval-form conditional lemma of section 4. Assumptions: conditional
+  centering and support in an interval of width at most 2 containing the
+  conditional mean (not necessarily `[-1, 1]`); mapped in sections 2-3 from
+  the `[MART]`-verified filtrations and width `2B`.
 - S. R. Howard, A. Ramdas, J. McAuliffe, J. Sekhon, "Time-uniform Chernoff
   bounds via nonnegative supermartingales," Probability Surveys 17 (2020),
   257-317, https://doi.org/10.1214/18-PS321: nonnegative-supermartingale
   time-uniform control and Ville's inequality (sections 4-6); the
-  sub-Gaussian case with variance proxy `sigma^2 = 1` for `[-1, 1]`-valued
-  centered increments; finite convex mixtures of supermartingales remain
+  sub-Gaussian case with variance proxy `sigma^2 = (d - c)^2 / 4 <= 1` for
+  centered increments supported on an interval `[c, d]` of width at most 2;
+  finite convex mixtures of supermartingales remain
   supermartingales (section 5). No assumption beyond the verified conditional
   range and centering is imported.
 - J. Ville (1939), as presented in Howard et al. (2020) Theorem 1: the
