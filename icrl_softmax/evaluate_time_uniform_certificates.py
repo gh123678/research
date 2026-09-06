@@ -30,6 +30,11 @@ from evaluate_fixed_policy_q_routes import (
 from evaluate_visit_indexed_certificates import (
     AUDIT_TOLERANCE,
     FROZEN_SEED_TASKS_PER_CELL,
+)
+from evaluate_visit_indexed_certificates import (
+    augment_summary as augment_summary_legacy,
+)
+from evaluate_visit_indexed_certificates import (
     build_oracle_audit,
     declared_reward_bound,
     directory_hashes,
@@ -732,7 +737,7 @@ def main() -> None:
                                     }
                                 )
 
-    legacy_summary = summarize(task_results)
+    legacy_summary = augment_summary_legacy(summarize(task_results), task_results)
     summary = augment_summary(legacy_summary, task_results)
     write_json(output_dir / "task_results.json", task_results)
     write_json(output_dir / "summary.json", summary)
