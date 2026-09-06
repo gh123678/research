@@ -526,15 +526,31 @@ evidence.
 
 ### GPT route
 
-- Status: `READY_AT_ACTIVATION`; root worktree is clean at
-  `0ce18b4676f70ca0556496e804aa65563efa63da` and implementation has not started.
+- Status: `FORMAL_RESULT_SEALED_PENDING_RECIPROCAL_VERIFICATION`.
+- Independent implementation commit:
+  `4656fd30b24e410241990665f93d93bf2ece564b`.
+- Blind first-result seal:
+  `00f7d89b09263da9338dd1e1e68f4a9787c2b8f7`.
+- Formal-result seal:
+  `6f73def5aa94c22c22e426c8d6dd4a8b675b8d3f`.
+- The final-code smoke matrix and the single frozen 480-record formal matrix
+  both passed.  Formal analysis reports zero legacy mismatch, unchanged exact
+  emissions, complete count-wise radius dominance, nonincreasing emitted
+  bounds, and zero empirical audit violations.  Detailed commands, hashes,
+  metrics, limitations, and acceptance judgments are in GPT's `first_result.md`
+  and `formal_result.md`.
 
 ### Claude route
 
-- Status: `EXECUTION_AUTHORIZED_NOT_STARTED`; isolated worktree
-  `C:\tmp\research-FP-TU-001-claude` and branch `claude/FP-TU-001` are clean at
-  `0ce18b4676f70ca0556496e804aa65563efa63da`. No implementation has started
-  yet.
+- Status: `INDEPENDENT_EXECUTION_RUNNING`.
+- The first execution launch ended before modification because its session
+  denied file writes, local Python, Ruff, and Git.  It explicitly reported no
+  created files and a clean activation worktree; this launch is not a
+  scientific result.
+- GPT restarted the already authorized route with task-scoped write and local
+  execution tools, retaining the same worktree, branch, allowed paths,
+  nondisclosure rule, and prohibition on a formal run before the blind first
+  seal.  No Claude code, result, or conclusion has been read by GPT.
 
 ## Verification reports
 
