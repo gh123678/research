@@ -542,7 +542,11 @@ evidence.
 
 ### Claude route
 
-- Status: `INDEPENDENT_EXECUTION_RUNNING`.
+- Status: `FORMAL_RESULT_SEALED_VERIFICATION_FAILED_REPAIRING`.
+- Blind first-result seal:
+  `450881dc62d6588f0542392df97705fcb92c989e`.
+- Formal-result seal:
+  `0fa824fb4e565bf0fff8c589ecf4b0cf32c21f4d`.
 - The first execution launch ended before modification because its session
   denied file writes, local Python, Ruff, and Git.  It explicitly reported no
   created files and a clean activation worktree; this launch is not a
@@ -550,13 +554,19 @@ evidence.
 - GPT restarted the already authorized route with task-scoped write and local
   execution tools, retaining the same worktree, branch, allowed paths,
   nondisclosure rule, and prohibition on a formal run before the blind first
-  seal.  No Claude code, result, or conclusion has been read by GPT.
+  seal.  The retry completed its independent implementation, proof, tests,
+  smoke, first-result commit, formal evidence, and formal-result commit before
+  disclosure.  GPT's first verification returned `FAIL` for three repairable
+  proof/API/feasibility wording issues; Claude must repair them without
+  rerunning the formal matrix.  The documented duplicate formal evaluation
+  after a summary-only repair remains for final user ruling.
 
 ## Verification reports
 
 ### GPT verifies Claude
 
-- Status: `PENDING`.
+- Status: `FAIL`; repair-required findings are recorded in
+  `docs/research_branches/FP-TU-001/codex/verification_of_claude.md`.
 
 ### Claude verifies GPT
 
