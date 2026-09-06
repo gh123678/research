@@ -107,6 +107,48 @@ def _grid_copy(grid: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _require_frozen_grid(
+    grid: dict[str, Any], reference: dict[str, Any]
+) -> None:
+    """Reject a caller-supplied grid that departs from the frozen computation.
+
+    Every key, list length, and value must match the reference built by
+    ``mixture_grid`` (exact for integers, machine precision for floats).
+    """
+    if not isinstance(grid, dict):
+        raise ValueError("grid must be a mapping")
+    if set(grid) != set(reference):
+        raise ValueError("grid keys must match the frozen grid exactly")
+    for key, expected in reference.items():
+        actual = grid[key]
+        label = f"grid[{key!r}] is inconsistent with the frozen computation"
+        if isinstance(expected, list):
+            if not isinstance(actual, (list, tuple)) or len(actual) != len(expected):
+                raise ValueError(label)
+            for actual_item, expected_item in zip(actual, expected, strict=True):
+                if isinstance(expected_item, float):
+                    if isinstance(actual_item, bool) or not isinstance(
+                        actual_item, (int, float)
+                    ):
+                        raise ValueError(label)
+                    if not math.isclose(
+                        float(actual_item), expected_item,
+                        rel_tol=1e-15, abs_tol=1e-15,
+                    ):
+                        raise ValueError(label)
+                elif actual_item != expected_item or isinstance(actual_item, bool):
+                    raise ValueError(label)
+        elif isinstance(expected, float):
+            if isinstance(actual, bool) or not isinstance(actual, (int, float)):
+                raise ValueError(label)
+            if not math.isclose(
+                float(actual), expected, rel_tol=1e-15, abs_tol=1e-15
+            ):
+                raise ValueError(label)
+        elif actual != expected or isinstance(actual, bool):
+            raise ValueError(label)
+
+
 def mixture_grid(n_groups: int, delta: float) -> dict[str, Any]:
     """Build and validate the frozen geometric grid, weights, and rates.
 
@@ -206,10 +248,7 @@ def mixture_root(
     else:
         groups = _positive_integer("n_groups", n_groups)
         confidence = _finite_number("delta", delta)
-        if grid.get("n_groups") != groups or grid.get("delta") != confidence:
-            raise ValueError(
-                "grid is inconsistent with the frozen n_groups/delta parameters"
-            )
+        _require_frozen_grid(grid, mixture_grid(groups, confidence))
     target = math.log(float(grid["n_groups"]) / float(grid["delta"]))
     q_lo = 0.0
     q_hi = stitch_boundary(visits, grid=grid)

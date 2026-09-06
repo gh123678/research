@@ -140,3 +140,44 @@ all PASS (run 2026-09-07, same environment as the sealed runs):
   structure-free uniform worst case; still nothing enters the certificate.
 - All other numbered items are unaffected; the formal artifact set and its
   hashes are unchanged.
+
+## Follow-up repair (second review round, 2026-09-07)
+
+The re-review of the repair seal found item 2 only partially closed:
+`mixture_root` validated a caller-supplied `grid` on `n_groups`/`delta` only,
+so a grid with matching `G`/`delta` but tampered `weights`, `log_weights`,
+`log_terms`, `rates`, `half_squared_rates`, or `count_grid` was still
+accepted, violating the field-by-field frozen-grid contract.
+
+Repair in `time_uniform_mixture_certificate.py`: a caller-supplied grid is
+now validated by `_require_frozen_grid` against a freshly computed
+`mixture_grid(n_groups, delta)` reference — exact key set, list lengths, and
+every value (exact for integers, `math.isclose(rel=1e-15, abs=1e-15)` for
+floats, booleans rejected everywhere), with `ValueError` on any departure.
+Frozen formulas, constants, and defaults are unchanged.
+
+Verifier changes: the previous lower-bracket failure-path test no longer
+tampers with the grid; it now monkeypatches `module.log_mixture` locally to
+force `log M(k, 0) >= target` and still reaches the ordered
+`mixture_inversion_unbracketed` reason (the upper-bracket path remains
+monkeypatched via `stitch_boundary`, and `max_iterations=1` covers the
+not-converged path). New per-field tamper rejection tests in
+`verify_grid_isolation_and_iteration_cap`: each of `weights`, `log_weights`,
+`log_terms`, `rates`, `half_squared_rates` tampered by value, truncation,
+and extension; `count_grid` value and boolean tampering; scalar `delta`
+tampering beyond machine precision; boolean `grid_size`; extra key; missing
+key; non-mapping grid — all must raise `ValueError`; an exact copy is
+accepted.
+
+Verification after this follow-up (same environment, no formal rerun, no
+artifact or formula change):
+
+- `verify_time_uniform_mixture_certificate.py` PASS.
+- `python -m ruff check --no-cache` on the four new files: all checks passed.
+
+Repaired source SHA-256 (working tree at follow-up time):
+
+- `time_uniform_mixture_certificate.py`
+  `19343831400a34c5b281975445b09cb724646c9c164317f04b1436af702dccf3`
+- `verify_time_uniform_mixture_certificate.py`
+  `a5d67b8e8d6b6a1d51c6c90f80e5663cda8794d1672174a6117bbfe0b55d4890`

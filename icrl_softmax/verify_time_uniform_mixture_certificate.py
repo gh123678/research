@@ -395,7 +395,9 @@ def verify_grid_isolation_and_iteration_cap() -> None:
     radius = mixture_radius(2, reward_bound=1.5, gamma=0.7, n_groups=10, delta=0.05)
     assert radius == mixture_radius(2, reward_bound=1.5, gamma=0.7, n_groups=10, delta=0.05)
 
-    # A caller-supplied grid must agree with the frozen n_groups/delta.
+    # A caller-supplied grid must match the frozen computation field by
+    # field: key set, lengths, the fifteen k_j, weights, L_j, a_j,
+    # log_weights, and half_squared_rates.
     mismatched_groups = mixture_grid(FROZEN_GROUPS + 1, FROZEN_DELTA)
     expect_value_error(
         mixture_root, 3, n_groups=FROZEN_GROUPS, delta=FROZEN_DELTA, grid=mismatched_groups
@@ -404,6 +406,55 @@ def verify_grid_isolation_and_iteration_cap() -> None:
     expect_value_error(
         mixture_root, 3, n_groups=FROZEN_GROUPS, delta=FROZEN_DELTA, grid=mismatched_delta
     )
+
+    def tampered(field, mutate):
+        candidate = mixture_grid(FROZEN_GROUPS, FROZEN_DELTA)
+        mutate(candidate[field])
+        expect_value_error(
+            mixture_root,
+            3,
+            n_groups=FROZEN_GROUPS,
+            delta=FROZEN_DELTA,
+            grid=candidate,
+        )
+
+    for field in ("weights", "log_weights", "log_terms", "rates", "half_squared_rates"):
+        tampered(field, lambda values: values.__setitem__(0, values[0] * 1.000001))
+        tampered(field, lambda values: values.__setitem__(7, values[7] + 1e-9))
+        tampered(field, lambda values: values.pop())
+        tampered(field, lambda values: values.append(values[-1]))
+    tampered("count_grid", lambda values: values.__setitem__(3, 9))
+    tampered("count_grid", lambda values: values.__setitem__(0, True))
+    tampered("weights", lambda values: values.__setitem__(5, True))
+    scalar_delta = mixture_grid(FROZEN_GROUPS, FROZEN_DELTA)
+    scalar_delta["delta"] = FROZEN_DELTA * (1.0 + 1e-9)
+    expect_value_error(
+        mixture_root, 3, n_groups=FROZEN_GROUPS, delta=FROZEN_DELTA, grid=scalar_delta
+    )
+    bool_groups = mixture_grid(FROZEN_GROUPS, FROZEN_DELTA)
+    bool_groups["grid_size"] = True
+    expect_value_error(
+        mixture_root, 3, n_groups=FROZEN_GROUPS, delta=FROZEN_DELTA, grid=bool_groups
+    )
+    expect_value_error(
+        mixture_root, 3, n_groups=FROZEN_GROUPS, delta=FROZEN_DELTA, grid="not a mapping"
+    )
+    extra_key = mixture_grid(FROZEN_GROUPS, FROZEN_DELTA)
+    extra_key["injected"] = 1.0
+    expect_value_error(
+        mixture_root, 3, n_groups=FROZEN_GROUPS, delta=FROZEN_DELTA, grid=extra_key
+    )
+    missing_key = mixture_grid(FROZEN_GROUPS, FROZEN_DELTA)
+    del missing_key["rates"]
+    expect_value_error(
+        mixture_root, 3, n_groups=FROZEN_GROUPS, delta=FROZEN_DELTA, grid=missing_key
+    )
+    wrong_size = mixture_grid(FROZEN_GROUPS, FROZEN_DELTA)
+    wrong_size["grid_size"] = 14
+    expect_value_error(
+        mixture_root, 3, n_groups=FROZEN_GROUPS, delta=FROZEN_DELTA, grid=wrong_size
+    )
+    # An exact copy of the frozen grid is accepted.
     consistent = mixture_grid(FROZEN_GROUPS, FROZEN_DELTA)
     result = mixture_root(3, n_groups=FROZEN_GROUPS, delta=FROZEN_DELTA, grid=consistent)
     assert math.isfinite(result["q_mix"])
@@ -604,18 +655,28 @@ def verify_rejections_and_ordering() -> None:
         assert broken["routes"][route]["total_bound"] is None
         assert broken["routes"][route]["old_total_bound"] is None
 
-    # Low-level inversion failure branches are deterministic.
+    # Low-level inversion failure branches are deterministic, exercised by
+    # local monkeypatches rather than by tampering with the frozen grid
+    # (caller-supplied grids are validated field-by-field against it).
     grid = mixture_grid(FROZEN_GROUPS, FROZEN_DELTA)
-    fat_grid = dict(grid)
-    fat_grid["log_weights"] = [math.log(1e9 * w) for w in grid["weights"]]
-    expect_inversion_error(
-        mixture_root,
-        "mixture_inversion_unbracketed",
-        3,
-        n_groups=FROZEN_GROUPS,
-        delta=FROZEN_DELTA,
-        grid=fat_grid,
-    )
+    target = math.log(FROZEN_GROUPS / FROZEN_DELTA)
+    original_log_mixture = module.log_mixture
+
+    def inflated_log_mixture(count: int, q: float, *, grid: dict) -> float:
+        return target + 1.0
+
+    try:
+        module.log_mixture = inflated_log_mixture
+        expect_inversion_error(
+            mixture_root,
+            "mixture_inversion_unbracketed",
+            3,
+            n_groups=FROZEN_GROUPS,
+            delta=FROZEN_DELTA,
+            grid=grid,
+        )
+    finally:
+        module.log_mixture = original_log_mixture
     original_stitch = module.stitch_boundary
 
     def tiny_stitch(count: int, *, grid: dict) -> float:
