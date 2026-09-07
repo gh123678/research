@@ -562,6 +562,18 @@ evidence.
   verifiers, and task-scoped Ruff exited zero.  The working tree was clean
   before this completion record, and `origin/main` remained unchanged.
 
+### Push authorization and completion
+
+- Date: 2026-09-07.
+- Status: `COMPLETED`.
+- User decision: after the verified local merge, the user explicitly
+  instructed GPT to push.
+- Safety check: a fresh fetch showed `main...origin/main = 37/0`, so the remote
+  had no unseen commits and the update required no force operation.
+- Result: the first push fast-forwarded `origin/main` from `b4b2769` through
+  local integration commit `23776d0`; this completion record is included in
+  the final follow-up synchronization.
+
 ## Execution evidence
 
 ### GPT route

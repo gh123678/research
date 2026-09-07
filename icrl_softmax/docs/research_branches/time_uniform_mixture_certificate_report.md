@@ -55,4 +55,6 @@ acceptance criteria are satisfied or explicitly ruled on.  After separate user
 approval, the verified synthesis and Claude report were merged into local
 `main` at `b67fa502662ee041410a38e20e87a55365e6f94c`.  The time-uniform verifier,
 all five inherited verifiers, and task-scoped Ruff passed on the merge.  The
-remote remains unchanged pending a separate push request.
+user subsequently authorized a non-force push after a fresh fetch confirmed
+zero remote-only commits; the verified history is synchronized to
+`origin/main`.
