@@ -51,5 +51,8 @@ already-written reciprocal report after Claude could not write shared Git
 metadata.
 
 Current task state: `VERIFIED`.  Both reciprocal reports end `PASS`; all 20
-acceptance criteria are satisfied or explicitly ruled on.  Main is unchanged
-and still requires separate user approval before merge.
+acceptance criteria are satisfied or explicitly ruled on.  After separate user
+approval, the verified synthesis and Claude report were merged into local
+`main` at `b67fa502662ee041410a38e20e87a55365e6f94c`.  The time-uniform verifier,
+all five inherited verifiers, and task-scoped Ruff passed on the merge.  The
+remote remains unchanged pending a separate push request.

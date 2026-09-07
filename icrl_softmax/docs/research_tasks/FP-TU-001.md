@@ -480,7 +480,7 @@ evidence.
 ## Claude data-transfer authorization
 
 - Date: 2026-09-05.
-- Status: `AUTHORIZED`.
+- Status: `COMPLETED`.
 - User ruling: after being told that the designated `FP-TU-001` private task,
   design, plan, prior verified theory, and relevant code would be sent to the
   external Claude service for read-only pre-review, the user replied
@@ -556,6 +556,11 @@ evidence.
   the selected GPT implementation.
 - Exclusions: no force operation, history rewrite, external publication, or
   remote push.  Any push remains a separate user action.
+- Local merge commit:
+  `b67fa502662ee041410a38e20e87a55365e6f94c` on `main`.
+- Post-merge verification: the new time-uniform verifier, all five inherited
+  verifiers, and task-scoped Ruff exited zero.  The working tree was clean
+  before this completion record, and `origin/main` remained unchanged.
 
 ## Execution evidence
 
@@ -636,4 +641,5 @@ evidence.
 - [x] Every acceptance criterion has evidence.
 - [x] Differences are reconciled or ruled on by the user.
 - [x] `ACTIVE_WORKSPACE.md` is current.
-- [x] `main` remains unchanged unless the user separately approves a merge.
+- [x] `main` changed only after the user's separate merge approval; the remote
+      remains unchanged pending a separate push request.

@@ -2,9 +2,10 @@
 
 ## Current objective
 
-Status: `FP-TU-001` is `VERIFIED`.  Both independent routes and reciprocal
-reports pass; the user accepted the two documented environment/procedure
-exceptions on 2026-09-07.  `main` remains unchanged.
+Status: `FP-TU-001` is `VERIFIED` and merged into local `main` at
+`b67fa502662ee041410a38e20e87a55365e6f94c`.  Both independent routes and
+reciprocal reports pass; the user accepted the two documented
+environment/procedure exceptions on 2026-09-07.  The remote is not pushed.
 
 The current task asks whether a preregistered finite geometric mixture of
 exponential supermartingales can replace the verified count-wise Hoeffding
@@ -46,9 +47,9 @@ constants, and post-hoc certificate selection remain outside scope.
 - Current blocker: none.  GPT reproduced Claude's repaired 480-record route;
   Claude independently reproduced GPT's verifier, hash, analyzer, and metric
   evidence; both reciprocal reports pass.
-- Next action: the user approved a local merge on 2026-09-07.  Merge the
-  verified GPT synthesis plus Claude's reciprocal `PASS` report to `main`,
-  run post-merge verification, and do not push without a separate request.
+- Next action: local merge and post-merge verification are complete.  Await a
+  separate user request before pushing, or begin the next GPT-authored task on
+  a new `codex/*` branch.
 - Design:
   `docs/superpowers/specs/2026-09-04-time-uniform-mixture-certificate-design.md`.
 - Plan:
