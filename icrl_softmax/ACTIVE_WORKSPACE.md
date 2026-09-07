@@ -46,8 +46,9 @@ constants, and post-hoc certificate selection remain outside scope.
 - Current blocker: none.  GPT reproduced Claude's repaired 480-record route;
   Claude independently reproduced GPT's verifier, hash, analyzer, and metric
   evidence; both reciprocal reports pass.
-- Next action: await separate user approval before any merge to `main`, or
-  begin the next GPT-authored research task on a new `codex/*` branch.
+- Next action: the user approved a local merge on 2026-09-07.  Merge the
+  verified GPT synthesis plus Claude's reciprocal `PASS` report to `main`,
+  run post-merge verification, and do not push without a separate request.
 - Design:
   `docs/superpowers/specs/2026-09-04-time-uniform-mixture-certificate-design.md`.
 - Plan:

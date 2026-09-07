@@ -544,6 +544,19 @@ evidence.
 - Required GPT revision: record the ruling, close verification, and preserve
   `main` unchanged pending separate merge approval.
 
+### Merge approval
+
+- Date: 2026-09-07.
+- Status: `AUTHORIZED`.
+- User decision: after task closure and presentation of both final commits,
+  the user instructed GPT to merge FP-TU-001.
+- Authorized scope: merge the verified GPT synthesis and the single Claude
+  reciprocal-report commit into the local `main` branch.  Claude's parallel
+  implementation remains preserved on `claude/FP-TU-001` and does not replace
+  the selected GPT implementation.
+- Exclusions: no force operation, history rewrite, external publication, or
+  remote push.  Any push remains a separate user action.
+
 ## Execution evidence
 
 ### GPT route
