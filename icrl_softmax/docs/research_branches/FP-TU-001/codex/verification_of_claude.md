@@ -52,11 +52,39 @@ Reviewed Claude formal seal:
    one-line repair it reran the identical frozen evaluation.  The report is
    transparent and shows no metric tuning, but the history is not literally
    the preregistered single-run procedure.  This cannot be repaired by another
-   run.  It remains a documented governance exception for final user ruling.
+   run.  It was retained as a documented governance exception and later
+   accepted by the user's 2026-09-07 final ruling.
 
 The Claude author must repair findings 1--3 on its own branch, rerun only
 deterministic verifiers/Ruff (not the formal matrix), and seal the repair.
 GPT will then re-review the code and reproduce the sealed formal artifacts in
-an isolated result directory.  Finding 4 remains for user adjudication.
+an isolated result directory.  Finding 4 was reserved for, and later accepted
+by, the user's final adjudication.
 
-FAIL
+## Final re-verification after Claude repairs
+
+Claude repaired findings 1--3 without rerunning its formal matrix.  From a
+detached validation worktree at Claude repair commit
+`02e74cf6d238cfeed03495b4807eccef98c4fa78`, GPT ran the deterministic verifier
+suite and Ruff (`--no-cache`); all passed.  The repaired API now isolates the
+cached frozen grid, enforces the 200-iteration ceiling, validates every frozen
+grid field, and rejects invalid inversion brackets with ordered deterministic
+failure reasons.  The asymmetric-support tests and transition-variance
+qualification are present in Claude's repair evidence.
+
+GPT then reproduced Claude's frozen formal command in the separate result
+directory
+`icrl_softmax/results/FP-TU-001/codex/claude_reproduction/`.  The evaluator
+and formal analyzer both passed.  Parsed `config.json`, `task_results.json`,
+and `summary.json` are byte-for-byte identical to Claude's sealed formal
+artifacts; all 480 records match, the frozen baseline hashes remain intact,
+and the reproduced route metrics are unchanged (emissions 2.5%/85%/100%/100%,
+maximum mixture/old ratios 0.9573574/0.9263356/0.8975201/0.8793887, zero oracle
+violations).
+
+The duplicate Claude formal evaluation after its summary-only repair remains a
+documented procedural exception.  It does not invalidate the implementation or
+the reproduced scientific data, and the user explicitly accepted the exception
+on 2026-09-07 before final task closure.
+
+PASS

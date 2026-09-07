@@ -2,7 +2,9 @@
 
 ## Current objective
 
-Status: `FP-TU-001` is `ACTIVE` after Claude's read-only `APPROVED` pre-review.
+Status: `FP-TU-001` is `VERIFIED`.  Both independent routes and reciprocal
+reports pass; the user accepted the two documented environment/procedure
+exceptions on 2026-09-07.  `main` remains unchanged.
 
 The current task asks whether a preregistered finite geometric mixture of
 exponential supermartingales can replace the verified count-wise Hoeffding
@@ -31,20 +33,21 @@ constants, and post-hoc certificate selection remain outside scope.
 
 ## Active research task
 
-- Task: `docs/research_tasks/FP-TU-001.md` (`ACTIVE`).
+- Task: `docs/research_tasks/FP-TU-001.md` (`VERIFIED`).
 - Scientific baseline: `28b71685ca05ae073cc847fdea230019e4bd63ea`.
 - Frozen task-definition baseline:
   `0a66c4c583678e3186af7c5dbcff02779436329c`.
 - Common execution-start commit:
   `0ce18b4676f70ca0556496e804aa65563efa63da`.
 - GPT branch: `codex/FP-TU-001`.
-- Claude role: read-only pre-review completed with `APPROVED`; next,
-  independent construction on `claude/FP-TU-001` and reciprocal verification.
-- Current blocker: none. Baseline hashes, REVIEW scope, and both old-radius
-  interpretations were independently checked, and the user authorized the
-  task-scoped Claude execution data transfer on 2026-09-05.
-- Next action: begin both blind independent routes from the common activation
-  commit and seal each first result before disclosure.
+- Claude role: independent construction and reciprocal verification completed;
+  final report commit
+  `ae82bb8bd7a269c878697b19280a00c4ad2c2f23` ends `PASS`.
+- Current blocker: none.  GPT reproduced Claude's repaired 480-record route;
+  Claude independently reproduced GPT's verifier, hash, analyzer, and metric
+  evidence; both reciprocal reports pass.
+- Next action: await separate user approval before any merge to `main`, or
+  begin the next GPT-authored research task on a new `codex/*` branch.
 - Design:
   `docs/superpowers/specs/2026-09-04-time-uniform-mixture-certificate-design.md`.
 - Plan:
@@ -67,6 +70,10 @@ constants, and post-hoc certificate selection remain outside scope.
 - `evaluate_visit_indexed_certificates.py`
 - `analyze_visit_indexed_certificates.py`
 - `verify_visit_indexed_martingale_certificate.py`
+- `time_uniform_mixture_certificate.py`
+- `verify_time_uniform_mixture_certificate.py`
+- `evaluate_time_uniform_certificates.py`
+- `analyze_time_uniform_certificates.py`
 
 ## Active evidence
 
@@ -89,6 +96,10 @@ constants, and post-hoc certificate selection remain outside scope.
 - `docs/superpowers/specs/2026-09-04-time-uniform-mixture-certificate-design.md`
 - `docs/superpowers/plans/2026-09-04-time-uniform-mixture-certificate-plan.md`
 - `docs/research_tasks/FP-TU-001.md`
+- `docs/research_branches/time_uniform_mixture_certificate_theory.md`
+- `docs/research_branches/time_uniform_mixture_certificate_report.md`
+- `results/FP-TU-001/codex/`
+- `results/FP-TU-001/claude/`
 
 Each independent formal route contains 480 same-seed comparisons, strict-JSON
 route certificates, zero-mismatch legacy regression, certificate/failure

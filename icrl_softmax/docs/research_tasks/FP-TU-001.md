@@ -4,7 +4,7 @@
 
 - Created: 2026-09-04.
 - Author: GPT.
-- Status: `ACTIVE`.
+- Status: `VERIFIED`.
 - Task version: `1.0`.
 - Scientific baseline:
   `28b71685ca05ae073cc847fdea230019e4bd63ea`.
@@ -19,8 +19,12 @@
 - Plan:
   `docs/superpowers/plans/2026-09-04-time-uniform-mixture-certificate-plan.md`.
 - GPT branch and worktree: `codex/FP-TU-001` in the repository root.
-- Claude branch and worktree: `claude/FP-TU-001` in
-  `C:\tmp\research-FP-TU-001-claude` after activation.
+- Claude branch and worktree: `claude/FP-TU-001`, activated in
+  `C:\tmp\research-FP-TU-001-claude` and relocated without branch or commit
+  changes to
+  `C:\Users\Admin\Desktop\research\icrl_softmax\results\FP-TU-001\claude_worktree_writable`
+  for the final reciprocal report because the original path was read-only to
+  the Claude sandbox identity.
 - GPT result directory:
   `C:\Users\Admin\Desktop\research\icrl_softmax\results\FP-TU-001\codex\`.
 - Claude result directory:
@@ -522,11 +526,29 @@ evidence.
   design at commit `0c0c63dd8defbb606dc6f51190d914e33c9da526`.
 - Required GPT revision: none.
 
+### Final exception ruling
+
+- Date: 2026-09-07.
+- Decision: after reviewing the completed evidence, the user explicitly
+  accepted both documented exceptions:
+  1. Claude's second execution of the identical frozen formal command after a
+     summary-only compatibility repair; and
+  2. GPT performing the final Git commit of Claude's already written,
+     unchanged reciprocal `PASS` report because Claude could not write the
+     shared repository Git metadata.
+- Boundaries: the first exception does not authorize parameter tuning or a
+  future formal rerun; the second applies only to the Claude-authored report
+  at commit `ae82bb8bd7a269c878697b19280a00c4ad2c2f23`.  It does not authorize
+  GPT to modify other Claude files or branches, alter verification content,
+  merge to `main`, publish externally, or weaken repository permissions.
+- Required GPT revision: record the ruling, close verification, and preserve
+  `main` unchanged pending separate merge approval.
+
 ## Execution evidence
 
 ### GPT route
 
-- Status: `FORMAL_RESULT_SEALED_PENDING_RECIPROCAL_VERIFICATION`.
+- Status: `VERIFIED`.
 - Independent implementation commit:
   `4656fd30b24e410241990665f93d93bf2ece564b`.
 - Blind first-result seal:
@@ -542,7 +564,7 @@ evidence.
 
 ### Claude route
 
-- Status: `FORMAL_RESULT_SEALED_VERIFICATION_FAILED_REPAIRING`.
+- Status: `VERIFIED`.
 - Blind first-result seal:
   `450881dc62d6588f0542392df97705fcb92c989e`.
 - Formal-result seal:
@@ -559,25 +581,46 @@ evidence.
   disclosure.  GPT's first verification returned `FAIL` for three repairable
   proof/API/feasibility wording issues; Claude must repair them without
   rerunning the formal matrix.  The documented duplicate formal evaluation
-  after a summary-only repair remains for final user ruling.
+  after a summary-only repair was accepted by the user's final exception
+  ruling.  Claude repaired
+  all three findings on its branch: asymmetric interval-Hoeffding wording and
+  fixtures, immutable/frozen-grid validation with the 200-iteration ceiling,
+  and qualified transition-variance obstruction/gap.  Repair commit:
+  `02e74cf6d238cfeed03495b4807eccef98c4fa78`.  GPT's detached re-review
+  passed all inherited and new verifiers plus Ruff, and reproduced the
+  480-record formal data byte-for-byte in
+  `results/FP-TU-001/codex/claude_reproduction/`.
 
 ## Verification reports
 
 ### GPT verifies Claude
 
-- Status: `FAIL`; repair-required findings are recorded in
+- Status: `PASS` after repair and independent reproduction.  The initial
+  `FAIL` and each repair are retained in
   `docs/research_branches/FP-TU-001/codex/verification_of_claude.md`.
 
 ### Claude verifies GPT
 
-- Status: `PENDING`.
+- Status: `PASS` at Claude report commit
+  `ae82bb8bd7a269c878697b19280a00c4ad2c2f23`.
+- Claude independently ran all six required verifiers, task-scoped Ruff, exact
+  baseline and formal-artifact hash checks, a 480-record compact metric audit,
+  and the GPT analyzer on a disposable copy.  It reviewed the theory,
+  conservative inversion, ordered `MixtureInversionError` handling, and
+  no-fallback behavior, then assessed all 20 acceptance criteria.
+- The Claude sandbox wrote the final report but could not create Git locks in
+  the shared repository metadata.  Under the user's explicit one-file
+  exception, GPT committed the unchanged Claude-authored report.  The commit
+  contains only
+  `docs/research_branches/FP-TU-001/claude/verification_of_codex.md` and ends
+  `PASS`.
 
 ## Definition of done
 
-- [ ] No unresolved objection remains.
-- [ ] Both independent routes are reproducible.
-- [ ] Both reciprocal verification reports are recorded and pass.
-- [ ] Every acceptance criterion has evidence.
-- [ ] Differences are reconciled or ruled on by the user.
-- [ ] `ACTIVE_WORKSPACE.md` is current.
-- [ ] `main` remains unchanged unless the user separately approves a merge.
+- [x] No unresolved objection remains.
+- [x] Both independent routes are reproducible.
+- [x] Both reciprocal verification reports are recorded and pass.
+- [x] Every acceptance criterion has evidence.
+- [x] Differences are reconciled or ruled on by the user.
+- [x] `ACTIVE_WORKSPACE.md` is current.
+- [x] `main` remains unchanged unless the user separately approves a merge.
