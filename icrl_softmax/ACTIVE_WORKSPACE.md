@@ -2,11 +2,11 @@
 
 ## Current objective
 
-Status: `FP-ADV-001` is in `REVIEW`. The user approved the written design and
-instructed GPT to continue on 2026-09-08. The DRAFT research contract is frozen
-at `919c26f8f2dc90b093cc1f40c9b36d2be2b45b03`; no implementation or experiment
-may begin before Claude's read-only pre-review returns `APPROVED` and GPT
-records the `ACTIVE` transition.
+Status: `FP-ADV-001` is `ACTIVE`. Claude's task-scoped read-only pre-review of
+commit `a3a0340b3f63ed53eb00b5d5af244fabdbbbe75d` returned `APPROVED` on
+2026-09-08 with 12 passed contract checks and two non-blocking implementation
+cautions. The activation commit is the common execution start and will be
+recorded exactly in the next evidence-only metadata commit.
 
 The current task asks whether the verified `FP-TU-001` event can certify only
 the action differences used by one policy update. V-first local exact and
@@ -34,20 +34,21 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
 
 ## Active research task
 
-- Task: `docs/research_tasks/FP-ADV-001.md` (`REVIEW`).
+- Task: `docs/research_tasks/FP-ADV-001.md` (`ACTIVE`).
 - Git and scientific baseline:
   `c579047950dfabb2600020cd2e53dd24b3e39c84`.
 - Frozen DRAFT task-definition baseline:
   `919c26f8f2dc90b093cc1f40c9b36d2be2b45b03`.
-- Common execution-start commit: assigned only after pre-review approval.
+- Common execution-start commit: the current `ACTIVE` transition commit; exact
+  identity will be recorded immediately afterward.
 - GPT branch: `codex/FP-ADV-001`.
-- Claude role: task-scoped read-only pre-review authorized; independent
+- Claude role: read-only pre-review completed with `APPROVED`; independent
   execution is not authorized.
-- Current blocker: the required Claude decision has not yet been obtained. The
-  earlier call ended before transfer; the user explicitly authorized a retry
-  after the private material, external service, tool boundary, and exclusions
-  were identified.
-- Next action: obtain `APPROVED` or `OBJECTION`; activate only if approved.
+- Current blocker: task validity is approved, but the private-material transfer
+  required for Claude's independent proof, implementation, smoke, and formal
+  route has not been authorized.
+- Next action: record the exact activation commit, then obtain the separate
+  independent-execution authorization before launching either blind route.
 - Design:
   `docs/superpowers/specs/2026-09-08-action-gap-safe-update-design.md`.
 - Plan:

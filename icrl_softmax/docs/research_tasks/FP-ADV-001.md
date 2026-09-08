@@ -4,16 +4,17 @@
 
 - Created: 2026-09-08.
 - Author: GPT.
-- Status: `REVIEW`.
-- Task version: `0.4`.
+- Status: `ACTIVE`.
+- Task version: `1.0`.
 - Git and scientific baseline:
   `c579047950dfabb2600020cd2e53dd24b3e39c84`.
 - Approved design commit:
   `0ff51967aa131e769c3bf63efc1c3bbe6c9030ad`.
 - DRAFT task-definition baseline:
   `919c26f8f2dc90b093cc1f40c9b36d2be2b45b03`.
-- Execution-start commit: assigned only after an `APPROVED` pre-review and the
-  `ACTIVE` transition.
+- Execution-start commit: the `ACTIVE` activation commit containing the Claude
+  approval record below; its exact identity is recorded in the next
+  evidence-only metadata commit.
 - Design:
   `docs/superpowers/specs/2026-09-08-action-gap-safe-update-design.md`.
 - Plan:
@@ -456,19 +457,59 @@ without editing it and records exactly `PASS`, `FAIL`, or `OBJECTION`.
 
 ## Claude read-only pre-review
 
-- Status: `AUTHORIZED_PENDING_RETRY` while the task remains `REVIEW`.
-- Required output: `APPROVED` or `OBJECTION`, with itemized evidence.
-- Tool boundary: read-only task-scoped inspection; no implementation,
-  experiment, branch mutation, result generation, or future-route disclosure.
+- Date: 2026-09-08.
+- Status: `COMPLETED`.
+- Reviewed commit: `a3a0340b3f63ed53eb00b5d5af244fabdbbbe75d`.
+- Outcome: `APPROVED`.
+- Tool boundary: Claude Code 2.1.138 in `plan` permission mode with only
+  `Read`, `Glob`, and `Grep`; no file write, experiment, branch mutation,
+  result generation, or future-route disclosure was available.
 - Launch record: on 2026-09-08 GPT requested the task-scoped external Claude
   call with only `Read`, `Glob`, and `Grep`. The permission review connection
   ended before approval completed, so the process was rejected before Claude
-  ran. No task material was transferred, no Claude session was created, and no
-  review result exists.
-- Authorization closure: after GPT identified the private task-scoped material,
-  external Claude service, and read-only tool boundary, the user replied “好”
-  on 2026-09-08. Retry the same review without expanding its tool or data
-  scope.
+  ran. That first attempt transferred no task material, created no Claude
+  session, and produced no review result.
+- Authorization closure and successful retry: after GPT identified the private
+  task-scoped material, external Claude service, and read-only tool boundary,
+  the user replied “好” on 2026-09-08. The retry used the same scope and
+  completed with an auditable approval.
+- Itemized result:
+  1. lifecycle, baselines, approved design, user ruling, and GPT/Claude role
+     boundaries are consistent with `AGENTS.md`;
+  2. the exact V-first recovery decomposition matches the existing estimator
+     and fixed-target recovery event;
+  3. `|(p-q)^T e| <= TV(p,q)span(e)` gives the frozen factor
+     `2 gamma E_V TV` with no missing constant;
+  4. the finite-softmax within-group mass, off-group `2B` contamination, and
+     effective successor row yield the frozen softmax uncertainty without an
+     oracle input;
+  5. all radii reuse the pre-paid `FP-TU-001` simultaneous event and introduce
+     no hidden route or pair risk split;
+  6. post-data receiver and donor selection is a deterministic consequence of
+     that event and preserves the selective probability statement;
+  7. exact and softmax local penalties are deterministically no wider than
+     their matching global V-first controls;
+  8. `theta=1/2` transfers preserve the simplex and exploration floor, and the
+     Bellman identity implies pointwise policy non-degradation;
+  9. support is correctly localized, abstentions are ordered, the pure
+     interface is no-oracle, and strict-JSON/oracle separation has existing
+     compatible infrastructure;
+  10. the frozen 30-by-4-by-2-by-2 matrix, seed, baseline identities,
+      deliverables, negative route, and runtime checks are executable;
+  11. branch/result isolation, blind seals, nondisclosure, and separate
+      independent-execution authorization are explicit; and
+  12. all 20 acceptance criteria are checkable, while failure of the empirical
+      usefulness hypothesis remains a valid verified negative result.
+- Non-blocking execution cautions:
+  1. make the receiver behavior with unvisited actions explicit in code and
+     tests; donor eligibility already requires both compared counts positive,
+     so safety is unaffected; and
+  2. expect many short-prefix `state_certificate_not_emitted` abstentions
+     because the state route requires full support; this is frozen behavior,
+     not a defect.
+- Validity assessment: no blocking task-definition or acceptance-basis defect
+  exists. The task may become `ACTIVE` without changing its formulas, risk
+  budget, routes, transfer rule, or evaluation protocol.
 
 ## Claude data-transfer authorization
 
@@ -516,13 +557,13 @@ without editing it and records exactly `PASS`, `FAIL`, or `OBJECTION`.
 
 ## Quota or continuity handoff
 
-- Current branch and task version: `codex/FP-ADV-001`, version `0.4` in
-  `REVIEW`.
+- Current branch and task version: `codex/FP-ADV-001`, version `1.0` in
+  `ACTIVE`.
 - Completed work: approved design, frozen DRAFT baseline, REVIEW task/plan, and
   explicit authorization for the task-scoped Claude read-only transfer.
-- Running work: none before the authorized pre-review retry.
-- Pending work: Claude pre-review, activation, isolated execution, reciprocal
-  verification, and synthesis.
+- Running work: none before the activation commit.
+- Pending work: exact activation identity, independent-execution authorization,
+  isolated execution, reciprocal verification, and synthesis.
 - Commands and outputs: no research implementation or experiment has begun.
 - Current findings: action-specific recovery and observed successor-row
   differences may remove unrelated full-Q bottlenecks; formal usefulness is
@@ -530,9 +571,10 @@ without editing it and records exactly `PASS`, `FAIL`, or `OBJECTION`.
 - Immutable boundaries: probability semantics, formulas, transfer fraction,
   480-record protocol, route isolation, no oracle input, no tuning, and no
   `main` merge.
-- Claude's exact next action: read-only pre-review after the REVIEW commit.
-- GPT's required return verification: record and audit the review before any
-  activation.
+- Claude's exact next action: none until independent execution is explicitly
+  authorized and an isolated worktree is created.
+- GPT's required return verification: record the exact activation identity and
+  preserve all frozen boundaries before implementation.
 
 ## Verification reports
 
