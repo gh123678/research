@@ -4,14 +4,14 @@
 
 - Created: 2026-09-08.
 - Author: GPT.
-- Status: `DRAFT`.
-- Task version: `0.1`.
+- Status: `REVIEW`.
+- Task version: `0.2`.
 - Git and scientific baseline:
   `c579047950dfabb2600020cd2e53dd24b3e39c84`.
 - Approved design commit:
   `0ff51967aa131e769c3bf63efc1c3bbe6c9030ad`.
-- DRAFT task-definition baseline: the commit containing this version; its
-  exact identity is recorded during the transition to `REVIEW`.
+- DRAFT task-definition baseline:
+  `919c26f8f2dc90b093cc1f40c9b36d2be2b45b03`.
 - Execution-start commit: assigned only after an `APPROVED` pre-review and the
   `ACTIVE` transition.
 - Design:
@@ -456,7 +456,7 @@ without editing it and records exactly `PASS`, `FAIL`, or `OBJECTION`.
 
 ## Claude read-only pre-review
 
-- Status: `PENDING` while the task is `DRAFT`.
+- Status: `PENDING` while the task is `REVIEW`.
 - Required output: `APPROVED` or `OBJECTION`, with itemized evidence.
 - Tool boundary: read-only task-scoped inspection; no implementation,
   experiment, branch mutation, result generation, or future-route disclosure.
@@ -505,12 +505,12 @@ without editing it and records exactly `PASS`, `FAIL`, or `OBJECTION`.
 
 ## Quota or continuity handoff
 
-- Current branch and task version: `codex/FP-ADV-001`, version `0.1` in
-  `DRAFT`.
-- Completed work: approved design and initial frozen task/plan drafting.
+- Current branch and task version: `codex/FP-ADV-001`, version `0.2` in
+  `REVIEW`.
+- Completed work: approved design, frozen DRAFT baseline, and REVIEW task/plan.
 - Running work: none before activation.
-- Pending work: DRAFT commit, REVIEW transition, Claude pre-review, activation,
-  isolated execution, reciprocal verification, and synthesis.
+- Pending work: Claude pre-review, activation, isolated execution, reciprocal
+  verification, and synthesis.
 - Commands and outputs: no research implementation or experiment has begun.
 - Current findings: action-specific recovery and observed successor-row
   differences may remove unrelated full-Q bottlenecks; formal usefulness is

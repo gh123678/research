@@ -2,26 +2,24 @@
 
 ## Current objective
 
-Status: `FP-TU-001` is `VERIFIED` and merged into local `main` at
-`b67fa502662ee041410a38e20e87a55365e6f94c`.  Both independent routes and
-reciprocal reports pass; the user accepted the two documented
-environment/procedure exceptions on 2026-09-07.  After a fresh no-divergence
-check, the user-authorized push synchronized the verified history to
-`origin/main` without force.
+Status: `FP-ADV-001` is in `REVIEW`. The user approved the written design and
+instructed GPT to continue on 2026-09-08. The DRAFT research contract is frozen
+at `919c26f8f2dc90b093cc1f40c9b36d2be2b45b03`; no implementation or experiment
+may begin before Claude's read-only pre-review returns `APPROVED` and GPT
+records the `ACTIVE` transition.
 
-The current task asks whether a preregistered finite geometric mixture of
-exponential supermartingales can replace the verified count-wise Hoeffding
-union while preserving the same fixed-policy assumptions, no-oracle inputs,
-selective probability statement, and deterministic route recurrences.
+The current task asks whether the verified `FP-TU-001` event can certify only
+the action differences used by one policy update. V-first local exact and
+finite-softmax bounds are primary; complete-Q V-first and Direct-Q bounds are
+controls. The update moves half of each certified donor's mass above `pi_min`
+and must guarantee `V^{pi_plus} >= V^pi` componentwise.
 
-The mandatory target is a time-uniform mixture radius no wider than the old
-radius for every count through 16384. Analytic line stitching is audit-only;
-observable transition variance is feasibility-only. The frozen 480-record
-protocol is retained for paired evaluation after activation.
+The task reuses the frozen 480-record protocol and spends no new risk budget.
+It excludes repeated control, new Direct-Q local theory, variance adaptation,
+oracle inputs, outcome tuning, and conditional-on-emission claims.
 
-`FP-MART-001` remains the verified scientific baseline. Fully online control,
-nonstationary starts, general stochastic reward noise, outcome-tuned mixture
-constants, and post-hoc certificate selection remain outside scope.
+`FP-TU-001` remains the verified certificate baseline. Its local merge and
+remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84`.
 
 ## Research governance
 
@@ -36,26 +34,23 @@ constants, and post-hoc certificate selection remain outside scope.
 
 ## Active research task
 
-- Task: `docs/research_tasks/FP-TU-001.md` (`VERIFIED`).
-- Scientific baseline: `28b71685ca05ae073cc847fdea230019e4bd63ea`.
-- Frozen task-definition baseline:
-  `0a66c4c583678e3186af7c5dbcff02779436329c`.
-- Common execution-start commit:
-  `0ce18b4676f70ca0556496e804aa65563efa63da`.
-- GPT branch: `codex/FP-TU-001`.
-- Claude role: independent construction and reciprocal verification completed;
-  final report commit
-  `ae82bb8bd7a269c878697b19280a00c4ad2c2f23` ends `PASS`.
-- Current blocker: none.  GPT reproduced Claude's repaired 480-record route;
-  Claude independently reproduced GPT's verifier, hash, analyzer, and metric
-  evidence; both reciprocal reports pass.
-- Next action: local merge, post-merge verification, and remote synchronization
-  are complete.  Begin the next GPT-authored task on a new `codex/*` branch.
+- Task: `docs/research_tasks/FP-ADV-001.md` (`REVIEW`).
+- Git and scientific baseline:
+  `c579047950dfabb2600020cd2e53dd24b3e39c84`.
+- Frozen DRAFT task-definition baseline:
+  `919c26f8f2dc90b093cc1f40c9b36d2be2b45b03`.
+- Common execution-start commit: assigned only after pre-review approval.
+- GPT branch: `codex/FP-ADV-001`.
+- Claude role: read-only task pre-review pending; independent execution is not
+  yet authorized.
+- Current blocker: mandatory Claude pre-review has not yet completed.
+- Next action: obtain `APPROVED` or `OBJECTION`, record the result, and activate
+  only if approved.
 - Design:
-  `docs/superpowers/specs/2026-09-04-time-uniform-mixture-certificate-design.md`.
+  `docs/superpowers/specs/2026-09-08-action-gap-safe-update-design.md`.
 - Plan:
-  `docs/superpowers/plans/2026-09-04-time-uniform-mixture-certificate-plan.md`.
-- Prior verified task: `docs/research_tasks/FP-MART-001.md` (`VERIFIED`).
+  `docs/superpowers/plans/2026-09-08-action-gap-safe-update-plan.md`.
+- Prior verified task: `docs/research_tasks/FP-TU-001.md` (`VERIFIED`).
 
 ## Active implementation
 
