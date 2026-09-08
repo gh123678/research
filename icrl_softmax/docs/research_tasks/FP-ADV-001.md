@@ -5,7 +5,8 @@
 - Created: 2026-09-08.
 - Author: GPT.
 - Status: `ACTIVE`.
-- Task version: `1.0`.
+- Task version: `1.1` (governance-only authorization record; frozen scientific
+  contract unchanged).
 - Git and scientific baseline:
   `c579047950dfabb2600020cd2e53dd24b3e39c84`.
 - Approved design commit:
@@ -14,13 +15,16 @@
   `919c26f8f2dc90b093cc1f40c9b36d2be2b45b03`.
 - Execution-start commit:
   `10a9a94e24ec92a59e7c756f9af6ce07b2f30e59`.
+- Common route execution-start commit: the authorization commit containing this
+  ruling; its exact identity is recorded in the immediately following metadata
+  commit.
 - Design:
   `docs/superpowers/specs/2026-09-08-action-gap-safe-update-design.md`.
 - Plan:
   `docs/superpowers/plans/2026-09-08-action-gap-safe-update-plan.md`.
 - GPT branch and worktree: `codex/FP-ADV-001` in the repository root.
 - Claude branch and worktree: `claude/FP-ADV-001` in an isolated worktree
-  created from the future execution-start commit.
+  created from the common route execution-start commit.
 - GPT result directory:
   `C:\Users\Admin\Desktop\research\icrl_softmax\results\FP-ADV-001\codex\`.
 - Claude result directory:
@@ -529,11 +533,21 @@ without editing it and records exactly `PASS`, `FAIL`, or `OBJECTION`.
 
 ### Independent execution
 
-- Status: `PENDING_EXPLICIT_AUTHORIZATION`.
-- Scope if later authorized: task-scoped private code, frozen baseline, task,
-  design, plan, and inherited verified theory required for Claude's independent
-  proof, implementation, smoke, and one frozen formal result.
-- No independent Claude execution begins while this status is pending.
+- Status: `AUTHORIZED`.
+- Date: 2026-09-08.
+- User ruling: after GPT identified the external Claude service, private
+  task-scoped material, write and execution scope, frozen formal run, and
+  exclusions, the user replied “好的”.
+- Scope: task-scoped private code, task, design, plan, frozen baseline, and
+  inherited verified theory may be sent to the external Claude service for an
+  independent proof, tests, implementation, smoke evaluation, and exactly one
+  frozen 480-record formal evaluation. Claude may write only its isolated
+  `claude/FP-ADV-001` branch/worktree, assigned evidence directory, and assigned
+  ignored result directory, and may perform task-scoped read-only primary-source
+  retrieval.
+- Exclusions: no merge to `main`, push, publication, external message, access to
+  GPT's blind first result, unsafe permission bypass, new fee category, or
+  scientific-contract change.
 
 ## Objections and user rulings
 
@@ -556,13 +570,14 @@ without editing it and records exactly `PASS`, `FAIL`, or `OBJECTION`.
 
 ## Quota or continuity handoff
 
-- Current branch and task version: `codex/FP-ADV-001`, version `1.0` in
+- Current branch and task version: `codex/FP-ADV-001`, version `1.1` in
   `ACTIVE`.
-- Completed work: approved design, frozen DRAFT baseline, REVIEW task/plan, and
-  explicit authorization for the task-scoped Claude read-only transfer.
-- Running work: none before the activation commit.
-- Pending work: independent-execution authorization, isolated execution,
-  reciprocal verification, and synthesis.
+- Completed work: approved design, frozen DRAFT baseline, REVIEW task/plan,
+  Claude read-only pre-review with `APPROVED`, scientific activation, and
+  explicit authorization for Claude's isolated independent route.
+- Running work: none before isolated route setup.
+- Pending work: isolated blind execution on both routes, reciprocal
+  verification, and synthesis.
 - Commands and outputs: no research implementation or experiment has begun.
 - Current findings: action-specific recovery and observed successor-row
   differences may remove unrelated full-Q bottlenecks; formal usefulness is

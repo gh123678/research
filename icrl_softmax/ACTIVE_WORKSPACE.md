@@ -7,6 +7,8 @@ commit `a3a0340b3f63ed53eb00b5d5af244fabdbbbe75d` returned `APPROVED` on
 2026-09-08 with 12 passed contract checks and two non-blocking implementation
 cautions. Common execution starts from
 `10a9a94e24ec92a59e7c756f9af6ce07b2f30e59`.
+The user has separately authorized Claude's isolated independent proof,
+implementation, smoke run, and one frozen 480-record formal run.
 
 The current task asks whether the verified `FP-TU-001` event can certify only
 the action differences used by one policy update. V-first local exact and
@@ -42,13 +44,11 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
 - Common execution-start commit:
   `10a9a94e24ec92a59e7c756f9af6ce07b2f30e59`.
 - GPT branch: `codex/FP-ADV-001`.
-- Claude role: read-only pre-review completed with `APPROVED`; independent
-  execution is not authorized.
-- Current blocker: task validity is approved, but the private-material transfer
-  required for Claude's independent proof, implementation, smoke, and formal
-  route has not been authorized.
-- Next action: obtain the separate independent-execution authorization before
-  launching either blind route.
+- Claude role: read-only pre-review completed with `APPROVED`; isolated
+  independent execution is explicitly authorized.
+- Current blocker: none before isolated route setup.
+- Next action: create the common-baseline Claude worktree, then launch both
+  blind routes without cross-reading results before both are sealed.
 - Design:
   `docs/superpowers/specs/2026-09-08-action-gap-safe-update-design.md`.
 - Plan:
