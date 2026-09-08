@@ -48,9 +48,15 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
 - GPT branch: `codex/FP-ADV-001`.
 - Claude role: read-only pre-review completed with `APPROVED`; isolated
   independent execution is explicitly authorized.
-- Current blocker: none before isolated route setup.
-- Next action: create the common-baseline Claude worktree, then launch both
-  blind routes without cross-reading results before both are sealed.
+- GPT blind first-result seal:
+  `996641d9ce2088e95c0bf2a0661e3b24b6e0d6fe`; all proof, verifier, Ruff,
+  eight-record smoke, reconstruction, preservation, policy, separation, and
+  dominance checks passed before the seal.
+- Claude isolated route: running from
+  `4078f6911cbfb4654205772685f49896e4e8cad2`; no Claude result has been read.
+- Current blocker: none.
+- Next action: run the Codex frozen 480-record matrix exactly once while Claude
+  independently completes and seals its route.
 - Design:
   `docs/superpowers/specs/2026-09-08-action-gap-safe-update-design.md`.
 - Plan:

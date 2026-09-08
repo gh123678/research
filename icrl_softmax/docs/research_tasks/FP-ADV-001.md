@@ -444,6 +444,14 @@ GPT independently constructs proof, tests, implementation, smoke, formal
 evidence, and its acceptance assessment in GPT-owned paths. Codex subagents
 cannot replace the required Claude route.
 
+- Blind first-result seal:
+  `996641d9ce2088e95c0bf2a0661e3b24b6e0d6fe`.
+- Pre-seal evidence: proof and test-first implementation completed; all
+  inherited/new verifiers, task-scoped Ruff, an eight-record smoke matrix,
+  strict reconstruction, legacy preservation, policy validation, oracle
+  separation, and local/global dominance checks passed.
+- Formal evaluation: not run before the blind first-result seal.
+
 ### Claude route
 
 Claude independently constructs the same result from the common activation
