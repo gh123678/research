@@ -334,6 +334,7 @@ def main() -> None:
     test_softmax_contamination_and_global_formula()
     test_positive_update_floor_tie_break_and_theta()
     test_partial_support_is_local_and_unvisited_receiver_abstains()
+    test_no_donor_returns_original_policy_exactly()
     test_ordered_reasons_divergence_and_mode()
     test_local_global_dominance_and_bellman_fixture()
     test_strict_json_and_no_oracle_interface()
