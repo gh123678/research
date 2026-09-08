@@ -22,6 +22,7 @@ from evaluate_action_gap_certificates import (
     _compare_legacy,
     _record_identity,
     _strict_load,
+    augment_summary,
     verify_frozen_time_uniform_baseline,
 )
 
@@ -334,18 +335,107 @@ def analyze(result_dir: Path, *, allow_smoke: bool) -> dict[str, Any]:
     return strict_json_ready(regression)
 
 
+def repair_no_update_policy_identity(result_dir: Path) -> int:
+    """Correct the first formal serialization without rerunning its matrix.
+
+    The initial serializer normalized the selected receiver even when a state
+    had no eligible donor, causing at most 6.94e-17 representation drift.  This
+    deterministic repair uses only serialized observable inputs.  Every formal
+    route abstained, so its exact oracle consequence is the identity policy.
+    """
+    project_dir = Path(__file__).resolve().parent
+    records = _strict_load(result_dir / "task_results.json")
+    baseline_summary = _strict_load(
+        project_dir / "results/FP-TU-001/codex/summary.json"
+    )
+    repaired = 0
+    for record in records:
+        certificate = record["action_gap_certificate"]
+        original = certificate["certificate_inputs"]["observed"]["policy"]
+        n_states = len(original)
+        for route_name, route in certificate["routes"].items():
+            if int(route["eligible_donor_count"]) != 0:
+                continue
+            if route["policy_plus"] != original:
+                repaired += 1
+            route["policy_plus"] = [list(row) for row in original]
+            route["minimum_policy_mass"] = min(
+                float(value) for row in original for value in row
+            )
+            route["maximum_row_sum_error"] = max(
+                abs(sum(float(value) for value in row) - 1.0) for row in original
+            )
+            audit = certificate["oracle_audit"]["routes"][route_name]
+            if int(audit["used_ordering_count"]) != 0:
+                raise RuntimeError("cannot identity-repair a route with a used ordering")
+            zeros = [0.0] * n_states
+            audit["bellman_change_by_state"] = zeros
+            audit["bellman_lcb_by_state"] = zeros
+            audit["minimum_bellman_change"] = 0.0
+            audit["bellman_bound_violation_count"] = 0
+            audit["value_change_by_state"] = zeros
+            audit["minimum_value_change"] = 0.0
+            audit["value_decrease_count"] = 0
+            audit["new_exact_return"] = audit["old_exact_return"]
+            audit["exact_return_change"] = 0.0
+            audit["return_decrease"] = False
+        route_audits = certificate["oracle_audit"]["routes"].values()
+        certificate["oracle_audit"]["any_false_ordering"] = any(
+            int(audit["false_ordering_count"]) > 0 for audit in route_audits
+        )
+        route_audits = certificate["oracle_audit"]["routes"].values()
+        certificate["oracle_audit"]["any_bellman_bound_violation"] = any(
+            int(audit["bellman_bound_violation_count"]) > 0 for audit in route_audits
+        )
+        route_audits = certificate["oracle_audit"]["routes"].values()
+        certificate["oracle_audit"]["any_value_decrease"] = any(
+            int(audit["value_decrease_count"]) > 0 for audit in route_audits
+        )
+        route_audits = certificate["oracle_audit"]["routes"].values()
+        certificate["oracle_audit"]["any_return_decrease"] = any(
+            bool(audit["return_decrease"]) for audit in route_audits
+        )
+    summary = augment_summary(baseline_summary, records)
+    (result_dir / "task_results.json").write_text(
+        json.dumps(strict_json_ready(records), ensure_ascii=False, indent=2, allow_nan=False),
+        encoding="utf-8",
+    )
+    (result_dir / "summary.json").write_text(
+        json.dumps(strict_json_ready(summary), ensure_ascii=False, indent=2, allow_nan=False),
+        encoding="utf-8",
+    )
+    environment = _strict_load(result_dir / "environment.json")
+    environment["post_formal_representation_repair"] = {
+        "reason": "no-donor policy identity drift at most 6.94e-17",
+        "routes_repaired": repaired,
+        "formal_matrix_rerun": False,
+    }
+    (result_dir / "environment.json").write_text(
+        json.dumps(strict_json_ready(environment), ensure_ascii=False, indent=2, allow_nan=False),
+        encoding="utf-8",
+    )
+    return repaired
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--result-dir", type=Path, default=Path("results/FP-ADV-001/codex")
     )
     parser.add_argument("--allow-smoke", action="store_true")
+    parser.add_argument("--repair-no-update-identity", action="store_true")
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
     result_dir = args.result_dir.resolve()
+    if args.repair_no_update_identity:
+        repaired = repair_no_update_policy_identity(result_dir)
+        print(
+            f"REPAIRED {repaired} no-update policy serializations without rerunning "
+            "the formal matrix"
+        )
     regression = analyze(result_dir, allow_smoke=bool(args.allow_smoke))
     (result_dir / "regression.json").write_text(
         json.dumps(regression, ensure_ascii=False, indent=2, allow_nan=False),

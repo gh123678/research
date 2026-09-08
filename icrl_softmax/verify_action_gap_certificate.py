@@ -214,6 +214,16 @@ def test_partial_support_is_local_and_unvisited_receiver_abstains() -> None:
     assert "candidate_pair_unvisited" in second["failure_reasons"]
 
 
+def test_no_donor_returns_original_policy_exactly() -> None:
+    inputs = _base_inputs()
+    estimates = np.asarray([[0.02, 0.01, 0.0]], dtype=np.float64)
+    inputs["q_estimates"] = {key: estimates for key in inputs["q_estimates"]}
+    certificate = build_action_gap_certificate(**inputs)
+    for route in certificate["routes"].values():
+        assert route["eligible_donor_count"] == 0
+        assert route["policy_plus"] == inputs["policy"]
+
+
 def test_ordered_reasons_divergence_and_mode() -> None:
     scrambled = [
         "gap_lcb_nonpositive",

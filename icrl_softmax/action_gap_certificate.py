@@ -491,10 +491,14 @@ def _build_route(
                 bellman_lcbs[state] += transfer * float(item["gap_lcb"])
                 transferred_total += transfer
                 eligible_total += 1
-        # Make the mathematical conservation identity explicit in floating point.
-        nonreceiver_sum = float(np.sum(np.delete(updated[state], receiver)))
-        updated[state, receiver] = 1.0 - nonreceiver_sum
         state_eligible = sum(bool(item["eligible"]) for item in comparisons)
+        if state_eligible:
+            # Make the conservation identity explicit only for an actual update.
+            nonreceiver_sum = float(np.sum(np.delete(updated[state], receiver)))
+            updated[state, receiver] = 1.0 - nonreceiver_sum
+        else:
+            # The frozen contract requires exact identity when no donor is eligible.
+            updated[state] = policy[state]
         state_reasons = canonical_reasons(
             [reason for item in comparisons for reason in item["failure_reasons"]]
         )
@@ -803,4 +807,3 @@ def build_action_gap_certificate(
     ready = strict_json_ready(output)
     # The output must already be finite except for intentionally unavailable nulls.
     return ready
-
