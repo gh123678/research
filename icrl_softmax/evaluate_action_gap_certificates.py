@@ -36,6 +36,7 @@ from evaluate_fixed_policy_q_routes import (
 )
 from evaluate_time_uniform_certificates import augment_summary as tu_augment_summary
 from evaluate_visit_indexed_certificates import (
+    augment_summary as vi_augment_summary,
     build_oracle_audit,
     declared_reward_bound,
 )
@@ -846,7 +847,8 @@ def main() -> None:
                                 )
 
     legacy_summary = summarize(task_results)
-    tu_summary = tu_augment_summary(legacy_summary, task_results)
+    vi_summary = vi_augment_summary(legacy_summary, task_results)
+    tu_summary = tu_augment_summary(vi_summary, task_results)
     summary = augment_summary_action_gap(tu_summary, task_results)
     write_json(output_dir / "task_results.json", task_results)
     write_json(output_dir / "summary.json", summary)
