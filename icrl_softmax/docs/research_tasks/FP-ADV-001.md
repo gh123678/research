@@ -451,6 +451,17 @@ cannot replace the required Claude route.
   strict reconstruction, legacy preservation, policy validation, oracle
   separation, and local/global dominance checks passed.
 - Formal evaluation: not run before the blind first-result seal.
+- Frozen formal evaluator: run exactly once with 480 records; exited `PASS`.
+- Post-formal ordinary fix:
+  `440710c8c9c77ee8128d4abfd96919ffafe7991c` corrects only no-donor policy
+  identity drift (maximum `6.94e-17`); serialized observable inputs were
+  mechanically repaired and revalidated without rerunning the formal matrix.
+- Formal-evidence seal:
+  `5f190ebb78697acd3cd877c1d64898929bb88024`.
+- Preliminary empirical outcome: all six routes emitted zero updates in 480
+  records; hypothesis 8 is falsified without retuning, while all Codex-route
+  mandatory checks pass. The outcome remains preliminary pending the blind
+  Claude route and reciprocal verification.
 
 ### Claude route
 

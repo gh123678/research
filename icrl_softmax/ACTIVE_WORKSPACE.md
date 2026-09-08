@@ -52,11 +52,17 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
   `996641d9ce2088e95c0bf2a0661e3b24b6e0d6fe`; all proof, verifier, Ruff,
   eight-record smoke, reconstruction, preservation, policy, separation, and
   dominance checks passed before the seal.
+- GPT formal-evidence seal:
+  `5f190ebb78697acd3cd877c1d64898929bb88024`; the sole 480-record formal
+  evaluator run passed, and all six routes emitted zero updates. A bounded
+  no-donor serialization defect was fixed at
+  `440710c8c9c77ee8128d4abfd96919ffafe7991c` and mechanically repaired from
+  saved observable inputs without rerunning the matrix.
 - Claude isolated route: running from
   `4078f6911cbfb4654205772685f49896e4e8cad2`; no Claude result has been read.
 - Current blocker: none.
-- Next action: run the Codex frozen 480-record matrix exactly once while Claude
-  independently completes and seals its route.
+- Next action: let Claude independently complete and seal its route, then
+  disclose both results and begin reciprocal verification.
 - Design:
   `docs/superpowers/specs/2026-09-08-action-gap-safe-update-design.md`.
 - Plan:
