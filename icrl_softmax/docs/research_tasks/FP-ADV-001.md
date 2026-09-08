@@ -12,9 +12,8 @@
   `0ff51967aa131e769c3bf63efc1c3bbe6c9030ad`.
 - DRAFT task-definition baseline:
   `919c26f8f2dc90b093cc1f40c9b36d2be2b45b03`.
-- Execution-start commit: the `ACTIVE` activation commit containing the Claude
-  approval record below; its exact identity is recorded in the next
-  evidence-only metadata commit.
+- Execution-start commit:
+  `10a9a94e24ec92a59e7c756f9af6ce07b2f30e59`.
 - Design:
   `docs/superpowers/specs/2026-09-08-action-gap-safe-update-design.md`.
 - Plan:
@@ -562,8 +561,8 @@ without editing it and records exactly `PASS`, `FAIL`, or `OBJECTION`.
 - Completed work: approved design, frozen DRAFT baseline, REVIEW task/plan, and
   explicit authorization for the task-scoped Claude read-only transfer.
 - Running work: none before the activation commit.
-- Pending work: exact activation identity, independent-execution authorization,
-  isolated execution, reciprocal verification, and synthesis.
+- Pending work: independent-execution authorization, isolated execution,
+  reciprocal verification, and synthesis.
 - Commands and outputs: no research implementation or experiment has begun.
 - Current findings: action-specific recovery and observed successor-row
   differences may remove unrelated full-Q bottlenecks; formal usefulness is
