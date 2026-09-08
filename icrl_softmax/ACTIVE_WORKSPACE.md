@@ -43,6 +43,8 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
   `919c26f8f2dc90b093cc1f40c9b36d2be2b45b03`.
 - Common execution-start commit:
   `10a9a94e24ec92a59e7c756f9af6ce07b2f30e59`.
+- Common route execution-start commit:
+  `4078f6911cbfb4654205772685f49896e4e8cad2`.
 - GPT branch: `codex/FP-ADV-001`.
 - Claude role: read-only pre-review completed with `APPROVED`; isolated
   independent execution is explicitly authorized.

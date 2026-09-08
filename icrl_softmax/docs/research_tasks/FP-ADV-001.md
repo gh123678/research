@@ -15,9 +15,8 @@
   `919c26f8f2dc90b093cc1f40c9b36d2be2b45b03`.
 - Execution-start commit:
   `10a9a94e24ec92a59e7c756f9af6ce07b2f30e59`.
-- Common route execution-start commit: the authorization commit containing this
-  ruling; its exact identity is recorded in the immediately following metadata
-  commit.
+- Common route execution-start commit:
+  `4078f6911cbfb4654205772685f49896e4e8cad2`.
 - Design:
   `docs/superpowers/specs/2026-09-08-action-gap-safe-update-design.md`.
 - Plan:
