@@ -5,7 +5,7 @@
 - Created: 2026-09-08.
 - Author: GPT.
 - Status: `REVIEW`.
-- Task version: `0.3`.
+- Task version: `0.4`.
 - Git and scientific baseline:
   `c579047950dfabb2600020cd2e53dd24b3e39c84`.
 - Approved design commit:
@@ -456,7 +456,7 @@ without editing it and records exactly `PASS`, `FAIL`, or `OBJECTION`.
 
 ## Claude read-only pre-review
 
-- Status: `BLOCKED_BEFORE_TRANSFER` while the task remains `REVIEW`.
+- Status: `AUTHORIZED_PENDING_RETRY` while the task remains `REVIEW`.
 - Required output: `APPROVED` or `OBJECTION`, with itemized evidence.
 - Tool boundary: read-only task-scoped inspection; no implementation,
   experiment, branch mutation, result generation, or future-route disclosure.
@@ -465,21 +465,21 @@ without editing it and records exactly `PASS`, `FAIL`, or `OBJECTION`.
   ended before approval completed, so the process was rejected before Claude
   ran. No task material was transferred, no Claude session was created, and no
   review result exists.
-- Required next action: obtain the user's explicit authorization after
-  identifying the private task-scoped material and external Claude service,
-  then retry the same read-only review without expanding its tool or data
+- Authorization closure: after GPT identified the private task-scoped material,
+  external Claude service, and read-only tool boundary, the user replied “好”
+  on 2026-09-08. Retry the same review without expanding its tool or data
   scope.
 
 ## Claude data-transfer authorization
 
 ### Read-only pre-review
 
-- Status: `PENDING_EXPLICIT_AUTHORIZATION` after the pre-transfer permission
-  review failed to complete.
+- Status: `AUTHORIZED`.
 - Prior user instruction: on 2026-09-08 the user replied “继续” after GPT
   stated that the next steps were the formal task, implementation plan, and
-  Claude read-only pre-review. The execution environment requires a more
-  explicit data-transfer authorization before the external call can run.
+  Claude read-only pre-review. After GPT explicitly identified the private
+  files, external service, and exclusions, the user replied “好” on
+  2026-09-08.
 - Scope: task-scoped governance, task, approved design, plan, inherited theory,
   relevant code, and frozen baseline identities may be sent to the external
   Claude service for read-only pre-review.
@@ -516,13 +516,13 @@ without editing it and records exactly `PASS`, `FAIL`, or `OBJECTION`.
 
 ## Quota or continuity handoff
 
-- Current branch and task version: `codex/FP-ADV-001`, version `0.3` in
+- Current branch and task version: `codex/FP-ADV-001`, version `0.4` in
   `REVIEW`.
-- Completed work: approved design, frozen DRAFT baseline, and REVIEW task/plan.
-- Running work: none; the Claude pre-review was rejected before transfer.
-- Pending work: explicit pre-review data-transfer authorization, Claude
-  pre-review, activation, isolated execution, reciprocal verification, and
-  synthesis.
+- Completed work: approved design, frozen DRAFT baseline, REVIEW task/plan, and
+  explicit authorization for the task-scoped Claude read-only transfer.
+- Running work: none before the authorized pre-review retry.
+- Pending work: Claude pre-review, activation, isolated execution, reciprocal
+  verification, and synthesis.
 - Commands and outputs: no research implementation or experiment has begun.
 - Current findings: action-specific recovery and observed successor-row
   differences may remove unrelated full-Q bottlenecks; formal usefulness is

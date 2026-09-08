@@ -41,14 +41,13 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
   `919c26f8f2dc90b093cc1f40c9b36d2be2b45b03`.
 - Common execution-start commit: assigned only after pre-review approval.
 - GPT branch: `codex/FP-ADV-001`.
-- Claude role: read-only task pre-review blocked before transfer; independent
+- Claude role: task-scoped read-only pre-review authorized; independent
   execution is not authorized.
-- Current blocker: the permission review connection ended before approving the
-  external Claude call. No private task material was transferred and no Claude
-  review ran. Explicit user authorization for the specified read-only transfer
-  is required before retrying.
-- Next action: obtain that authorization, then obtain `APPROVED` or
-  `OBJECTION`; activate only if approved.
+- Current blocker: the required Claude decision has not yet been obtained. The
+  earlier call ended before transfer; the user explicitly authorized a retry
+  after the private material, external service, tool boundary, and exclusions
+  were identified.
+- Next action: obtain `APPROVED` or `OBJECTION`; activate only if approved.
 - Design:
   `docs/superpowers/specs/2026-09-08-action-gap-safe-update-design.md`.
 - Plan:
