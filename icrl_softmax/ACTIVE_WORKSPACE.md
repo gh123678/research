@@ -2,14 +2,12 @@
 
 ## Current objective
 
-Status: `FP-ADV-001` is `ACTIVE`. Claude's task-scoped read-only pre-review of
-commit `a3a0340b3f63ed53eb00b5d5af244fabdbbbe75d` returned `APPROVED` on
-2026-09-08 with 12 passed contract checks and two non-blocking implementation
-cautions. Common execution starts from
-`10a9a94e24ec92a59e7c756f9af6ce07b2f30e59`.
-The user has separately authorized Claude's isolated independent proof,
-implementation, smoke run, and one frozen 480-record formal run; both routes
-have now sealed matching zero-update formal results.
+Status: `FP-ADV-001` is `VERIFIED` as a negative usefulness result.  Claude's
+task-scoped pre-review returned `APPROVED`; Codex and Claude then independently
+sealed matching 480-record formal results, and both reciprocal verification
+directions returned `PASS`.  All six routes emitted zero updates, so the safe
+one-step theorem is retained while empirical usefulness hypothesis 8 is
+falsified without retuning.
 
 The current task asks whether the verified `FP-TU-001` event can certify only
 the action differences used by one policy update. V-first local exact and
@@ -35,9 +33,9 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
 - Next action: apply the verified governance rules to the next GPT-authored research task.
 - Approved design: `docs/superpowers/specs/2026-08-31-gpt-led-claude-verified-research-governance-design.md`.
 
-## Active research task
+## Most recently verified research task
 
-- Task: `docs/research_tasks/FP-ADV-001.md` (`ACTIVE`).
+- Task: `docs/research_tasks/FP-ADV-001.md` (`VERIFIED`).
 - Git and scientific baseline:
   `c579047950dfabb2600020cd2e53dd24b3e39c84`.
 - Frozen DRAFT task-definition baseline:
@@ -63,13 +61,16 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
   `191821b26b16e13de323fb31651343ffe1eb9656` after blind seal
   `191e13ba5472ce4c183643008169236979c000ff`; GPT independently replayed all
   480 records and 17,280 route-state entries with zero failures.
+- Claude executable reciprocal verification: `PASS` on 2026-09-10.  The
+  verifier, strict read-only 480-record analyzer, and task-scoped Ruff all
+  passed; no formal evaluator rerun or repository mutation occurred.  Claude
+  recorded its own report on `claude/FP-ADV-001` at commit `42fb0cc`.
 - Current blocker: none.
-- Current task blocker: Claude's executable reciprocal verification of the GPT
-  route is blocked by its Bash/sandbox permission denial. Its content review
-  found no discrepancy, but governance requires command-level reproduction.
-- Next action: permit only the three read-only Claude checks (verifier, strict
-  analyzer, Ruff), then record the final reciprocal decision. No formal
-  evaluator rerun is allowed.
+- Shared conclusion:
+  `docs/research_branches/action_gap_certificate_report.md`.
+- Next task: `docs/research_tasks/FP-ESARSA-001.md` remains `DRAFT`.  The next
+  permitted action is task review; implementation or experiments must not
+  begin before the governance lifecycle activates it.
 - Design:
   `docs/superpowers/specs/2026-09-08-action-gap-safe-update-design.md`.
 - Plan:
@@ -78,6 +79,10 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
 
 ## Active implementation
 
+- `action_gap_certificate.py`
+- `verify_action_gap_certificate.py`
+- `evaluate_action_gap_certificates.py`
+- `analyze_action_gap_certificates.py`
 - `evaluate_fixed_policy_q_routes.py`
 - `fixed_policy_finite_sample_certificate.py`
 - `verify_finite_sample_theorems.py`
@@ -122,6 +127,11 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
 - `docs/research_branches/time_uniform_mixture_certificate_report.md`
 - `results/FP-TU-001/codex/`
 - `results/FP-TU-001/claude/`
+- `docs/research_tasks/FP-ADV-001.md`
+- `docs/research_branches/action_gap_certificate_theory.md`
+- `docs/research_branches/action_gap_certificate_report.md`
+- `results/FP-ADV-001/codex/`
+- `results/FP-ADV-001/claude/`
 
 Each independent formal route contains 480 same-seed comparisons, strict-JSON
 route certificates, zero-mismatch legacy regression, certificate/failure

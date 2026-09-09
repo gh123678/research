@@ -4,9 +4,10 @@
 
 - Created: 2026-09-08.
 - Author: GPT.
-- Status: `ACTIVE`.
-- Task version: `1.2` (governance-only validation update; frozen scientific
-  contract unchanged).
+- Status: `VERIFIED`.
+- Completed: 2026-09-10.
+- Task version: `1.3` (verification closure only; frozen scientific contract
+  unchanged).
 - Git and scientific baseline:
   `c579047950dfabb2600020cd2e53dd24b3e39c84`.
 - Approved design commit:
@@ -467,10 +468,9 @@ cannot replace the required Claude route.
   These validation-only changes and the reciprocal-verification record were
   committed at `46cbf9bca8dab87161ffee7a1c38ead162d73ad6`; no formal record was
   rerun or changed.
-- Preliminary empirical outcome: all six routes emitted zero updates in 480
-  records; hypothesis 8 is falsified without retuning, while all Codex-route
-  mandatory checks pass. The outcome remains preliminary pending reciprocal
-  verification.
+- Final empirical outcome: all six routes emitted zero updates in 480 records;
+  hypothesis 8 is falsified without retuning, while all mandatory checks pass.
+  The result is a verified negative outcome.
 
 ### Claude route
 
@@ -479,8 +479,10 @@ commit in its own worktree, branch, evidence directory, and result directory.
 Its blind first-result seal is `191e13ba5472ce4c183643008169236979c000ff` and
 its formal-evidence seal is `191821b26b16e13de323fb31651343ffe1eb9656`.
 It independently obtained the same zero-update result and repaired one summary
-pipeline omission without rerunning the formal matrix. It may repair ordinary
-defects in its route but cannot redefine the task.
+pipeline omission without rerunning the formal matrix.  Its reciprocal report
+is committed on the Claude branch at `42fb0cc`; that reporting session did not
+rerun the already completed checks.  It may repair ordinary defects in its
+route but cannot redefine the task.
 
 ### Disclosure and reciprocal verification
 
@@ -580,6 +582,17 @@ without editing it and records exactly `PASS`, `FAIL`, or `OBJECTION`.
   GPT's blind first result, unsafe permission bypass, new fee category, or
   scientific-contract change.
 
+### Final reciprocal execution
+
+- Status: `AUTHORIZED` and completed.
+- Date: 2026-09-10.
+- User ruling: after GPT identified the task-scoped private files, external
+  Claude execution, three exact read-only commands, and exclusions, the user
+  replied “授权”.
+- Scope actually used: verifier, strict analyzer, and task-scoped Ruff only.
+- Exclusions honored: no formal evaluator, file write, Git mutation, successor-
+  task access, network retrieval, merge, push, or scientific-contract change.
+
 ## Objections and user rulings
 
 ### Objection
@@ -601,8 +614,8 @@ without editing it and records exactly `PASS`, `FAIL`, or `OBJECTION`.
 
 ## Quota or continuity handoff
 
-- Current branch and task version: `codex/FP-ADV-001`, version `1.2` in
-  `ACTIVE`.
+- Current branch and task version: `codex/FP-ADV-001`, version `1.3` in
+  `VERIFIED`.
 - Completed work: approved design and REVIEW, Claude pre-review `APPROVED`,
   GPT blind seal and one formal 480-record run, GPT representation-only repair,
   Claude blind/formal seals, and reciprocal disclosure.
@@ -612,13 +625,12 @@ without editing it and records exactly `PASS`, `FAIL`, or `OBJECTION`.
   `46cbf9bca8dab87161ffee7a1c38ead162d73ad6`.
 - Claude evidence: formal zero-update result, zero legacy mismatches, isolated
   verifier/Ruff pass, and GPT's independent 17,280-state replay pass.
-- Current blocker: Claude's reciprocal command-level verification of the GPT
-  route is `FAIL` solely because its session denied Bash/sandbox execution of
-  verifier, analyzer, and Ruff. Its read-only content review found no
-  discrepancy, but governance does not allow that to count as `PASS`.
-- Pending work: rerun those three read-only checks in a Claude session with the
-  commands permitted, then record the final reciprocal decision and update the
-  workspace status. No formal evaluator rerun is allowed.
+- Final reciprocal result: after explicit user authorization, Claude ran the
+  three read-only checks successfully and returned `PASS`; exact session and
+  environment evidence is in the reciprocal-verification record.
+- Pending work: none within `FP-ADV-001`.  `FP-ESARSA-001` remains a separate
+  `DRAFT` successor and cannot begin implementation before review and
+  activation.  No formal evaluator rerun is allowed.
 - Immutable boundaries: probability semantics, formulas, transfer fraction,
   480-record protocol, route isolation, no oracle input, no tuning, and no
   `main` merge.
@@ -637,28 +649,47 @@ without editing it and records exactly `PASS`, `FAIL`, or `OBJECTION`.
 - Acceptance-criteria mapping: formal 480-record protocol, baseline
   preservation, route emissions, support/gates, oracle separation, and zero-
   update empirical conclusion all match; no discrepancy found.
-- Required next state: retain `PASS` while awaiting Claude's executable
-  reverse check.
+- Required next state: none; the reverse check also passed.
 
 ### Claude verifies GPT
 
-- Status: `FAIL` (environment blocker, not a scientific failure).
-- Reproduction or inspection performed: Claude read the Codex implementation,
-  formal evidence, hashes, and checks and found no content discrepancy, but
-  two explicitly scoped read-only sessions denied Bash/sandbox execution of
-  the verifier, analyzer, and Ruff.
-- Evidence: `docs/research_branches/FP-ADV-001/codex/reciprocal_verification.md`.
-- Acceptance-criteria mapping: content-level criteria pass by inspection;
-  command-level independent reproduction remains unproven.
-- Required next state: do not mark the task `VERIFIED`; rerun only the three
-  read-only checks after the Claude environment permits them.
+- Status: `PASS`.
+- Reproduction performed: after the user's explicit 2026-09-10 authorization,
+  Claude Code CLI 2.1.138 ran only the Codex verifier, strict read-only
+  480-record analyzer, and task-scoped Ruff.  Their outputs were respectively
+  `action-gap certificate checks passed`, `PASS FP-ADV-001 strict analyzer
+  with 480 records (formal_480)`, and `All checks passed!`.
+- Evidence: `docs/research_branches/FP-ADV-001/codex/reciprocal_verification.md`,
+  Claude-branch report commit `42fb0cc`, session
+  `7a2c8fbc-61f5-4611-9214-0207aa5cb600`, and result UUID
+  `d7fea18c-113e-4922-8c5f-29c45c1b701a`.
+- Acceptance-criteria mapping: formula and policy tests, full frozen replay,
+  schema/provenance/oracle checks, and task-scoped static checks all pass; no
+  formal evaluator rerun or file/Git mutation occurred.
+- Environment note: the CLI's machine-readable usage metadata reported model
+  labels `kimi-k2.6` and `k3`.  The task did not freeze a model identifier; the
+  labels are retained as provenance.
+- Required next state: none.
+
+## Lifecycle closure
+
+- `ACTIVE -> VERIFYING` on 2026-09-10 after Claude's executable reciprocal
+  decision changed the last outstanding verification direction to `PASS`.
+- `VERIFYING -> VERIFIED` on 2026-09-10 after GPT reconciled both routes,
+  mapped all 20 acceptance criteria, wrote the shared theory/report, refreshed
+  the workspace index, and confirmed there was no unresolved objection.
+- Final scientific conclusion: hypotheses 1--7 are supported; hypothesis 8 is
+  falsified with zero updates on all six routes in both 480-record results.
+- Merge state: `main` remains unchanged.  Any later merge still requires the
+  user's explicit approval.
 
 ## Definition of done
 
-- [ ] No unresolved objection remains.
-- [ ] Both required routes are reproducible.
-- [ ] Both reciprocal verification reports are recorded.
-- [ ] Every acceptance criterion has evidence.
-- [ ] Discrepancies are reconciled or ruled on by the user.
-- [ ] `ACTIVE_WORKSPACE.md` is current.
-- [ ] The user approved any merge into `main`.
+- [x] No unresolved objection remains.
+- [x] Both required routes are reproducible.
+- [x] Both reciprocal verification reports are recorded.
+- [x] Every acceptance criterion has evidence.
+- [x] Discrepancies are reconciled; no user ruling is required.
+- [x] `ACTIVE_WORKSPACE.md` is current.
+- [x] No merge was performed; explicit user approval remains required before
+  any future merge into `main`.

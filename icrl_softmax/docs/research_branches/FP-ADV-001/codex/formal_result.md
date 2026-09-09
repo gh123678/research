@@ -2,8 +2,8 @@
 
 Date: 2026-09-08  
 Route: `codex/FP-ADV-001`  
-Status: `PRELIMINARY VERIFIED-NEGATIVE CANDIDATE`; Codex route checks pass, but
-Claude disclosure and reciprocal verification are still pending.  
+Status: `VERIFIED NEGATIVE`; both independent routes and both reciprocal
+verification directions pass.
 Blind first-result seal: `996641d9ce2088e95c0bf2a0661e3b24b6e0d6fe`.  
 Post-formal ordinary implementation fix:
 `440710c8c9c77ee8128d4abfd96919ffafe7991c`.
@@ -176,9 +176,14 @@ untracked learning record remains untouched.
 
 ## Acceptance status
 
-Codex-route acceptance criteria 1--19 pass with the evidence above, except that
-criterion 15 also requires the independent Claude smoke seal and criterion 19
-requires Claude's corresponding evidence. Criterion 20—reciprocal
-reproduction, both final reports, reconciliation, and workspace completion—is
-pending. The task must remain `ACTIVE`; this result cannot be called verified
-until the independent route is disclosed and both verifiers pass.
+Acceptance criteria 1--20 pass.  Claude independently produced and sealed the
+same zero-update result, GPT reproduced Claude's route with zero failures over
+480 records and 17,280 route-state entries, and Claude subsequently reproduced
+the Codex verifier, strict 480-record analyzer, and Ruff checks with final
+decision `PASS`.  No scientific discrepancy or unresolved objection remains.
+
+The empirical usefulness hypothesis remains falsified: the verified outcome
+is zero useful updates without retuning.  The shared synthesis is recorded in
+`docs/research_branches/action_gap_certificate_theory.md` and
+`docs/research_branches/action_gap_certificate_report.md`.  No merge to `main`
+has been performed.
