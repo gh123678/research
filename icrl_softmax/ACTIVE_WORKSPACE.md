@@ -48,8 +48,10 @@ baseline or formal input.
   `e04db4c17c7648bc751bef1620ab0d01fe1cb3a3`.
 - REVIEW clarification closure:
   `04584e44e788b7cb50289c6dd447c356bd4081b6`.
-- Activation and common execution-start identities: being sealed before route
-  implementation.
+- Activation commit:
+  `698ebdc62859ec26ae6b623099ab499fc6b410fa`.
+- Common execution-start identity: this metadata-closure commit, recorded
+  after isolated Claude branch creation.
 - GPT branch and isolated worktree: `codex/FP-KERN-002` in
   `results/FP-KERN-002/codex_worktree/`.
 - User decision: reuse the exact verified 480-record predecessor corpus; no

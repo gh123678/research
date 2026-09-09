@@ -15,10 +15,12 @@
   `e04db4c17c7648bc751bef1620ab0d01fe1cb3a3`.
 - REVIEW clarification closure:
   `04584e44e788b7cb50289c6dd447c356bd4081b6`.
-- Activation commit: the commit containing this `REVIEW -> ACTIVE`
-  transition; its exact identity is recorded by the metadata-closure commit.
+- Activation commit:
+  `698ebdc62859ec26ae6b623099ab499fc6b410fa`.
 - Common route execution-start commit: the metadata-closure commit created
-  immediately after activation and used to create `claude/FP-KERN-002`.
+  immediately after activation and used to create `claude/FP-KERN-002`;
+  its exact identity is recorded in the workspace and route evidence after
+  branch creation.
 - Design:
   `docs/superpowers/specs/2026-09-09-kernel-reuse-oracle-learnability-design.md`.
 - Plan:
