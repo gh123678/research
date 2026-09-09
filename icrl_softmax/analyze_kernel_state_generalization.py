@@ -297,6 +297,72 @@ def _rmse(error: np.ndarray) -> float:
     return float(np.sqrt(np.mean(np.square(error))))
 
 
+def _false_improvement_counts(
+    true_q: np.ndarray,
+    primary: np.ndarray,
+    baseline: np.ndarray,
+) -> tuple[int, int, int]:
+    """Count the frozen one-sided false-improvement event on common pairs."""
+    if true_q.shape != primary.shape or true_q.shape != baseline.shape:
+        raise ValueError("false-improvement arrays must have one common shape")
+    primary_false = 0
+    baseline_false = 0
+    comparisons = 0
+    for state in range(true_q.shape[0]):
+        for left in range(true_q.shape[1]):
+            for right in range(left + 1, true_q.shape[1]):
+                if not (
+                    np.isfinite(primary[state, left])
+                    and np.isfinite(primary[state, right])
+                    and np.isfinite(baseline[state, left])
+                    and np.isfinite(baseline[state, right])
+                ):
+                    continue
+                true_difference = float(true_q[state, left] - true_q[state, right])
+                primary_difference = float(
+                    primary[state, left] - primary[state, right]
+                )
+                baseline_difference = float(
+                    baseline[state, left] - baseline[state, right]
+                )
+                primary_false += int(
+                    primary_difference > 0.0 and true_difference <= 0.0
+                )
+                baseline_false += int(
+                    baseline_difference > 0.0 and true_difference <= 0.0
+                )
+                comparisons += 1
+    return primary_false, baseline_false, comparisons
+
+
+def _record_action_correlations(
+    distances: list[list[list[float | None]]],
+    true_q: np.ndarray,
+) -> list[float]:
+    """Compute one finite Spearman correlation for each eligible record/action."""
+    correlations: list[float] = []
+    for action in range(true_q.shape[1]):
+        observed_distance: list[float] = []
+        observed_difference: list[float] = []
+        for left in range(true_q.shape[0]):
+            for right in range(left + 1, true_q.shape[0]):
+                distance = distances[action][left][right]
+                if distance is None or not np.isfinite(float(distance)):
+                    continue
+                observed_distance.append(float(distance))
+                observed_difference.append(
+                    abs(float(true_q[left, action] - true_q[right, action]))
+                )
+        if len(observed_distance) < 3:
+            continue
+        correlation = float(
+            spearmanr(observed_distance, observed_difference).statistic
+        )
+        if np.isfinite(correlation):
+            correlations.append(correlation)
+    return correlations
+
+
 def _family_screen(records: list[dict[str, Any]]) -> dict[str, Any]:
     zero_eligible = 0
     zero_covered = 0
@@ -376,46 +442,15 @@ def _family_screen(records: list[dict[str, Any]]) -> dict[str, Any]:
         else:
             top_empty_records += 1
 
-        for state in range(counts.shape[0]):
-            for left in range(counts.shape[1]):
-                for right in range(left + 1, counts.shape[1]):
-                    if not (
-                        np.isfinite(primary[state, left])
-                        and np.isfinite(primary[state, right])
-                        and np.isfinite(action_pool[state, left])
-                        and np.isfinite(action_pool[state, right])
-                    ):
-                        continue
-                    true_difference = float(true_q[state, left] - true_q[state, right])
-                    primary_difference = float(primary[state, left] - primary[state, right])
-                    baseline_difference = float(action_pool[state, left] - action_pool[state, right])
-                    primary_false += int(
-                        (primary_difference > 0.0 and true_difference <= 0.0)
-                        or (primary_difference < 0.0 and true_difference >= 0.0)
-                    )
-                    baseline_false += int(
-                        (baseline_difference > 0.0 and true_difference <= 0.0)
-                        or (baseline_difference < 0.0 and true_difference >= 0.0)
-                    )
-                    false_denominator += 1
+        record_primary_false, record_baseline_false, record_comparisons = (
+            _false_improvement_counts(true_q, primary, action_pool)
+        )
+        primary_false += record_primary_false
+        baseline_false += record_baseline_false
+        false_denominator += record_comparisons
 
         distances = record["kernel_generalization"]["routes"]["leave_one_action_out_kernel"]["kernel"]["distance_by_action"]
-        observed_distance: list[float] = []
-        observed_difference: list[float] = []
-        for action in range(counts.shape[1]):
-            for left in range(counts.shape[0]):
-                for right in range(left + 1, counts.shape[0]):
-                    distance = distances[action][left][right]
-                    if distance is None:
-                        continue
-                    observed_distance.append(float(distance))
-                    observed_difference.append(
-                        abs(float(true_q[left, action] - true_q[right, action]))
-                    )
-        if len(observed_distance) >= 3:
-            correlation = float(spearmanr(observed_distance, observed_difference).statistic)
-            if np.isfinite(correlation):
-                correlations.append(correlation)
+        correlations.extend(_record_action_correlations(distances, true_q))
 
     coverage = zero_covered / zero_eligible if zero_eligible else None
     zero_ci = _mean_ci(zero_improvement)
@@ -495,7 +530,7 @@ def _family_screen(records: list[dict[str, Any]]) -> dict[str, Any]:
             "baseline_rate": baseline_false_rate,
         },
         "signature_q_difference_spearman": {
-            "paired_record_summary": correlation_ci,
+            "record_action_summary": correlation_ci,
             "passes_secondary_hypothesis": (
                 correlation_ci["mean"] is not None
                 and correlation_ci["mean"] > 0.0
@@ -640,4 +675,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

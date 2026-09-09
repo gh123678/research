@@ -210,6 +210,9 @@ def _leave_one_action_out_distances(
     for action in range(n_actions):
         for state in range(n_states):
             for other in range(n_states):
+                if state == other:
+                    distances[action, state, other] = 0.0
+                    continue
                 common = (signature_counts[state] > 0) & (
                     signature_counts[other] > 0
                 )
@@ -283,15 +286,17 @@ def _kernel_route(
 
     for state in range(n_states):
         for action in range(n_actions):
-            if not primary and target_counts[state, action] == 0:
-                reasons[state][action] = "target_source_unavailable"
-                continue
             finite_neighbors = [
                 other
                 for other in range(n_states)
                 if other != state and np.isfinite(distances[action, state, other])
             ]
-            if not finite_neighbors:
+            self_available = bool(np.isfinite(distances[action, state, state]))
+            if (
+                primary
+                and target_counts[state, action] == 0
+                and not finite_neighbors
+            ) or (not primary and not self_available):
                 reasons[state][action] = "insufficient_common_actions"
                 continue
             bandwidth = bandwidths[action]
@@ -299,6 +304,12 @@ def _kernel_route(
                 reasons[state][action] = "bandwidth_unavailable"
                 continue
             eligible[state, action] = True
+            target_total = int(np.sum(target_counts[:, action]))
+            if (not primary and target_counts[state, action] == 0) or (
+                primary and target_total == 0
+            ):
+                reasons[state][action] = "target_source_unavailable"
+                continue
             finite_sources = np.isfinite(distances[action, state])
             kernel = np.zeros(n_states, dtype=np.float64)
             kernel[finite_sources] = np.exp(
@@ -309,7 +320,7 @@ def _kernel_route(
             denominator = float(np.sum(kernel * target_counts[:, action]))
             denominators[state, action] = denominator
             if denominator <= 0.0 or not np.isfinite(denominator):
-                reasons[state][action] = "target_source_unavailable"
+                reasons[state][action] = "kernel_denominator_invalid"
                 continue
             estimate = float(np.sum(kernel * target_sums[:, action]) / denominator)
             observed_ess = effective_sample_size(kernel, target_counts[:, action])
@@ -410,4 +421,3 @@ def build_kernel_routes(observables: Mapping[str, Any]) -> dict[str, Any]:
         "shape": {"n_states": n_states, "n_actions": n_actions},
         "routes": routes,
     }
-

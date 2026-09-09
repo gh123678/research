@@ -6,6 +6,10 @@ import copy
 
 import numpy as np
 
+from analyze_kernel_state_generalization import (
+    _false_improvement_counts,
+    _record_action_correlations,
+)
 from kernel_generalization_mdps import make_hidden_cluster_mdp
 from kernel_state_generalization import (
     build_kernel_routes,
@@ -120,6 +124,77 @@ def verify_self_only_reduces_to_local() -> None:
     assert np.isclose(primary, local)
     ess = result["routes"]["leave_one_action_out_kernel"]["effective_sample_size"][0][1]  # type: ignore[index]
     assert np.isclose(float(ess), 3.0)
+
+
+def verify_sparse_positive_self_weight_without_signature_support() -> None:
+    observable = fixture_observables()
+    signature_counts = np.asarray(
+        observable["signature_counts"], dtype=np.int64
+    ).copy()
+    signature_q = np.asarray(observable["signature_q"], dtype=np.float64).copy()
+    signature_counts[0, 1:] = np.array([1, 0, 0])
+    signature_q[0, 2:] = 0.0
+    target_counts = np.zeros((4, 4), dtype=np.int64)
+    target_sums = np.zeros((4, 4), dtype=np.float64)
+    target_counts[0, 0] = 3
+    target_sums[0, 0] = 6.0
+    observable["signature_counts"] = signature_counts
+    observable["signature_q"] = signature_q
+    observable["target_counts"] = target_counts
+    observable["target_sums"] = target_sums
+
+    result = build_kernel_routes(observable)
+    local = estimate_matrix(result, "local_unpooled")[0, 0]
+    primary = estimate_matrix(result, "leave_one_action_out_kernel")[0, 0]
+    weights = result["routes"]["leave_one_action_out_kernel"]["kernel"][  # type: ignore[index]
+        "weight_by_target"
+    ][0][0]
+    assert np.isclose(local, 2.0)
+    assert np.isclose(primary, local)
+    assert np.isclose(float(weights[0]), 1.0)
+    assert np.allclose(np.asarray(weights[1:], dtype=np.float64), 0.0)
+
+
+def verify_one_sided_false_improvement() -> None:
+    true_q = np.array([[2.0, 0.0]], dtype=np.float64)
+    reversed_estimate = np.array([[0.0, 3.0]], dtype=np.float64)
+    primary_false, baseline_false, comparisons = _false_improvement_counts(
+        true_q, reversed_estimate, reversed_estimate
+    )
+    assert comparisons == 1
+    assert primary_false == 0
+    assert baseline_false == 0
+
+    true_q = np.array([[0.0, 2.0]], dtype=np.float64)
+    positive_estimate = np.array([[3.0, 0.0]], dtype=np.float64)
+    primary_false, baseline_false, comparisons = _false_improvement_counts(
+        true_q, positive_estimate, positive_estimate
+    )
+    assert comparisons == 1
+    assert primary_false == 1
+    assert baseline_false == 1
+
+
+def verify_record_action_spearman_granularity() -> None:
+    true_q = np.array(
+        [
+            [0.0, 0.0],
+            [1.0, 1.0],
+            [3.0, 3.0],
+        ],
+        dtype=np.float64,
+    )
+    distances = np.full((2, 3, 3), np.nan, dtype=np.float64)
+    distances[0, 0, 1] = distances[0, 1, 0] = 1.0
+    distances[0, 0, 2] = distances[0, 2, 0] = 3.0
+    distances[0, 1, 2] = distances[0, 2, 1] = 2.0
+    distances[1, 0, 1] = distances[1, 1, 0] = 3.0
+    distances[1, 0, 2] = distances[1, 2, 0] = 1.0
+    distances[1, 1, 2] = distances[1, 2, 1] = 2.0
+    correlations = _record_action_correlations(distances.tolist(), true_q)
+    assert len(correlations) == 2
+    assert np.isclose(correlations[0], 1.0)
+    assert np.isclose(correlations[1], -1.0)
 
 
 def verify_state_permutation_equivariance() -> None:
@@ -251,6 +326,9 @@ def main() -> None:
     verify_median_and_ess()
     verify_target_action_exclusion_and_zero_recovery()
     verify_self_only_reduces_to_local()
+    verify_sparse_positive_self_weight_without_signature_support()
+    verify_one_sided_false_improvement()
+    verify_record_action_spearman_granularity()
     verify_state_permutation_equivariance()
     verify_validation_and_oracle_rejection()
     verify_degenerate_bandwidth_abstains()
