@@ -4,14 +4,14 @@
 
 - Created: 2026-09-09.
 - Author: GPT.
-- Status: `DRAFT`.
-- Task version: `0.1`.
+- Status: `REVIEW`.
+- Task version: `0.2` (DRAFT sealed; scientific content unchanged).
 - Predecessor and branch baseline:
   `403884ae6bde46c7c3578ae01d77422ed03faf05` (`FP-KERN-001` verified).
 - Approved design commit:
   `be6b7213eeba08d3b9750a850ac2de99ff17be89`.
-- DRAFT task-definition baseline: recorded by the first `REVIEW` transition
-  after this task and its plan are sealed.
+- DRAFT task-definition baseline:
+  `e04db4c17c7648bc751bef1620ab0d01fe1cb3a3`.
 - Activation and common execution-start commit: not created while status is
   `DRAFT`.
 - Design:
@@ -339,8 +339,9 @@ After disclosure, each performs executable reciprocal verification and records
 
 ### Claude read-only pre-review
 
-- Status: not started while task is `DRAFT`.
-- Reviewed commit: not yet assigned.
+- Status: pending while task is `REVIEW`.
+- Review target: the commit that transitions this frozen task to `REVIEW`;
+  its exact identity is recorded with Claude's response.
 - Outcome: not yet assigned.
 - Evidence path:
   `docs/research_branches/FP-KERN-002/codex/claude_pre_review.md`.
@@ -352,7 +353,7 @@ After disclosure, each performs executable reciprocal verification and records
 
 ### Execution evidence
 
-- Status: prohibited while task is `DRAFT`.
+- Status: prohibited while task is `REVIEW`.
 
 ## Definition of done
 

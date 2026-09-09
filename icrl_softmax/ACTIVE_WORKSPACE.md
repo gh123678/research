@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Status: `FP-KERN-002` is `DRAFT`. The user approved a reused-record diagnostic
+Status: `FP-KERN-002` is `REVIEW`. The user approved a reused-record diagnostic
 that will hold all 480 verified `FP-KERN-001` records fixed and separate
 oracle peer headroom, true hidden-cluster usefulness, and observable
 other-action structure recovery. No new trajectory, implementation, input
@@ -37,12 +37,13 @@ baseline or formal input.
 
 ## Active research task
 
-- Task: `docs/research_tasks/FP-KERN-002.md` (`DRAFT`).
+- Task: `docs/research_tasks/FP-KERN-002.md` (`REVIEW`).
 - Predecessor baseline:
   `403884ae6bde46c7c3578ae01d77422ed03faf05`.
 - Approved design commit:
   `be6b7213eeba08d3b9750a850ac2de99ff17be89`.
-- DRAFT task-definition baseline: recorded after the task and plan are sealed.
+- DRAFT task-definition baseline:
+  `e04db4c17c7648bc751bef1620ab0d01fe1cb3a3`.
 - Activation and common execution-start commit: not yet created.
 - GPT branch and isolated worktree: `codex/FP-KERN-002` in
   `results/FP-KERN-002/codex_worktree/`.
@@ -50,8 +51,8 @@ baseline or formal input.
   new trajectories.
 - Current blocker: task must complete Claude read-only pre-review before
   activation.
-- Next action: seal DRAFT, transition to `REVIEW`, and obtain Claude
-  `APPROVED` or `OBJECTION`.
+- Next action: obtain Claude `APPROVED` or `OBJECTION` on the sealed REVIEW
+  commit.
 - Design:
   `docs/superpowers/specs/2026-09-09-kernel-reuse-oracle-learnability-design.md`.
 - Plan:
