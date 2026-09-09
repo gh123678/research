@@ -392,6 +392,16 @@ After disclosure, each performs executable reciprocal verification and records
   commit before either route wrote implementation code.
 - Route implementation and scientific analysis: not started at this evidence
   checkpoint.
+- GPT verifier-first implementation subsequently recorded the expected
+  missing-module failure, then passed the new verifier and task-scoped Ruff.
+- GPT Stage 0 reconstructed all 480 predecessor routes exactly and reproduced
+  `NOT_SUPPORTED`. A first summary-hash check exposed only CRLF-versus-LF
+  serialization; strict-loaded objects were exactly equal, so frozen file and
+  canonical logical hashes are now recorded separately.
+- GPT's fixed 16-record smoke, strict bundle replay, and inherited
+  `verify_kernel_state_generalization.py` passed. Evidence:
+  `docs/research_branches/FP-KERN-002/codex/first_result.md`.
+- GPT full diagnostic: not run before the blind implementation/smoke seal.
 
 ## Definition of done
 
