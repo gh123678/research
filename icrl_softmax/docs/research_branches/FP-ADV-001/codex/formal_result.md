@@ -170,9 +170,9 @@ post-hardening evidence hashes are:
 - `checks.log`:
   `efc2a07ed0416005c80019f95e94ce3bfcf5728d7688cf01cfaca4a917a5d0a6`.
 
-The code hardening is currently present in the Codex working tree after
-`913bd0e`; committing it is pending the environment's denied Git-index write
-permission. The unrelated user-owned untracked learning record is untouched.
+The code hardening and reciprocal-verification record were committed at
+`46cbf9bca8dab87161ffee7a1c38ead162d73ad6`. The unrelated user-owned
+untracked learning record remains untouched.
 
 ## Acceptance status
 

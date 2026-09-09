@@ -464,8 +464,9 @@ cannot replace the required Claude route.
   read-only; evaluator output refuses non-empty directories; and identity
   repair is prehashed and atomic. The strengthened verifier, Ruff, fresh smoke,
   smoke analysis, and formal 480-record replay all pass with zero mismatches.
-  These validation-only changes are currently uncommitted because the
-  environment denied Git-index writes; no formal record was rerun or changed.
+  These validation-only changes and the reciprocal-verification record were
+  committed at `46cbf9bca8dab87161ffee7a1c38ead162d73ad6`; no formal record was
+  rerun or changed.
 - Preliminary empirical outcome: all six routes emitted zero updates in 480
   records; hypothesis 8 is falsified without retuning, while all Codex-route
   mandatory checks pass. The outcome remains preliminary pending reciprocal
@@ -606,9 +607,9 @@ without editing it and records exactly `PASS`, `FAIL`, or `OBJECTION`.
   GPT blind seal and one formal 480-record run, GPT representation-only repair,
   Claude blind/formal seals, and reciprocal disclosure.
 - GPT evidence: formal zero-update result plus 480-record provenance/oracle
-  replay, fresh smoke, hardened verifier, and Ruff all pass. The hardening is
-  present in the working tree after `913bd0e` but cannot yet be committed:
-  Git-index writes were rejected by the current environment.
+  replay, fresh smoke, hardened verifier, and Ruff all pass. The hardening and
+  reciprocal-verification record were committed at
+  `46cbf9bca8dab87161ffee7a1c38ead162d73ad6`.
 - Claude evidence: formal zero-update result, zero legacy mismatches, isolated
   verifier/Ruff pass, and GPT's independent 17,280-state replay pass.
 - Current blocker: Claude's reciprocal command-level verification of the GPT
