@@ -43,15 +43,18 @@ baseline or formal input.
   `c579047950dfabb2600020cd2e53dd24b3e39c84`.
 - Frozen DRAFT task-definition baseline:
   `b7ef163f11eb5ee41499344c296587efd3516651`.
-- Activation and common route execution-start commits are being recorded
-  before either implementation begins.
+- Activation commit:
+  `2308c372eb47ce7c181f98caee952121f4e47644`.
+- The exact common route execution-start commit will be captured when the
+  Claude branch/worktree is created from the metadata closure, before either
+  implementation begins.
 - GPT branch and isolated worktree: `codex/FP-KERN-001` in
   `results/FP-KERN-001/codex_worktree/`.
 - Claude role: read-only pre-review completed with `APPROVED`; after
   activation, independently construct and verify the same frozen study.
 - Current blocker: none; Claude pre-review returned `APPROVED`.
-- Next action: record the exact activation and common route execution-start
-  commits, then begin isolated GPT and Claude test-first construction.
+- Next action: seal activation metadata, create the Claude branch/worktree from
+  that exact common route baseline, then begin isolated test-first construction.
 - Design:
   `docs/superpowers/specs/2026-09-09-kernel-state-generalization-feasibility-design.md`.
 - Plan:

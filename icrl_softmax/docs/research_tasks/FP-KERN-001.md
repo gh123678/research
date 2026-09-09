@@ -13,9 +13,11 @@
   `f10d04ce1bec6d103c0e1e1f608db4d0d00a2b5e`.
 - DRAFT task-definition baseline:
   `b7ef163f11eb5ee41499344c296587efd3516651`.
-- Activation commit: recorded immediately after the activation seal.
-- Common route execution-start commit: recorded before either route writes
-  implementation code.
+- Activation commit:
+  `2308c372eb47ce7c181f98caee952121f4e47644`.
+- Common route execution-start commit: the metadata-closure commit containing
+  this activation identity; its exact hash is captured when the Claude branch
+  and worktree are created, before either route writes implementation code.
 - Design:
   `docs/superpowers/specs/2026-09-09-kernel-state-generalization-feasibility-design.md`.
 - Plan:
