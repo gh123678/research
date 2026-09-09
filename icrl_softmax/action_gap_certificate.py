@@ -651,16 +651,17 @@ def build_action_gap_certificate(
     if counts_raw.ndim != 1 or counts_raw.size != n_states * n_actions:
         raise ValueError("pair_counts shape does not match the policy")
     if not np.issubdtype(counts_raw.dtype, np.integer):
-        if not np.all(np.equal(counts_raw, np.floor(counts_raw))):
-            raise ValueError("pair_counts must be integral")
+        raise ValueError("pair_counts must preserve an integer source dtype")
     counts = counts_raw.astype(np.int64)
     if np.any(counts < 0) or int(np.sum(counts)) != horizon:
         raise ValueError("pair_counts must be nonnegative and sum to trajectory_length")
     successors_raw = np.asarray(pair_successor_counts)
     if successors_raw.shape != (n_states * n_actions, n_states):
         raise ValueError("pair_successor_counts has the wrong shape")
-    if not np.all(np.equal(successors_raw, np.floor(successors_raw))):
-        raise ValueError("pair_successor_counts must be integral")
+    if not np.issubdtype(successors_raw.dtype, np.integer):
+        raise ValueError(
+            "pair_successor_counts must preserve an integer source dtype"
+        )
     successors = successors_raw.astype(np.int64)
     if np.any(successors < 0) or not np.array_equal(np.sum(successors, axis=1), counts):
         raise ValueError("successor rows must be nonnegative and match pair_counts")

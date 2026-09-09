@@ -459,12 +459,33 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def _prepare_fresh_result_dir(result_dir: Path) -> None:
+    """Refuse to overwrite any prior evidence directory.
+
+    Formal evidence is a one-run artifact.  A caller must choose a new
+    directory for every evaluation, so a typo cannot silently replace a sealed
+    matrix or its provenance logs.
+    """
+    if result_dir.exists():
+        if not result_dir.is_dir():
+            raise RuntimeError(f"result path is not a directory: {result_dir}")
+        existing = sorted(path.name for path in result_dir.iterdir())
+        if existing:
+            raise RuntimeError(
+                "refusing to overwrite non-empty result directory; choose a new "
+                f"--output-dir (existing entries: {existing[:8]})"
+            )
+    else:
+        result_dir.mkdir(parents=True, exist_ok=False)
+
+
 def main() -> None:
     args = parse_args()
     if float(args.transfer_fraction) != 0.5:
         raise ValueError("FP-ADV-001 freezes transfer_fraction at 0.5")
     project_dir = Path(__file__).resolve().parent
     result_dir = args.output_dir.resolve()
+    _prepare_fresh_result_dir(result_dir)
     baseline_dir = (project_dir / "results/FP-TU-001/codex").resolve()
     baseline_identity = verify_frozen_time_uniform_baseline(baseline_dir)
     baseline_config = _strict_load(baseline_dir / "config.json")

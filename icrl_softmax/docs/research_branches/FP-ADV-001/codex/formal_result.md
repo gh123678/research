@@ -141,6 +141,39 @@ Ignored result directory:
 - `checks.log`:
   `d3399c1b799f83f5b752426f8f3b1d1dd92547a33682342cc54f32f152ea5bbf`.
 
+## Post-seal validation hardening
+
+After the formal matrix and its representation-only repair, the Codex working
+tree added validation-only safeguards without rerunning or changing the 480
+records:
+
+- the analyzer now reconstructs every MDP, policy, trajectory, estimator,
+  inherited bound, certificate input, oracle audit, and action-summary row from
+  the frozen seed schedule;
+- normal analysis is read-only, evaluator output refuses non-empty directories,
+  and the one-time identity repair requires a task-results prehash and uses
+  atomic JSON replacement;
+- count inputs must retain an integer source dtype; the verifier adds exhaustive
+  finite-distribution span checks, multi-donor conservation, and malformed,
+  nonfinite, and float-count rejection cases.
+
+The strengthened verifier and Ruff pass. A fresh eight-record smoke evaluation
+and read-only smoke analysis pass. The strengthened analyzer replays all 480
+formal records and passes with zero provenance, oracle, formula, policy,
+dominance, and summary mismatches. The formal matrix was not rerun. The
+post-hardening evidence hashes are:
+
+- `regression.json`:
+  `2e964320910261e24ed0e70fbde785f139830234c465087c2a258e01d15cc77e`;
+- `commands.log`:
+  `13284d79e26da87153d01e34e8e8edbd3cbab5925fc425ac799c3b8deef4ece0`;
+- `checks.log`:
+  `efc2a07ed0416005c80019f95e94ce3bfcf5728d7688cf01cfaca4a917a5d0a6`.
+
+The code hardening is currently present in the Codex working tree after
+`913bd0e`; committing it is pending the environment's denied Git-index write
+permission. The unrelated user-owned untracked learning record is untouched.
+
 ## Acceptance status
 
 Codex-route acceptance criteria 1--19 pass with the evidence above, except that

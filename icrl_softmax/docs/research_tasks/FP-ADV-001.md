@@ -5,7 +5,7 @@
 - Created: 2026-09-08.
 - Author: GPT.
 - Status: `ACTIVE`.
-- Task version: `1.1` (governance-only authorization record; frozen scientific
+- Task version: `1.2` (governance-only validation update; frozen scientific
   contract unchanged).
 - Git and scientific baseline:
   `c579047950dfabb2600020cd2e53dd24b3e39c84`.
@@ -326,7 +326,7 @@ task, design, plan, workspace index, GPT evidence, or GPT branch.
 - `docs/research_branches/FP-ADV-001/codex/theory.md`.
 - `docs/research_branches/FP-ADV-001/codex/first_result.md`.
 - `docs/research_branches/FP-ADV-001/codex/formal_result.md`.
-- `docs/research_branches/FP-ADV-001/codex/verification_of_claude.md`.
+- `docs/research_branches/FP-ADV-001/codex/reciprocal_verification.md`.
 - Shared theory and report named in GPT scope.
 - Updated task evidence and `ACTIVE_WORKSPACE.md`.
 
@@ -458,16 +458,28 @@ cannot replace the required Claude route.
   mechanically repaired and revalidated without rerunning the formal matrix.
 - Formal-evidence seal:
   `5f190ebb78697acd3cd877c1d64898929bb88024`.
+- Post-seal validation: after `913bd0e`, the analyzer was strengthened to
+  replay the frozen seed schedule and independently reconstruct every action
+  input, oracle audit, and action-summary row. Normal analysis is now
+  read-only; evaluator output refuses non-empty directories; and identity
+  repair is prehashed and atomic. The strengthened verifier, Ruff, fresh smoke,
+  smoke analysis, and formal 480-record replay all pass with zero mismatches.
+  These validation-only changes are currently uncommitted because the
+  environment denied Git-index writes; no formal record was rerun or changed.
 - Preliminary empirical outcome: all six routes emitted zero updates in 480
   records; hypothesis 8 is falsified without retuning, while all Codex-route
-  mandatory checks pass. The outcome remains preliminary pending the blind
-  Claude route and reciprocal verification.
+  mandatory checks pass. The outcome remains preliminary pending reciprocal
+  verification.
 
 ### Claude route
 
 Claude independently constructs the same result from the common activation
 commit in its own worktree, branch, evidence directory, and result directory.
-It may repair ordinary defects in its route but cannot redefine the task.
+Its blind first-result seal is `191e13ba5472ce4c183643008169236979c000ff` and
+its formal-evidence seal is `191821b26b16e13de323fb31651343ffe1eb9656`.
+It independently obtained the same zero-update result and repaired one summary
+pipeline omission without rerunning the formal matrix. It may repair ordinary
+defects in its route but cannot redefine the task.
 
 ### Disclosure and reciprocal verification
 
@@ -588,43 +600,57 @@ without editing it and records exactly `PASS`, `FAIL`, or `OBJECTION`.
 
 ## Quota or continuity handoff
 
-- Current branch and task version: `codex/FP-ADV-001`, version `1.1` in
+- Current branch and task version: `codex/FP-ADV-001`, version `1.2` in
   `ACTIVE`.
-- Completed work: approved design, frozen DRAFT baseline, REVIEW task/plan,
-  Claude read-only pre-review with `APPROVED`, scientific activation, and
-  explicit authorization for Claude's isolated independent route.
-- Running work: none before isolated route setup.
-- Pending work: isolated blind execution on both routes, reciprocal
-  verification, and synthesis.
-- Commands and outputs: no research implementation or experiment has begun.
-- Current findings: action-specific recovery and observed successor-row
-  differences may remove unrelated full-Q bottlenecks; formal usefulness is
-  unknown.
+- Completed work: approved design and REVIEW, Claude pre-review `APPROVED`,
+  GPT blind seal and one formal 480-record run, GPT representation-only repair,
+  Claude blind/formal seals, and reciprocal disclosure.
+- GPT evidence: formal zero-update result plus 480-record provenance/oracle
+  replay, fresh smoke, hardened verifier, and Ruff all pass. The hardening is
+  present in the working tree after `913bd0e` but cannot yet be committed:
+  Git-index writes were rejected by the current environment.
+- Claude evidence: formal zero-update result, zero legacy mismatches, isolated
+  verifier/Ruff pass, and GPT's independent 17,280-state replay pass.
+- Current blocker: Claude's reciprocal command-level verification of the GPT
+  route is `FAIL` solely because its session denied Bash/sandbox execution of
+  verifier, analyzer, and Ruff. Its read-only content review found no
+  discrepancy, but governance does not allow that to count as `PASS`.
+- Pending work: rerun those three read-only checks in a Claude session with the
+  commands permitted, then record the final reciprocal decision and update the
+  workspace status. No formal evaluator rerun is allowed.
 - Immutable boundaries: probability semantics, formulas, transfer fraction,
   480-record protocol, route isolation, no oracle input, no tuning, and no
   `main` merge.
-- Claude's exact next action: none until independent execution is explicitly
-  authorized and an isolated worktree is created.
-- GPT's required return verification: record the exact activation identity and
-  preserve all frozen boundaries before implementation.
 
 ## Verification reports
 
 ### GPT verifies Claude
 
-- Status: not started before independent execution.
-- Reproduction or inspection performed: none.
-- Evidence: none.
-- Acceptance-criteria mapping: pending execution.
-- Required next state: remain before execution until pre-review and activation.
+- Status: `PASS`.
+- Reproduction or inspection performed: Claude verifier and Ruff passed in its
+  isolated worktree; GPT replayed all 480 seed records and 17,280 route-state
+  entries against Claude's formal artifacts with zero failures and max q-row
+  difference 0.
+- Evidence: `docs/research_branches/FP-ADV-001/codex/reciprocal_verification.md`,
+  Claude seals `191e13b` and `191821b`, Claude `checks.log` and `regression.json`.
+- Acceptance-criteria mapping: formal 480-record protocol, baseline
+  preservation, route emissions, support/gates, oracle separation, and zero-
+  update empirical conclusion all match; no discrepancy found.
+- Required next state: retain `PASS` while awaiting Claude's executable
+  reverse check.
 
 ### Claude verifies GPT
 
-- Status: not started before independent execution.
-- Reproduction or inspection performed: none.
-- Evidence: none.
-- Acceptance-criteria mapping: pending execution.
-- Required next state: remain before execution until pre-review and activation.
+- Status: `FAIL` (environment blocker, not a scientific failure).
+- Reproduction or inspection performed: Claude read the Codex implementation,
+  formal evidence, hashes, and checks and found no content discrepancy, but
+  two explicitly scoped read-only sessions denied Bash/sandbox execution of
+  the verifier, analyzer, and Ruff.
+- Evidence: `docs/research_branches/FP-ADV-001/codex/reciprocal_verification.md`.
+- Acceptance-criteria mapping: content-level criteria pass by inspection;
+  command-level independent reproduction remains unproven.
+- Required next state: do not mark the task `VERIFIED`; rerun only the three
+  read-only checks after the Claude environment permits them.
 
 ## Definition of done
 

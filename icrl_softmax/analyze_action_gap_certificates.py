@@ -20,11 +20,14 @@ from evaluate_action_gap_certificates import (
     BASELINE_HASHES,
     TASK_ID,
     _compare_legacy,
+    _reconstruct_estimates,
     _record_identity,
     _strict_load,
     augment_summary,
+    build_oracle_audit,
     verify_frozen_time_uniform_baseline,
 )
+import evaluate_fixed_policy_q_routes as fixed
 
 
 CORE_ARTIFACTS = {
@@ -44,6 +47,16 @@ def sha256_file(path: Path) -> str:
         for block in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def _atomic_write_json(path: Path, payload: Any) -> None:
+    """Write a JSON artifact transactionally within its result directory."""
+    temporary = path.with_name(path.name + ".tmp")
+    temporary.write_text(
+        json.dumps(strict_json_ready(payload), ensure_ascii=False, indent=2, allow_nan=False),
+        encoding="utf-8",
+    )
+    temporary.replace(path)
 
 
 def _strip_action_namespace(value: Any) -> Any:
@@ -105,6 +118,119 @@ def _rebuild_certificate(stored: dict[str, Any]) -> dict[str, Any]:
         algorithm_mode=str(algorithm["mode"]),
         divergence_guards=algorithm["divergence_guards"],
     )
+
+
+def _prune_bound(route: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "finite_bound_emitted": bool(route["finite_bound_emitted"]),
+        "total_bound": route["total_bound"],
+        "failure_reasons": list(route["failure_reasons"]),
+    }
+
+
+def _replay_capture(record: dict[str, Any], config: dict[str, Any]) -> dict[str, Any]:
+    """Recreate one frozen MDP, policy, trajectory, and estimator capture.
+
+    The action certificate is not allowed to choose its own provenance.  This
+    replay uses only the task seed schedule and record parameters, then follows
+    the same public construction path used by the paired evaluator.
+    """
+    child_seed = np.random.SeedSequence(
+        int(config["seed"]), spawn_key=tuple(int(value) for value in record["spawn_key"])
+    )
+    if int(child_seed.entropy) != int(record["seed_entropy"]):
+        raise AssertionError("record seed entropy does not match frozen schedule")
+    rng = np.random.default_rng(child_seed)
+    n_states = int(config["n_states"])
+    n_actions = int(record["n_actions"])
+    mdp = fixed.make_mdp(
+        n_states,
+        n_actions,
+        float(config["gamma"]),
+        float(record["mixing"]),
+        float(record["gap_bonus"]),
+        rng,
+    )
+    policy = fixed.make_policy(n_states, n_actions, float(record["pi_min"]), rng)
+    exact = fixed.policy_quantities(mdp, policy)
+    start = int(rng.choice(n_states, p=exact["mu_state"]))
+    states, actions, rewards = fixed.rollout(
+        mdp,
+        policy,
+        start=start,
+        n=max(int(value) for value in config["trajectory_lengths"]),
+        rng=rng,
+    )
+    return _reconstruct_estimates(
+        mdp,
+        exact,
+        states,
+        actions,
+        rewards,
+        int(record["trajectory_length"]),
+        float(record["beta"]),
+        float(config["alpha"]),
+        int(config["iterations"]),
+        policy,
+    )
+
+
+def _expected_action_inputs(
+    record: dict[str, Any], config: dict[str, Any], capture: dict[str, Any]
+) -> dict[str, Any]:
+    time_certificate = record["time_uniform_certificate"]
+    observed = {
+        "policy": capture["policy"].tolist(),
+        "pair_counts": capture["pair_counts"].tolist(),
+        "pair_successor_counts": capture["pair_successor_counts"].tolist(),
+        "q_estimates": {
+            name: values.tolist() for name, values in capture["q_estimates"].items()
+        },
+        "recovery_radii": time_certificate["event"]["recovery"]["radius_by_group"],
+    }
+    inherited = {
+        "state_value_bounds": {
+            "exact": _prune_bound(time_certificate["state_value"]["exact"]),
+            "softmax": _prune_bound(time_certificate["state_value"]["softmax"]),
+        },
+        "global_q_bounds": {
+            name: _prune_bound(time_certificate["routes"][source])
+            for name, source in {
+                "vfirst_exact": "vfirst_nosplit_exact",
+                "vfirst_softmax": "vfirst_nosplit_softmax",
+                "direct_exact": "direct_exact",
+                "direct_softmax": "direct_softmax",
+            }.items()
+        },
+    }
+    declared = {
+        "trajectory_length": int(record["trajectory_length"]),
+        "reward_bound": 1.0 + float(record["gap_bonus"]),
+        "value_bound": (1.0 + float(record["gap_bonus"]))
+        / (1.0 - float(config["gamma"])),
+        "gamma": float(config["gamma"]),
+        "beta": float(record["beta"]),
+        "pi_min": float(record["pi_min"]),
+        "transfer_fraction": 0.5,
+    }
+    expected = build_action_gap_certificate(
+        policy=observed["policy"],
+        pair_counts=observed["pair_counts"],
+        pair_successor_counts=observed["pair_successor_counts"],
+        q_estimates=observed["q_estimates"],
+        state_value_bounds=inherited["state_value_bounds"],
+        global_q_bounds=inherited["global_q_bounds"],
+        recovery_radii=observed["recovery_radii"],
+        trajectory_length=declared["trajectory_length"],
+        reward_bound=declared["reward_bound"],
+        gamma=declared["gamma"],
+        beta=declared["beta"],
+        pi_min=declared["pi_min"],
+        transfer_fraction=declared["transfer_fraction"],
+        algorithm_mode="fixed_policy_synchronous",
+        divergence_guards=capture["divergence_guards"],
+    )
+    return expected["certificate_inputs"]
 
 
 def _formal_configuration(config: dict[str, Any], records: list[dict[str, Any]]) -> bool:
@@ -185,6 +311,8 @@ def analyze(result_dir: Path, *, allow_smoke: bool) -> dict[str, Any]:
         raise AssertionError(f"legacy regression failed: {preservation}")
 
     reconstruction_mismatches: list[dict[str, Any]] = []
+    provenance_mismatches: list[dict[str, Any]] = []
+    oracle_mismatches: list[dict[str, Any]] = []
     forbidden_inputs: list[dict[str, Any]] = []
     route_counts = Counter()
     reason_counts = Counter()
@@ -198,6 +326,21 @@ def analyze(result_dir: Path, *, allow_smoke: bool) -> dict[str, Any]:
     exact_softmax_comparisons = 0
     for record_index, record in enumerate(records):
         stored = record["action_gap_certificate"]
+        capture = _replay_capture(record, config)
+        expected_inputs = _expected_action_inputs(record, config, capture)
+        provenance = _compare_legacy(
+            stored["certificate_inputs"],
+            expected_inputs,
+            f"task_results[{record_index}].action_gap_certificate.certificate_inputs",
+        )
+        if provenance["status"] != "PASS":
+            provenance_mismatches.append(
+                {
+                    "record": record_index,
+                    "numeric": provenance["numeric_mismatches"][:20],
+                    "nonnumeric": provenance["nonnumeric_mismatches"][:20],
+                }
+            )
         forbidden = _contains_forbidden_oracle_input(
             stored["certificate_inputs"],
             f"task_results[{record_index}].action_gap_certificate.certificate_inputs",
@@ -219,6 +362,20 @@ def analyze(result_dir: Path, *, allow_smoke: bool) -> dict[str, Any]:
                     "record": record_index,
                     "numeric": comparison["numeric_mismatches"][:20],
                     "nonnumeric": comparison["nonnumeric_mismatches"][:20],
+                }
+            )
+        replay_audit = build_oracle_audit(stored_pure, capture)
+        audit_comparison = _compare_legacy(
+            replay_audit,
+            stored["oracle_audit"],
+            f"task_results[{record_index}].action_gap_certificate.oracle_audit",
+        )
+        if audit_comparison["status"] != "PASS":
+            oracle_mismatches.append(
+                {
+                    "record": record_index,
+                    "numeric": audit_comparison["numeric_mismatches"][:20],
+                    "nonnumeric": audit_comparison["nonnumeric_mismatches"][:20],
                 }
             )
         routes = stored["routes"]
@@ -284,6 +441,10 @@ def analyze(result_dir: Path, *, allow_smoke: bool) -> dict[str, Any]:
 
     if reconstruction_mismatches:
         raise AssertionError(f"serialized formula reconstruction failed: {reconstruction_mismatches[:3]}")
+    if provenance_mismatches:
+        raise AssertionError(f"action certificate provenance failed: {provenance_mismatches[:3]}")
+    if oracle_mismatches:
+        raise AssertionError(f"oracle audit replay failed: {oracle_mismatches[:3]}")
     if forbidden_inputs:
         raise AssertionError(f"oracle data leaked into pure inputs: {forbidden_inputs[:3]}")
     if policy_violations:
@@ -292,6 +453,54 @@ def analyze(result_dir: Path, *, allow_smoke: bool) -> dict[str, Any]:
         raise AssertionError(
             "local/global dominance failed: "
             f"penalties={dominance_violations}, decisions={decision_dominance_violations}"
+        )
+
+    if formal:
+        summary_basis = baseline_summary
+    else:
+        summary_keys = {
+            (
+                int(record["trajectory_length"]),
+                int(record["n_actions"]),
+                float(record["pi_min"]),
+                float(record["beta"]),
+                float(record["mixing"]),
+                float(record["gap_bonus"]),
+            )
+            for record in records
+        }
+        summary_basis = [
+            row
+            for row in baseline_summary
+            if (
+                int(row["trajectory_length"]),
+                int(row["n_actions"]),
+                float(row["pi_min"]),
+                float(row["beta"]),
+                float(row["mixing"]),
+                float(row["gap_bonus"]),
+            )
+            in summary_keys
+        ]
+    recomputed_summary = augment_summary(summary_basis, records)
+    stored_action_rows = [
+        row["action_gap_certificate"]
+        for row in summary
+        if "action_gap_certificate" in row
+    ]
+    recomputed_action_rows = [
+        row["action_gap_certificate"]
+        for row in recomputed_summary
+        if "action_gap_certificate" in row
+    ]
+    summary_comparison = _compare_legacy(
+        stored_action_rows,
+        recomputed_action_rows,
+        "summary.action_gap_certificate",
+    )
+    if summary_comparison["status"] != "PASS":
+        raise AssertionError(
+            f"stored action summary is not reproducible: {summary_comparison}"
         )
 
     core_present = {path.name for path in result_dir.iterdir() if path.is_file()}
@@ -311,6 +520,20 @@ def analyze(result_dir: Path, *, allow_smoke: bool) -> dict[str, Any]:
             "status": "PASS",
             "numeric_leaves_compared": compared_numeric,
             "nonnumeric_leaves_compared": compared_nonnumeric,
+            "mismatch_count": 0,
+        },
+        "input_provenance_replay": {
+            "status": "PASS",
+            "record_count": len(records),
+            "mismatch_count": 0,
+        },
+        "oracle_replay": {
+            "status": "PASS",
+            "record_count": len(records),
+            "mismatch_count": 0,
+        },
+        "summary_reconstruction": {
+            "status": "PASS",
             "mismatch_count": 0,
         },
         "oracle_input_separation": {"status": "PASS", "finding_count": 0},
@@ -335,7 +558,9 @@ def analyze(result_dir: Path, *, allow_smoke: bool) -> dict[str, Any]:
     return strict_json_ready(regression)
 
 
-def repair_no_update_policy_identity(result_dir: Path) -> int:
+def repair_no_update_policy_identity(
+    result_dir: Path, *, expected_task_results_sha256: str | None = None
+) -> int:
     """Correct the first formal serialization without rerunning its matrix.
 
     The initial serializer normalized the selected receiver even when a state
@@ -344,7 +569,20 @@ def repair_no_update_policy_identity(result_dir: Path) -> int:
     route abstained, so its exact oracle consequence is the identity policy.
     """
     project_dir = Path(__file__).resolve().parent
+    config = _strict_load(result_dir / "config.json")
     records = _strict_load(result_dir / "task_results.json")
+    if not _formal_configuration(config, records):
+        raise RuntimeError("identity repair is restricted to the frozen formal matrix")
+    if expected_task_results_sha256 is None:
+        raise RuntimeError(
+            "identity repair requires --expected-task-results-sha256 as a pre-write guard"
+        )
+    observed_hash = sha256_file(result_dir / "task_results.json")
+    if observed_hash != expected_task_results_sha256:
+        raise RuntimeError(
+            "task_results prehash changed before repair: "
+            f"expected {expected_task_results_sha256}, observed {observed_hash}"
+        )
     baseline_summary = _strict_load(
         project_dir / "results/FP-TU-001/codex/summary.json"
     )
@@ -396,24 +634,15 @@ def repair_no_update_policy_identity(result_dir: Path) -> int:
             bool(audit["return_decrease"]) for audit in route_audits
         )
     summary = augment_summary(baseline_summary, records)
-    (result_dir / "task_results.json").write_text(
-        json.dumps(strict_json_ready(records), ensure_ascii=False, indent=2, allow_nan=False),
-        encoding="utf-8",
-    )
-    (result_dir / "summary.json").write_text(
-        json.dumps(strict_json_ready(summary), ensure_ascii=False, indent=2, allow_nan=False),
-        encoding="utf-8",
-    )
+    _atomic_write_json(result_dir / "task_results.json", records)
+    _atomic_write_json(result_dir / "summary.json", summary)
     environment = _strict_load(result_dir / "environment.json")
     environment["post_formal_representation_repair"] = {
         "reason": "no-donor policy identity drift at most 6.94e-17",
         "routes_repaired": repaired,
         "formal_matrix_rerun": False,
     }
-    (result_dir / "environment.json").write_text(
-        json.dumps(strict_json_ready(environment), ensure_ascii=False, indent=2, allow_nan=False),
-        encoding="utf-8",
-    )
+    _atomic_write_json(result_dir / "environment.json", environment)
     return repaired
 
 
@@ -424,6 +653,15 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--allow-smoke", action="store_true")
     parser.add_argument("--repair-no-update-identity", action="store_true")
+    parser.add_argument(
+        "--expected-task-results-sha256",
+        help="pre-write hash required for the one-time formal identity repair",
+    )
+    parser.add_argument(
+        "--write-results",
+        action="store_true",
+        help="write regression and execution logs; default analysis is read-only",
+    )
     return parser.parse_args()
 
 
@@ -431,26 +669,27 @@ def main() -> None:
     args = parse_args()
     result_dir = args.result_dir.resolve()
     if args.repair_no_update_identity:
-        repaired = repair_no_update_policy_identity(result_dir)
+        repaired = repair_no_update_policy_identity(
+            result_dir,
+            expected_task_results_sha256=args.expected_task_results_sha256,
+        )
         print(
             f"REPAIRED {repaired} no-update policy serializations without rerunning "
             "the formal matrix"
         )
     regression = analyze(result_dir, allow_smoke=bool(args.allow_smoke))
-    (result_dir / "regression.json").write_text(
-        json.dumps(regression, ensure_ascii=False, indent=2, allow_nan=False),
-        encoding="utf-8",
-    )
     command = subprocess.list2cmdline(
         [sys.executable, "-B", Path(__file__).name, *sys.argv[1:]]
     )
-    with (result_dir / "commands.log").open("a", encoding="utf-8") as handle:
-        handle.write(f"ANALYSIS: {command}\n")
-    with (result_dir / "checks.log").open("a", encoding="utf-8") as handle:
-        handle.write(
-            f"PASS {TASK_ID} strict analyzer; scope={regression['scope']}; "
-            f"records={regression['record_count']}\n"
-        )
+    if args.write_results or args.repair_no_update_identity:
+        _atomic_write_json(result_dir / "regression.json", regression)
+        with (result_dir / "commands.log").open("a", encoding="utf-8") as handle:
+            handle.write(f"ANALYSIS: {command}\n")
+        with (result_dir / "checks.log").open("a", encoding="utf-8") as handle:
+            handle.write(
+                f"PASS {TASK_ID} strict analyzer; scope={regression['scope']}; "
+                f"records={regression['record_count']}\n"
+            )
     print(
         f"PASS {TASK_ID} strict analyzer with {regression['record_count']} records "
         f"({regression['scope']})"

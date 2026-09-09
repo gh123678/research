@@ -8,7 +8,8 @@ commit `a3a0340b3f63ed53eb00b5d5af244fabdbbbe75d` returned `APPROVED` on
 cautions. Common execution starts from
 `10a9a94e24ec92a59e7c756f9af6ce07b2f30e59`.
 The user has separately authorized Claude's isolated independent proof,
-implementation, smoke run, and one frozen 480-record formal run.
+implementation, smoke run, and one frozen 480-record formal run; both routes
+have now sealed matching zero-update formal results.
 
 The current task asks whether the verified `FP-TU-001` event can certify only
 the action differences used by one policy update. V-first local exact and
@@ -58,11 +59,17 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
   no-donor serialization defect was fixed at
   `440710c8c9c77ee8128d4abfd96919ffafe7991c` and mechanically repaired from
   saved observable inputs without rerunning the matrix.
-- Claude isolated route: running from
-  `4078f6911cbfb4654205772685f49896e4e8cad2`; no Claude result has been read.
+- Claude isolated route: formal result sealed at
+  `191821b26b16e13de323fb31651343ffe1eb9656` after blind seal
+  `191e13ba5472ce4c183643008169236979c000ff`; GPT independently replayed all
+  480 records and 17,280 route-state entries with zero failures.
 - Current blocker: none.
-- Next action: let Claude independently complete and seal its route, then
-  disclose both results and begin reciprocal verification.
+- Current task blocker: Claude's executable reciprocal verification of the GPT
+  route is blocked by its Bash/sandbox permission denial. Its content review
+  found no discrepancy, but governance requires command-level reproduction.
+- Next action: permit only the three read-only Claude checks (verifier, strict
+  analyzer, Ruff), then record the final reciprocal decision. No formal
+  evaluator rerun is allowed.
 - Design:
   `docs/superpowers/specs/2026-09-08-action-gap-safe-update-design.md`.
 - Plan:

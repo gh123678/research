@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import inspect
+import itertools
 import json
 import math
 
@@ -98,6 +99,26 @@ def test_span_tv_inequality() -> None:
     assert tv_span <= sup + 1e-15
 
 
+def test_exhaustive_finite_distribution_span_bound() -> None:
+    """Exercise the TV/span inequality over a small integer distribution grid."""
+    for denominator in range(1, 5):
+        compositions = [
+            counts
+            for counts in itertools.product(range(denominator + 1), repeat=3)
+            if sum(counts) == denominator
+        ]
+        errors = tuple(itertools.product((-1.0, 0.0, 1.0), repeat=3))
+        for left, right in itertools.product(compositions, repeat=2):
+            p = empirical_successor_row(left, denominator)
+            q = empirical_successor_row(right, denominator)
+            tv = total_variation(p, q)
+            for error in errors:
+                span = max(error) - min(error)
+                assert abs(float(np.dot(np.asarray(p) - np.asarray(q), error))) <= (
+                    tv * span + 1e-15
+                )
+
+
 def test_softmax_effective_row_matches_dense_weights() -> None:
     group_successors = [2, 1]
     total_successors = [4, 6]
@@ -177,6 +198,17 @@ def test_positive_update_floor_tie_break_and_theta() -> None:
     _expect_value_error(
         build_action_gap_certificate, **{**_base_inputs(), "transfer_fraction": 0.4}
     )
+
+
+def test_multiple_donor_transfer_is_exact_and_conservative() -> None:
+    inputs = _base_inputs()
+    inputs["policy"] = [[0.5, 0.3, 0.2]]
+    certificate = build_action_gap_certificate(**inputs)
+    for route in certificate["routes"].values():
+        assert route["eligible_donor_count"] == 2
+        assert np.allclose(route["policy_plus"], [[0.65, 0.2, 0.15]])
+        assert math.isclose(route["total_transferred_mass"], 0.15)
+        assert math.isclose(sum(route["policy_plus"][0]), 1.0)
 
 
 def test_partial_support_is_local_and_unvisited_receiver_abstains() -> None:
@@ -325,14 +357,39 @@ def test_invalid_inputs() -> None:
         build_action_gap_certificate,
         **{**_base_inputs(), "pair_counts": [5, 5, 4]},
     )
+    _expect_value_error(
+        build_action_gap_certificate,
+        **{**_base_inputs(), "pair_counts": [5.0, 5.0, 5.0]},
+    )
+    _expect_value_error(
+        build_action_gap_certificate,
+        **{
+            **_base_inputs(),
+            "pair_successor_counts": [[5.0], [5.0], [5.0]],
+        },
+    )
+    _expect_value_error(
+        build_action_gap_certificate,
+        **{**_base_inputs(), "recovery_radii": [math.nan, 0.05, 0.05]},
+    )
+    bad_q = np.asarray([[math.nan, 1.0, 0.0]])
+    _expect_value_error(
+        build_action_gap_certificate,
+        **{
+            **_base_inputs(),
+            "q_estimates": {key: bad_q for key in _base_inputs()["q_estimates"]},
+        },
+    )
 
 
 def main() -> None:
     test_total_variation_and_exact_formula()
     test_span_tv_inequality()
+    test_exhaustive_finite_distribution_span_bound()
     test_softmax_effective_row_matches_dense_weights()
     test_softmax_contamination_and_global_formula()
     test_positive_update_floor_tie_break_and_theta()
+    test_multiple_donor_transfer_is_exact_and_conservative()
     test_partial_support_is_local_and_unvisited_receiver_abstains()
     test_no_donor_returns_original_policy_exactly()
     test_ordered_reasons_divergence_and_mode()
