@@ -49,10 +49,12 @@ baseline or formal input.
   `results/FP-KERN-002/codex_worktree/`.
 - User decision: reuse the exact verified 480-record predecessor corpus; no
   new trajectories.
-- Current blocker: task must complete Claude read-only pre-review before
-  activation.
-- Next action: obtain Claude `APPROVED` or `OBJECTION` on the sealed REVIEW
-  commit.
+- Claude read-only pre-review: `APPROVED` on
+  `f72d4fec81bf43f2efe39a770afad68f63d559d9`, with 12 passed checks and seven
+  nonblocking wording/secondary-metric clarifications now closed.
+- Current blocker: none after the clarification closure is sealed.
+- Next action: transition to `ACTIVE`, freeze the common input, and begin both
+  isolated implementations from one execution-start commit.
 - Design:
   `docs/superpowers/specs/2026-09-09-kernel-reuse-oracle-learnability-design.md`.
 - Plan:
@@ -84,7 +86,7 @@ baseline or formal input.
   `evaluate_kernel_state_generalization.py`, and
   `analyze_kernel_state_generalization.py`.
 - Planned FP-KERN-002 implementation: `analyze_kernel_reuse_diagnostics.py`
-  and `verify_kernel_reuse_diagnostics.py` (not created while `DRAFT`).
+  and `verify_kernel_reuse_diagnostics.py` (not created before `ACTIVE`).
 
 ## Active evidence
 
@@ -126,6 +128,7 @@ baseline or formal input.
 - `docs/superpowers/specs/2026-09-09-kernel-reuse-oracle-learnability-design.md`
 - `docs/superpowers/plans/2026-09-09-kernel-reuse-oracle-learnability-plan.md`
 - `docs/research_tasks/FP-KERN-002.md`
+- `docs/research_branches/FP-KERN-002/codex/claude_pre_review.md`
 
 Each independent formal route contains 480 same-seed comparisons, strict-JSON
 route certificates, zero-mismatch legacy regression, certificate/failure

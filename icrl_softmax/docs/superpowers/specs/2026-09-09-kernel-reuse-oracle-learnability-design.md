@@ -75,10 +75,11 @@ The matching configuration SHA-256 is:
 
 `78aa1bcb5bd2529ab7346412a818ec95e2058deb07dff6436777424e074fb33a`.
 
-At task activation, the two files will be copied byte-for-byte into a common
-read-only `results/FP-KERN-002/input/` directory and re-hashed. GPT and Claude
-must consume the same frozen copy. The seven original `FP-KERN-001` canonical
-artifacts and both old worktrees remain read-only.
+At task activation, GPT will copy the two files byte-for-byte into a common
+`results/FP-KERN-002/input/` directory, write a source manifest, re-hash the
+copy, and then freeze all three common-input files. GPT and Claude must consume
+the same frozen copy and independently verify the manifest. The seven original
+`FP-KERN-001` canonical artifacts and both old worktrees remain read-only.
 
 The corpus contains exactly 480 records: 240 `current_unstructured` and 240
 `hidden_cluster`, spanning the already-frozen task, trajectory-length, mixing,
@@ -163,7 +164,8 @@ each record and target action.
 
 1. Recompute every leave-one-action-out cross-state distance using only common
    positive-count non-target signature actions, exactly as in
-   `FP-KERN-001`.
+   `FP-KERN-001`; a finite cross-state distance requires at least two such
+   common actions.
 2. Replace an unavailable cross-state distance by `1.0`, the conservative
    maximum normalized distance under the bounded construction.
 3. Enumerate the ten unique balanced partitions of six labelled states into
@@ -216,11 +218,30 @@ Each diagnostic route is screened with the same five thresholds:
 5. false-improvement rate at most one percentage point above
    `action_only_pool`.
 
-For `hidden_cluster`, report as secondary diagnostics the adjusted Rand index
-between the observable and generator partitions, same-cluster peer precision,
-and the fraction of `oracle_generator_cluster` RMSE improvement recovered by
-`observable_balanced_cluster`. These diagnostics cannot override the five-item
-screen.
+For `hidden_cluster`, secondary cluster diagnostics use only record/actions on
+which the observable partition has a unique minimum. `partition_tie`
+record/actions are excluded and counted. Compute one adjusted Rand index over
+the six state labels per emitted record/action, average the finite values
+equally, and report a two-sided 95% Student-t interval; fewer than two values is
+unavailable. Peer precision is micro-averaged over the twelve directed peer
+assignments from every emitted record/action: the numerator counts assignments
+whose generator labels agree and the denominator counts all such assignments.
+
+Report oracle-benefit recovery separately for zero and `1-4` count bins. For
+each bin, restrict to the exact record/pair set on which the observable route,
+generator-cluster route, and relevant baseline are all finite. Within each
+record compute all three RMSE values, then define
+
+```text
+recovery
+  = mean(RMSE_baseline - RMSE_observable)
+    / mean(RMSE_baseline - RMSE_generator_cluster).
+```
+
+The zero-count baseline is `action_only_pool`; the `1-4` baseline is
+`local_unpooled`. A missing, nonfinite, or nonpositive denominator makes the
+ratio unavailable. Do not clip the ratio. All three cluster diagnostics are
+secondary and cannot override the five-item screen.
 
 ## Decision rule
 
@@ -241,10 +262,11 @@ Then assign exactly one scoped conclusion using this ordered decision rule:
 3. `STRUCTURE_CONDITIONAL_PROMISING` if the observable route passes in
    `hidden_cluster` and fails in `current_unstructured`;
 4. `REPRESENTATION_GAP` if the observable route fails in `hidden_cluster` but
-   `oracle_generator_cluster` passes;
+   `oracle_generator_cluster` passes in `hidden_cluster`;
 5. `GENERATOR_STRUCTURE_MISALIGNED` if both cluster routes fail in
-   `hidden_cluster` but `oracle_q_nearest2` passes; or
-6. `NO_BORROWING_EVIDENCE` if all three hidden-family diagnostic routes fail.
+   `hidden_cluster` but `oracle_q_nearest2` passes in `hidden_cluster`; or
+6. `NO_BORROWING_EVIDENCE` if all three diagnostic routes fail in
+   `hidden_cluster`.
 
 The observable route takes precedence when it passes because it is the only
 deployable-data route; the Q-nearest construction is a favorable fixed-peer
@@ -262,7 +284,10 @@ The future implementation is limited to two new entry points:
 - `verify_kernel_reuse_diagnostics.py`, containing independent fixtures and
   full-corpus checks.
 
-No old Python file is modified. GPT writes only on `codex/FP-KERN-002` under
+No old Python file is modified. At activation GPT alone may create the common
+input's two byte-identical copies and `source_manifest.json`; after its first
+successful hash verification that directory becomes immutable to both routes.
+GPT otherwise writes only on `codex/FP-KERN-002` under
 the two new entry points, `docs/research_branches/FP-KERN-002/codex/`, the
 formal task/design/plan/workspace pointer, and
 `results/FP-KERN-002/codex/`. Claude uses `claude/FP-KERN-002` and its own
@@ -278,6 +303,10 @@ Each route must write a strict-JSON result bundle containing at least:
 - `environment.json`;
 - `commands.log`; and
 - `checks.log`.
+
+For `current_unstructured`, `oracle_generator_cluster` must serialize one
+route-level `not_applicable_family` status with no estimates or source sets and
+must be omitted from the current-family screen.
 
 ## Verification
 

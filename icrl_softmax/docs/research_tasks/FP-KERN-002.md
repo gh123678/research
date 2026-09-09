@@ -5,7 +5,8 @@
 - Created: 2026-09-09.
 - Author: GPT.
 - Status: `REVIEW`.
-- Task version: `0.2` (DRAFT sealed; scientific content unchanged).
+- Task version: `0.3` (Claude's seven nonblocking clarifications closed;
+  scientific content unchanged).
 - Predecessor and branch baseline:
   `403884ae6bde46c7c3578ae01d77422ed03faf05` (`FP-KERN-001` verified).
 - Approved design commit:
@@ -13,7 +14,7 @@
 - DRAFT task-definition baseline:
   `e04db4c17c7648bc751bef1620ab0d01fe1cb3a3`.
 - Activation and common execution-start commit: not created while status is
-  `DRAFT`.
+  `REVIEW`.
 - Design:
   `docs/superpowers/specs/2026-09-09-kernel-reuse-oracle-learnability-design.md`.
 - Plan:
@@ -84,11 +85,13 @@ Required source files and SHA-256 values:
 - `task_results.json`:
   `9f3e777e819fb64625bc2c119bdc5ad462a62277b2ff337b04d2f360253c5da1`.
 
-At activation they are copied byte-for-byte from the predecessor's canonical
-result directory to the common host input directory and re-hashed. Both routes
-consume exactly that copy. The input must contain 480 records, 240 per family,
-with the predecessor's frozen seed and complete 15-task by four-length by
-two-mixing by two-gap matrix in each family.
+At activation GPT copies them byte-for-byte from the predecessor's canonical
+result directory to the common host input directory, writes
+`source_manifest.json`, verifies all hashes, and then freezes those three
+files. Both routes consume exactly that copy and independently verify the
+manifest. The input must contain 480 records, 240 per family, with the
+predecessor's frozen seed and complete 15-task by four-length by two-mixing by
+two-gap matrix in each family.
 
 No trajectory may be generated, resampled, extended, shortened, or replaced.
 No old result or implementation file may be modified.
@@ -152,7 +155,8 @@ source set or estimate.
 For each record and target action:
 
 1. recompute all leave-one-action-out pair distances from common positive-count
-   non-target signature actions;
+   non-target signature actions, requiring at least two common actions for a
+   finite distance;
 2. replace unavailable pair distances with exactly `1.0`;
 3. enumerate all ten unique partitions of six states into two groups of three;
 4. score each partition by sorting its six squared within-group distances and
@@ -190,9 +194,21 @@ Each route passes a family only when all five conditions hold:
 5. false-improvement rate is no more than one percentage point above
    `action_only_pool` on common finite action differences.
 
-Secondary hidden-family diagnostics are adjusted Rand index, same-cluster peer
-precision, and the observable fraction of oracle-cluster RMSE improvement.
-They cannot override a screen item.
+Secondary hidden-family diagnostics use only record/actions with a unique
+observable partition; tied record/actions are excluded and counted. Compute
+one adjusted Rand index per emitted record/action over all six states, average
+finite values equally, and report a 95% Student-t interval; fewer than two is
+unavailable. Micro peer precision counts the twelve directed within-partition
+peer assignments per emitted record/action, with matching generator labels in
+the numerator and every assignment in the denominator.
+
+Oracle-benefit recovery is reported separately for zero and `1-4` bins on the
+exact record/pair set common to the observable route, generator-cluster route,
+and relevant baseline. It is the mean per-record observable RMSE improvement
+divided by the mean per-record generator-cluster RMSE improvement. The zero
+baseline is `action_only_pool`; the `1-4` baseline is `local_unpooled`. A
+missing, nonfinite, or nonpositive denominator is unavailable, and the ratio
+is not clipped. These diagnostics cannot override a screen item.
 
 ## Frozen conclusion rule
 
@@ -203,11 +219,12 @@ Report `peer_headroom`, `generator_structure_useful`, and
    reconstruction failure;
 2. `GENERAL_PROMISING` if the observable route passes both families;
 3. `STRUCTURE_CONDITIONAL_PROMISING` if it passes hidden and fails current;
-4. `REPRESENTATION_GAP` if it fails hidden but the generator-cluster route
-   passes;
-5. `GENERATOR_STRUCTURE_MISALIGNED` if both cluster routes fail hidden but the
-   Q-nearest route passes; or
-6. `NO_BORROWING_EVIDENCE` if all three diagnostic routes fail hidden.
+4. `REPRESENTATION_GAP` if it fails `hidden_cluster` but the generator-cluster
+   route passes in `hidden_cluster`;
+5. `GENERATOR_STRUCTURE_MISALIGNED` if both cluster routes fail in
+   `hidden_cluster` but the Q-nearest route passes there; or
+6. `NO_BORROWING_EVIDENCE` if all three diagnostic routes fail in
+   `hidden_cluster`.
 
 Only an observable-route pass supports `PROMISING`. No category is a safety or
 general identifiability theorem.
@@ -220,7 +237,12 @@ for exactly 16 records. After smoke and all checks pass, each independent route
 generates one full 480-record diagnostic result. There is no formal trajectory
 run and no scientific command-line parameter.
 
-The common input is immutable. Each route's full result directory must be
+For `current_unstructured`, `oracle_generator_cluster` serializes the explicit
+route status `not_applicable_family`, with no estimates or source sets, and is
+omitted from the current-family screen.
+
+The common input is immutable after GPT's one-time activation copy and
+manifest. Each route's full result directory must be
 absent or empty before its sole full-output generation. A rerun that replaces
 diagnostic records requires user authorization.
 
@@ -247,7 +269,8 @@ diagnostic records requires user authorization.
 - `results/FP-KERN-002/claude/`.
 
 The host-level `results/FP-KERN-002/input/` is a common immutable input, not a
-route output.
+route output. GPT alone may create its two byte-identical source copies and
+manifest once at activation; neither route may modify it afterward.
 
 ## Prohibited work
 
@@ -339,10 +362,13 @@ After disclosure, each performs executable reciprocal verification and records
 
 ### Claude read-only pre-review
 
-- Status: pending while task is `REVIEW`.
-- Review target: the commit that transitions this frozen task to `REVIEW`;
-  its exact identity is recorded with Claude's response.
-- Outcome: not yet assigned.
+- Status: completed.
+- Reviewed commit:
+  `f72d4fec81bf43f2efe39a770afad68f63d559d9`.
+- Tool boundary: Claude Code 2.1.138 in `plan` mode with only `Read`, `Glob`,
+  and `Grep`; no Bash, Python, Write/Edit, Git mutation, web, or experiment.
+- Outcome: `APPROVED`, with 12 passed checks and seven nonblocking
+  clarifications closed before activation.
 - Evidence path:
   `docs/research_branches/FP-KERN-002/codex/claude_pre_review.md`.
 

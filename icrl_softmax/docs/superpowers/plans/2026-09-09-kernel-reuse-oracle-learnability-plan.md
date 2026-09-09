@@ -27,14 +27,15 @@ run before `ACTIVE`.
 
 ## 2. Freeze the common input
 
-After activation, copy only the sealed predecessor `config.json` and
+After activation, GPT copies only the sealed predecessor `config.json` and
 `task_results.json` into the host-level common
 `results/FP-KERN-002/input/` directory. Verify byte identity against the task's
 SHA-256 values before either route reads the copy.
 
-Write `source_manifest.json` with source task, corrected formal seal, source
+GPT writes `source_manifest.json` with source task, corrected formal seal, source
 paths, sizes, hashes, record and family counts, matrix values, and copy time.
-Make no change to any `FP-KERN-001` file.
+It then freezes all three common-input files. Both routes independently verify
+the manifest. Make no change to any `FP-KERN-001` file.
 
 ## 3. Verifier-first implementation
 
@@ -96,9 +97,11 @@ gap_bonuses=0,0.50
 records=16
 ```
 
-Smoke must exercise all three new routes, both ordinary source-unavailable and
-partition-tie abstentions, strict JSON, metric reconstruction, and the output
-schema. Smoke cannot change any scientific constant.
+Smoke must exercise all three new routes, ordinary source-unavailable
+abstention, strict JSON, metric reconstruction, and the output schema.
+Deterministic verifier fixtures must exercise `partition_tie`; the frozen
+16-record subset is not required to contain a naturally tied partition. Smoke
+cannot change any scientific constant.
 
 ## 6. Independent Claude route
 
