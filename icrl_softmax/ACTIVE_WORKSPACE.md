@@ -2,12 +2,14 @@
 
 ## Current objective
 
-Current follow-up: `docs/research_tasks/CTRL-PREFLIGHT-001.md` (`REVIEW`), an
+Current follow-up: `docs/research_tasks/CTRL-PREFLIGHT-001.md` (`ACTIVE`), an
 economical source comparison and minimal finite-head diagnostic authorized on
 2026-09-10. GPT branch: `codex/CTRL-PREFLIGHT-001`. Source comparison is recorded
-in `docs/research_branches/CTRL-PREFLIGHT-001/codex/report.md`. Automatic approval
-review blocked the external Claude pre-review pending explicit scoped data-
-transfer authorization; no new diagnostic has run. FP-ESARSA remains DRAFT.
+in `docs/research_branches/CTRL-PREFLIGHT-001/codex/report.md`. User authorized
+scoped external transfer and delegated execution: GPT defines requirements,
+Claude pre-reviews and executes the diagnostic, GPT independently verifies.
+Task v1.1 pre-review returned APPROVED; isolated Claude diagnostic execution
+is next, followed by GPT verification. FP-ESARSA remains DRAFT.
 
 Status: `FP-ADV-001` is `VERIFIED` as a negative usefulness result.  Claude's
 task-scoped pre-review returned `APPROVED`; Codex and Claude then independently

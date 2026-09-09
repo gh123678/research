@@ -1,17 +1,19 @@
 # CTRL-PREFLIGHT-001: economical control-route preflight
 
-- Date: 2026-09-10. Author: GPT. Version: 1.0. Status: `REVIEW`.
+- Date: 2026-09-10. Author: GPT. Version: 1.1. Status: `ACTIVE`.
 - Baseline: `db9d63043489f4ec5660e71c53e7e842a280d04f`.
 - User authorization: after the comparison of directions, the user said
   “好的你去做”, authorizing dependency comparison and minimal validation.
 - Classification: short diagnostic review, estimated 15--25 minutes, CPU only.
   No new control algorithm, convergence theorem, formal MDP matrix, training,
-  or publication claim is implemented. GPT executes; Claude independently
-  verifies the narrow reproducible diagnostics. This is not the multi-stage
+  or publication claim is implemented. GPT defines and reviews; Claude executes
+  the narrow reproducible diagnostics; GPT independently verifies them. This is not the multi-stage
   FP-ESARSA task and does not activate or change its frozen definitions.
 - GPT branch: `codex/CTRL-PREFLIGHT-001`.
-- Claude role: read-only pre-review and executable final review, no writes.
-  GPT records the returned reports with provenance on its branch.
+- Claude role: read-only pre-review, then scoped diagnostic implementation and
+  executable verification of GPT's source comparison on `claude/CTRL-PREFLIGHT-001`.
+  GPT records returned review provenance on its own branch, does not author
+  Claude's artifacts, and independently reruns/inspects Claude's diagnostics.
 - Resource ceiling: two Claude Code calls, each at most USD 0.50 under the
   existing configured account; no new model/provider configuration. Report
   actual backend metadata rather than assuming a model from the CLI name.
@@ -35,7 +37,8 @@
 Read-only inputs: AGENTS.md, ACTIVE_WORKSPACE.md, FP-ESARSA-001 task/design,
 model.py, verify_end_to_end_sarsa.py, verify_two_stage_q_control.py,
 time_uniform_mixture_certificate.py and imported dependencies, existing
-construction documentation and manuscript method sections.
+construction documentation and manuscript method sections, and the GPT
+source comparison in docs/research_branches/CTRL-PREFLIGHT-001/codex/report.md.
 
 Run the two existing verifiers with Python -B and one new standalone diagnostic.
 Use float64 and no random trajectory. The new diagnostic uses exactly these
@@ -68,11 +71,23 @@ radius contribution at k. Do not claim this prohibits all other certificates.
 
 GPT may add only:
 - docs/research_tasks/CTRL-PREFLIGHT-001.md (this task);
-- docs/research_branches/CTRL-PREFLIGHT-001/codex/diagnostic.py;
 - docs/research_branches/CTRL-PREFLIGHT-001/codex/report.md;
 - docs/research_branches/CTRL-PREFLIGHT-001/codex/claude_review.md;
 - ignored results/CTRL-PREFLIGHT-001/codex/ (stdout/provenance);
 - a compact task/status pointer in ACTIVE_WORKSPACE.md.
+
+Claude may add only, within its isolated worktree and branch:
+- docs/research_branches/CTRL-PREFLIGHT-001/claude/diagnostic.py;
+- docs/research_branches/CTRL-PREFLIGHT-001/claude/report.md (including its
+  executable verification of GPT's source comparison, ending PASS/FAIL/OBJECTION);
+- ignored results/CTRL-PREFLIGHT-001/claude/ (stdout/provenance).
+
+All paths above are relative to icrl_softmax/. The shared execution-start
+commit is the GPT activation commit, containing unchanged scientific source
+from the baseline plus this reviewed task and GPT's source comparison.
+Claude must confirm branch/worktree and report its execution commit. It may
+commit only its two specified documentation-directory artifacts, with a
+[claude] subject. It must not change task status or any other tracked file.
 
 No existing algorithm, experiment, result, task contract, manuscript, or user
 learning record may be modified. No push, merge, provider changes, or broad
@@ -91,7 +106,8 @@ An inconclusive/tied comparison is admissible. No empirical superiority claim.
 Acceptance: accurate source references; all diagnostic rows recorded including
 adverse results; finite-score reference errors <=1e-12; inherited checks
 reported truthfully; no-oracle/source-preservation audit; explicit limitations
-and one concrete next validation gate; Claude executable final report PASS.
+and one concrete next validation gate; Claude executable source-review PASS
+and GPT independent implementation/evidence-verification PASS.
 The technical recommendation remains provisional, even when this diagnostic
 task is VERIFIED. Independent verification validates evidence, not publication
 value or an unbuilt architecture.
@@ -105,9 +121,26 @@ scope and both failed and successful checks are recorded.
 
 - Pre-review: NOT_EXECUTED; automatic approval review rejected transfer of
   private AGENTS.md and this new task to the configured external service.
-  No process/session was started. Await explicit scoped user authorization.
-  This is not a scientific OBJECTION; status remains REVIEW.
+  No process/session was started. This historical rejection was not a scientific
+  OBJECTION. User subsequently authorized the scoped delegation below.
+- User ruling on 2026-09-10: in response to the explicit scoped external-transfer
+  request (governance, task, related source, diagnostic reports; two calls,
+  total USD 1), user said: "你去思考然后提出要求，然后给claude去做就行".
+  This authorizes GPT-defined requirements and Claude execution for this task,
+  including necessary transmission to the existing configured Claude Code
+  service. It is a task-specific exception to the default short-task executor
+  assignment, not a waiver of pre-review, independent verification, or limits.
+  No credentials, unrelated user files, archived results, or bulk repository
+  upload are in scope. No new provider/model or fee category is authorized.
+  Version 1.1 changes assignment/authorization only; numerical protocol and
+  scientific acceptance tests are unchanged. Design self-review: no protocol
+  expansion, no ambiguous writer support, finite/grouped errors kept separate.
 - Lifecycle: DRAFT sealed at ebe6bd3; entered REVIEW on 2026-09-10.
+- v1.1 pre-review: APPROVED on 2026-09-10, session
+  8841d30e-fe26-4ef6-9a55-1a50b809b1f5; entered ACTIVE after receipt.
+  No task-level objection. CLI-reported cost USD 0.141851; metadata labels
+  kimi-k2.6 and k3 (not an independently authenticated model identity).
+  Execution start is the commit recording this activation.
 - Final verification: pending.
 - Read-only comparison: docs/research_branches/CTRL-PREFLIGHT-001/codex/report.md.
 - Review provenance: docs/research_branches/CTRL-PREFLIGHT-001/codex/claude_review.md.
