@@ -4,13 +4,15 @@
 
 - Created: 2026-09-09.
 - Author: GPT.
-- Status: `DRAFT`.
-- Task version: `0.1`.
+- Status: `REVIEW`.
+- Task version: `0.2` (governance-only transition; scientific contract
+  unchanged).
 - Verified scientific baseline:
   `c579047950dfabb2600020cd2e53dd24b3e39c84`.
 - Approved design commit:
   `f10d04ce1bec6d103c0e1e1f608db4d0d00a2b5e`.
-- DRAFT task-definition baseline: pending the first DRAFT seal.
+- DRAFT task-definition baseline:
+  `b7ef163f11eb5ee41499344c296587efd3516651`.
 - Common execution-start commit: unavailable before Claude pre-review.
 - Design:
   `docs/superpowers/specs/2026-09-09-kernel-state-generalization-feasibility-design.md`.
@@ -402,9 +404,9 @@ evidence-linked reports ending exactly `PASS`, `FAIL`, or `OBJECTION`.
 
 ### Claude read-only pre-review
 
-- Status: not started.
-- Reviewed commit: unavailable.
-- Outcome: unavailable.
+- Status: pending.
+- Reviewed commit: the REVIEW seal produced by the next governance commit.
+- Outcome: pending.
 
 ### Objection
 

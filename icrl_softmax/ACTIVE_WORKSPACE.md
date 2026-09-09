@@ -2,26 +2,25 @@
 
 ## Current objective
 
-Status: `FP-TU-001` is `VERIFIED` and merged into local `main` at
-`b67fa502662ee041410a38e20e87a55365e6f94c`.  Both independent routes and
-reciprocal reports pass; the user accepted the two documented
-environment/procedure exceptions on 2026-09-07.  After a fresh no-divergence
-check, the user-authorized push synchronized the verified history to
-`origin/main` without force.
+Status: `FP-KERN-001` is in `REVIEW`. The user approved the written kernel
+generalization feasibility design on 2026-09-09. The DRAFT task and execution
+plan are sealed at `b7ef163f11eb5ee41499344c296587efd3516651`; no research
+implementation or experiment has started.
 
-The current task asks whether a preregistered finite geometric mixture of
-exponential supermartingales can replace the verified count-wise Hoeffding
-union while preserving the same fixed-policy assumptions, no-oracle inputs,
-selective probability statement, and deterministic route recurrences.
+The task asks whether a state kernel learned only from the observed behavior
+of other actions can improve fixed-policy Q estimation and action ordering for
+zero-count and low-count target pairs. The unchanged current random MDP family
+tests project applicability; a hidden-cluster family with structure concealed
+from the estimator is the positive control.
 
-The mandatory target is a time-uniform mixture radius no wider than the old
-radius for every count through 16384. Analytic line stitching is audit-only;
-observable transition variance is feasibility-only. The frozen 480-record
-protocol is retained for paired evaluation after activation.
+The frozen study has four routes and 480 records. It is empirical feasibility
+work only: true Q, hidden clusters, and exact returns are oracle-audit outputs,
+and no safety or policy-nondegradation theorem is claimed.
 
-`FP-MART-001` remains the verified scientific baseline. Fully online control,
-nonstationary starts, general stochastic reward noise, outcome-tuned mixture
-constants, and post-hoc certificate selection remain outside scope.
+`FP-TU-001` remains the verified scientific baseline at
+`c579047950dfabb2600020cd2e53dd24b3e39c84`. The separate unmerged
+`FP-ADV-001` negative result motivates this task but is not an execution
+baseline or formal input.
 
 ## Research governance
 
@@ -36,26 +35,25 @@ constants, and post-hoc certificate selection remain outside scope.
 
 ## Active research task
 
-- Task: `docs/research_tasks/FP-TU-001.md` (`VERIFIED`).
-- Scientific baseline: `28b71685ca05ae073cc847fdea230019e4bd63ea`.
-- Frozen task-definition baseline:
-  `0a66c4c583678e3186af7c5dbcff02779436329c`.
-- Common execution-start commit:
-  `0ce18b4676f70ca0556496e804aa65563efa63da`.
-- GPT branch: `codex/FP-TU-001`.
-- Claude role: independent construction and reciprocal verification completed;
-  final report commit
-  `ae82bb8bd7a269c878697b19280a00c4ad2c2f23` ends `PASS`.
-- Current blocker: none.  GPT reproduced Claude's repaired 480-record route;
-  Claude independently reproduced GPT's verifier, hash, analyzer, and metric
-  evidence; both reciprocal reports pass.
-- Next action: local merge, post-merge verification, and remote synchronization
-  are complete.  Begin the next GPT-authored task on a new `codex/*` branch.
+- Task: `docs/research_tasks/FP-KERN-001.md` (`REVIEW`).
+- Scientific baseline:
+  `c579047950dfabb2600020cd2e53dd24b3e39c84`.
+- Frozen DRAFT task-definition baseline:
+  `b7ef163f11eb5ee41499344c296587efd3516651`.
+- Common execution-start commit: unavailable before Claude pre-review.
+- GPT branch and isolated worktree: `codex/FP-KERN-001` in
+  `results/FP-KERN-001/codex_worktree/`.
+- Claude role: pending task-scoped read-only pre-review; after `APPROVED` and
+  activation, independently construct and verify the same frozen study.
+- Current blocker: none; implementation is intentionally gated on Claude
+  pre-review.
+- Next action: seal REVIEW, obtain Claude's `APPROVED` or `OBJECTION`, and
+  activate only if no objection remains.
 - Design:
-  `docs/superpowers/specs/2026-09-04-time-uniform-mixture-certificate-design.md`.
+  `docs/superpowers/specs/2026-09-09-kernel-state-generalization-feasibility-design.md`.
 - Plan:
-  `docs/superpowers/plans/2026-09-04-time-uniform-mixture-certificate-plan.md`.
-- Prior verified task: `docs/research_tasks/FP-MART-001.md` (`VERIFIED`).
+  `docs/superpowers/plans/2026-09-09-kernel-state-generalization-feasibility-plan.md`.
+- Prior verified task: `docs/research_tasks/FP-TU-001.md` (`VERIFIED`).
 
 ## Active implementation
 
@@ -77,6 +75,10 @@ constants, and post-hoc certificate selection remain outside scope.
 - `verify_time_uniform_mixture_certificate.py`
 - `evaluate_time_uniform_certificates.py`
 - `analyze_time_uniform_certificates.py`
+- Planned only after activation: `kernel_state_generalization.py`,
+  `kernel_generalization_mdps.py`, `verify_kernel_state_generalization.py`,
+  `evaluate_kernel_state_generalization.py`, and
+  `analyze_kernel_state_generalization.py`.
 
 ## Active evidence
 
@@ -103,6 +105,9 @@ constants, and post-hoc certificate selection remain outside scope.
 - `docs/research_branches/time_uniform_mixture_certificate_report.md`
 - `results/FP-TU-001/codex/`
 - `results/FP-TU-001/claude/`
+- `docs/superpowers/specs/2026-09-09-kernel-state-generalization-feasibility-design.md`
+- `docs/superpowers/plans/2026-09-09-kernel-state-generalization-feasibility-plan.md`
+- `docs/research_tasks/FP-KERN-001.md`
 
 Each independent formal route contains 480 same-seed comparisons, strict-JSON
 route certificates, zero-mismatch legacy regression, certificate/failure
