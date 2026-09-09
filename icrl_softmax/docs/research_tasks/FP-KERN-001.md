@@ -4,7 +4,7 @@
 
 - Created: 2026-09-09.
 - Author: GPT.
-- Status: `ACTIVE`.
+- Status: `VERIFYING`.
 - Task version: `1.0` (activated after Claude `APPROVED`; scientific
   hypotheses, routes, matrix, thresholds, and decision rule unchanged).
 - Verified scientific baseline:
@@ -487,17 +487,38 @@ evidence-linked reports ending exactly `PASS`, `FAIL`, or `OBJECTION`.
 
 ### Execution evidence
 
-- GPT route: not started.
-- Claude route: not started.
-- Reciprocal verification: not started.
+- GPT route: formal seal
+  `640a3f8fb2d0f41b96eef8d9bb76fc5ef2e9b93b`; 480 records; strict
+  reconstruction `PASS`; sealed classification `NOT_SUPPORTED`.
+- Claude route: implementation/smoke seal
+  `428af58c9511fd0c4438cbc1c97fceb0fdc632d6`, formal seal
+  `1a820467683d137e6527edbd99bb486000b2fc58`; 480 records; strict
+  reconstruction `PASS`; sealed classification `NOT_SUPPORTED`.
+- GPT verification of Claude: `PASS`, report
+  `docs/research_branches/FP-KERN-001/codex/verify_claude.md`, commit
+  `5e538ad06e1167c8c644db9db7f7f25573b470cb`.
+- Claude verification of GPT: `PASS`, report
+  `docs/research_branches/FP-KERN-001/claude/verify_codex.md`, commit
+  `f9666e9d54091e8d563f7c3f097d294ef3ee9ddd`.
+- Principal post-verification audit found three frozen-definition differences
+  in the sealed GPT route: sparse-positive self-weight gating differs from the
+  approved design's unconditional self weight when target observations exist;
+  false improvement counts both sign directions instead of only estimated
+  positive/true nonpositive events; and the secondary Spearman diagnostic is
+  pooled per record instead of computed within record/action. The Claude route
+  follows the literal frozen definitions. All three differences are fully
+  disclosed and none changes any screen-item pass/fail result or the common
+  `NOT_SUPPORTED` classification. User ruling or a user-authorized documented
+  corrective GPT formal rerun is required before `VERIFIED`.
 
 ## Definition of done
 
-- [ ] No unresolved objection remains.
-- [ ] Both independent routes are reproducible.
-- [ ] Both reciprocal verification reports are recorded and pass.
+- [x] No unresolved objection remains.
+- [x] Both independent routes are reproducible.
+- [x] Both reciprocal verification reports are recorded and pass.
 - [ ] Every acceptance criterion has evidence.
-- [ ] The classification follows the frozen decision rule.
+- [x] The classification follows the frozen decision rule in both sealed
+  routes.
 - [ ] Differences are reconciled or ruled on by the user.
-- [ ] `ACTIVE_WORKSPACE.md` is current.
+- [x] `ACTIVE_WORKSPACE.md` is current.
 - [ ] The user approved any merge to `main`.

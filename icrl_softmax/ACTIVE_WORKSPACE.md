@@ -2,13 +2,21 @@
 
 ## Current objective
 
-Status: `FP-KERN-001` is `ACTIVE`. The user approved the written kernel
-generalization feasibility design on 2026-09-09. The DRAFT task and execution
-plan are sealed at `b7ef163f11eb5ee41499344c296587efd3516651`. Claude's
-task-scoped read-only pre-review of
-`c17fa4f28f0ecfb9a08c3c1c8bb11634a7d73801` returned `APPROVED`; its eight
-nonblocking clarifications are closed in task version 1.0. No research
-implementation or experiment has started.
+Status: `FP-KERN-001` is `VERIFYING`. Both independent 480-record routes,
+their blind seals, strict reconstructions, and reciprocal reports are
+complete. GPT and Claude independently classify the frozen kernel route as
+`NOT_SUPPORTED`: both families fail the zero-count RMSE, `1-4`-count RMSE,
+and sparse-state top-action requirements while passing coverage and
+false-improvement control.
+
+GPT verification of Claude is `PASS` at `5e538ad06e1167c8c644db9db7f7f25573b470cb`;
+Claude verification of GPT is `PASS` at
+`f9666e9d54091e8d563f7c3f097d294ef3ee9ddd`. A principal audit nevertheless
+found three literal frozen-definition deviations in the sealed GPT route
+(self-weight gating, one-sided false-improvement definition, and
+record/action Spearman granularity). They do not change the common scientific
+classification, but user ruling or authorization for one documented
+corrective GPT formal rerun is required before status `VERIFIED`.
 
 The task asks whether a state kernel learned only from the observed behavior
 of other actions can improve fixed-policy Q estimation and action ordering for
@@ -38,23 +46,25 @@ baseline or formal input.
 
 ## Active research task
 
-- Task: `docs/research_tasks/FP-KERN-001.md` (`ACTIVE`).
+- Task: `docs/research_tasks/FP-KERN-001.md` (`VERIFYING`).
 - Scientific baseline:
   `c579047950dfabb2600020cd2e53dd24b3e39c84`.
 - Frozen DRAFT task-definition baseline:
   `b7ef163f11eb5ee41499344c296587efd3516651`.
 - Activation commit:
   `2308c372eb47ce7c181f98caee952121f4e47644`.
-- The exact common route execution-start commit will be captured when the
-  Claude branch/worktree is created from the metadata closure, before either
-  implementation begins.
+- Common route execution-start commit:
+  `28c4ae0f68ca51c7c9a0fd981159e85b7742dd4c`.
 - GPT branch and isolated worktree: `codex/FP-KERN-001` in
   `results/FP-KERN-001/codex_worktree/`.
-- Claude role: read-only pre-review completed with `APPROVED`; after
-  activation, independently construct and verify the same frozen study.
-- Current blocker: none; Claude pre-review returned `APPROVED`.
-- Next action: seal activation metadata, create the Claude branch/worktree from
-  that exact common route baseline, then begin isolated test-first construction.
+- Claude route: formal seal `1a820467683d137e6527edbd99bb486000b2fc58`;
+  classification `NOT_SUPPORTED`; GPT verification `PASS`.
+- GPT route: formal seal `640a3f8fb2d0f41b96eef8d9bb76fc5ef2e9b93b`;
+  classification `NOT_SUPPORTED`; Claude verification `PASS`.
+- Current blocker: principal audit found three non-classification-changing GPT
+  contract deviations after reciprocal disclosure.
+- Next action: obtain the user's ruling to accept the common classification as
+  an exception or authorize one documented corrective GPT formal rerun.
 - Design:
   `docs/superpowers/specs/2026-09-09-kernel-state-generalization-feasibility-design.md`.
 - Plan:
@@ -81,7 +91,7 @@ baseline or formal input.
 - `verify_time_uniform_mixture_certificate.py`
 - `evaluate_time_uniform_certificates.py`
 - `analyze_time_uniform_certificates.py`
-- Planned only after activation: `kernel_state_generalization.py`,
+- FP-KERN-001 implementation: `kernel_state_generalization.py`,
   `kernel_generalization_mdps.py`, `verify_kernel_state_generalization.py`,
   `evaluate_kernel_state_generalization.py`, and
   `analyze_kernel_state_generalization.py`.
@@ -114,6 +124,12 @@ baseline or formal input.
 - `docs/superpowers/specs/2026-09-09-kernel-state-generalization-feasibility-design.md`
 - `docs/superpowers/plans/2026-09-09-kernel-state-generalization-feasibility-plan.md`
 - `docs/research_tasks/FP-KERN-001.md`
+- `docs/research_branches/FP-KERN-001/codex/formal_result.md`
+- `docs/research_branches/FP-KERN-001/codex/verify_claude.md`
+- `docs/research_branches/FP-KERN-001/claude/formal_result.md`
+- `docs/research_branches/FP-KERN-001/claude/verify_codex.md`
+- `results/FP-KERN-001/codex/`
+- `results/FP-KERN-001/claude/`
 
 Each independent formal route contains 480 same-seed comparisons, strict-JSON
 route certificates, zero-mismatch legacy regression, certificate/failure
