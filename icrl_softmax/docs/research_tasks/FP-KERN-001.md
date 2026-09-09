@@ -4,7 +4,7 @@
 
 - Created: 2026-09-09.
 - Author: GPT.
-- Status: `ACTIVE` (corrective GPT repair authorized by user).
+- Status: `VERIFIED`.
 - Task version: `1.0` (activated after Claude `APPROVED`; scientific
   hypotheses, routes, matrix, thresholds, and decision rule unchanged).
 - Verified scientific baseline:
@@ -511,7 +511,9 @@ evidence-linked reports ending exactly `PASS`, `FAIL`, or `OBJECTION`.
 
 - GPT route: formal seal
   `640a3f8fb2d0f41b96eef8d9bb76fc5ef2e9b93b`; 480 records; strict
-  reconstruction `PASS`; sealed classification `NOT_SUPPORTED`.
+  reconstruction `PASS`; sealed classification `NOT_SUPPORTED`. These
+  original artifacts are preserved under
+  `results/FP-KERN-001/codex/original_formal/`.
 - Claude route: implementation/smoke seal
   `428af58c9511fd0c4438cbc1c97fceb0fdc632d6`, formal seal
   `1a820467683d137e6527edbd99bb486000b2fc58`; 480 records; strict
@@ -535,16 +537,41 @@ evidence-linked reports ending exactly `PASS`, `FAIL`, or `OBJECTION`.
 - User ruling: corrective GPT formal rerun authorized on 2026-09-09. Repair is
   restricted to the three listed definitions, with no scientific tuning; the
   task returned from `VERIFYING` to `ACTIVE` for the original author to fix.
+- Corrective GPT implementation and smoke seal:
+  `5af3dc6134a13779908e87558941fa82ed0829eb`. New regression fixtures cover
+  unconditional sparse-positive self weight, the one-sided
+  false-improvement event, and within-record/action Spearman aggregation; all
+  new and inherited verifiers and task-scoped Ruff checks pass.
+- Corrected GPT formal seal:
+  `1001d23273bdf29b92d9b84a3f3956e83819da4a`; exactly one authorized
+  480-record rerun; strict reconstruction `PASS`; classification remains
+  `NOT_SUPPORTED`. Canonical artifacts are in
+  `results/FP-KERN-001/codex/`, and the corrected evidence report is
+  `docs/research_branches/FP-KERN-001/codex/corrected_formal_result.md`.
+- After the corrected seal, the task entered `VERIFYING`. Claude reproduced
+  the corrected code, canonical artifact hashes, strict analysis, regression
+  checks, and preservation of the original formal archive. Its final report
+  `docs/research_branches/FP-KERN-001/claude/verify_codex_corrected.md` ends
+  `PASS` at commit
+  `c17561620d02a08210b1702f4ff576e7bde17366`.
+- Final scientific screen: both the current-unstructured and hidden-cluster
+  families pass items 1 and 5 and fail items 2--4. Both independent routes
+  therefore support the frozen `NOT_SUPPORTED` classification. The positive
+  Spearman diagnostics show some similarity signal, but not enough for this
+  fixed Gaussian pooling rule to improve the required sparse Q estimates.
+- Final governance state: `VERIFIED`; no unresolved objection, no pending
+  reciprocal check, and no merge to `main` requested or performed.
 
 ## Definition of done
 
 - [x] No unresolved objection remains.
 - [x] Both independent routes are reproducible.
-- [ ] Both reciprocal verification reports are recorded and pass for the
+- [x] Both reciprocal verification reports are recorded and pass for the
   corrected GPT route.
-- [ ] Every acceptance criterion has evidence.
-- [ ] The corrected classification follows the frozen decision rule.
+- [x] Every acceptance criterion has evidence.
+- [x] The corrected classification follows the frozen decision rule.
 - [x] The corrective-rerun exception and exact repair scope were ruled on by
   the user.
 - [x] `ACTIVE_WORKSPACE.md` is current.
-- [ ] The user approved any merge to `main`.
+- [x] `main` remains unchanged; no merge was requested, so separate merge
+  approval is not applicable to this task closure.

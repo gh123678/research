@@ -2,24 +2,20 @@
 
 ## Current objective
 
-Status: `FP-KERN-001` is `ACTIVE` for a user-authorized corrective GPT rerun.
-Both independent 480-record routes,
-their blind seals, strict reconstructions, and reciprocal reports are
-complete. GPT and Claude independently classify the frozen kernel route as
-`NOT_SUPPORTED`: both families fail the zero-count RMSE, `1-4`-count RMSE,
-and sparse-state top-action requirements while passing coverage and
-false-improvement control.
+Status: `FP-KERN-001` is `VERIFIED`. Both independent 480-record routes and
+the user-authorized corrective GPT rerun classify the frozen kernel route as
+`NOT_SUPPORTED`: both families pass zero-count coverage and false-improvement
+control but fail the zero-count RMSE, `1-4`-count RMSE, and sparse-state
+top-action requirements.
 
-GPT verification of Claude is `PASS` at `5e538ad06e1167c8c644db9db7f7f25573b470cb`;
-Claude verification of GPT is `PASS` at
-`f9666e9d54091e8d563f7c3f097d294ef3ee9ddd`. A principal audit nevertheless
-found three literal frozen-definition deviations in the sealed GPT route
-(self-weight gating, one-sided false-improvement definition, and
-record/action Spearman granularity). They do not change the common scientific
-classification. On 2026-09-09 the user explicitly authorized one documented
-corrective GPT formal rerun, restricted to those three definitions with no
-scientific tuning. The original formal artifacts remain preserved; Claude's
-valid independent formal route will not be rerun.
+The corrected GPT formal result is sealed at
+`1001d23273bdf29b92d9b84a3f3956e83819da4a`. GPT verification of Claude is
+`PASS` at `5e538ad06e1167c8c644db9db7f7f25573b470cb`; Claude's final executable
+verification of the corrected GPT route is `PASS` at
+`c17561620d02a08210b1702f4ff576e7bde17366`. The three disclosed literal
+definition deviations were repaired without changing the kernel, matrix,
+seed, thresholds, or decision rule. Original GPT artifacts remain preserved,
+and Claude's valid independent formal route was not rerun.
 
 The task asks whether a state kernel learned only from the observed behavior
 of other actions can improve fixed-policy Q estimation and action ordering for
@@ -49,7 +45,7 @@ baseline or formal input.
 
 ## Active research task
 
-- Task: `docs/research_tasks/FP-KERN-001.md` (`ACTIVE`, corrective repair).
+- Task: `docs/research_tasks/FP-KERN-001.md` (`VERIFIED`).
 - Scientific baseline:
   `c579047950dfabb2600020cd2e53dd24b3e39c84`.
 - Frozen DRAFT task-definition baseline:
@@ -62,12 +58,18 @@ baseline or formal input.
   `results/FP-KERN-001/codex_worktree/`.
 - Claude route: formal seal `1a820467683d137e6527edbd99bb486000b2fc58`;
   classification `NOT_SUPPORTED`; GPT verification `PASS`.
-- GPT route: formal seal `640a3f8fb2d0f41b96eef8d9bb76fc5ef2e9b93b`;
-  classification `NOT_SUPPORTED`; Claude verification `PASS`.
-- Current blocker: none; the user authorized the exact corrective rerun.
-- Next action: add regression tests for the three frozen definitions, repair
-  only those paths, pass smoke, seal the correction, run the one authorized
-  480-record rerun, and obtain Claude verification of the corrected route.
+- GPT route: original formal seal
+  `640a3f8fb2d0f41b96eef8d9bb76fc5ef2e9b93b`; corrective implementation and
+  smoke seal `5af3dc6134a13779908e87558941fa82ed0829eb`; corrected formal seal
+  `1001d23273bdf29b92d9b84a3f3956e83819da4a`; classification
+  `NOT_SUPPORTED`.
+- Reciprocal verification: GPT verification of Claude is `PASS` at
+  `5e538ad06e1167c8c644db9db7f7f25573b470cb`; Claude verification of the
+  corrected GPT route is `PASS` at
+  `c17561620d02a08210b1702f4ff576e7bde17366`.
+- Current blocker: none; all acceptance evidence is recorded.
+- Next action: task complete. Do not merge to `main` without separate user
+  approval.
 - Design:
   `docs/superpowers/specs/2026-09-09-kernel-state-generalization-feasibility-design.md`.
 - Plan:
@@ -128,9 +130,12 @@ baseline or formal input.
 - `docs/superpowers/plans/2026-09-09-kernel-state-generalization-feasibility-plan.md`
 - `docs/research_tasks/FP-KERN-001.md`
 - `docs/research_branches/FP-KERN-001/codex/formal_result.md`
+- `docs/research_branches/FP-KERN-001/codex/corrected_formal_result.md`
+- `docs/research_branches/FP-KERN-001/codex/correction_first_result.md`
 - `docs/research_branches/FP-KERN-001/codex/verify_claude.md`
 - `docs/research_branches/FP-KERN-001/claude/formal_result.md`
 - `docs/research_branches/FP-KERN-001/claude/verify_codex.md`
+- `docs/research_branches/FP-KERN-001/claude/verify_codex_corrected.md`
 - `results/FP-KERN-001/codex/`
 - `results/FP-KERN-001/claude/`
 
