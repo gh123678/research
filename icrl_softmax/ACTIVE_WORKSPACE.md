@@ -50,8 +50,8 @@ baseline or formal input.
   `04584e44e788b7cb50289c6dd447c356bd4081b6`.
 - Activation commit:
   `698ebdc62859ec26ae6b623099ab499fc6b410fa`.
-- Common execution-start identity: this metadata-closure commit, recorded
-  after isolated Claude branch creation.
+- Common execution-start commit:
+  `ffdf26b029efde08ea794454a7b5da890108c355`.
 - GPT branch and isolated worktree: `codex/FP-KERN-002` in
   `results/FP-KERN-002/codex_worktree/`.
 - User decision: reuse the exact verified 480-record predecessor corpus; no
@@ -59,11 +59,16 @@ baseline or formal input.
 - Claude read-only pre-review: `APPROVED` on
   `f72d4fec81bf43f2efe39a770afad68f63d559d9`, with 12 passed checks and seven
   nonblocking wording/secondary-metric clarifications now closed.
-- Current blocker: none; route work waits only for the metadata-closure commit
-  and isolated Claude branch creation.
-- Next action: record the activation identity, create the common
-  execution-start commit and Claude worktree, then freeze the common input and
-  begin both blind routes.
+- Common input: created once and frozen at host path
+  `results/FP-KERN-002/input/`; both source hashes match the task and manifest
+  SHA-256 is
+  `670648f7a2761d919f58b25881db45dc6d9d49d4fec25e307c6fe72bf8b31966`.
+- Claude branch and isolated worktree: `claude/FP-KERN-002` in
+  `results/FP-KERN-002/claude_worktree/`, created from the common start before
+  implementation.
+- Current blocker: none.
+- Next action: execute both independent verifier-first routes without
+  cross-disclosure until blind seals.
 - Design:
   `docs/superpowers/specs/2026-09-09-kernel-reuse-oracle-learnability-design.md`.
 - Plan:

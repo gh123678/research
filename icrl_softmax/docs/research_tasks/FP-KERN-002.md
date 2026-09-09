@@ -17,10 +17,8 @@
   `04584e44e788b7cb50289c6dd447c356bd4081b6`.
 - Activation commit:
   `698ebdc62859ec26ae6b623099ab499fc6b410fa`.
-- Common route execution-start commit: the metadata-closure commit created
-  immediately after activation and used to create `claude/FP-KERN-002`;
-  its exact identity is recorded in the workspace and route evidence after
-  branch creation.
+- Common route execution-start commit:
+  `ffdf26b029efde08ea794454a7b5da890108c355`.
 - Design:
   `docs/superpowers/specs/2026-09-09-kernel-reuse-oracle-learnability-design.md`.
 - Plan:
@@ -385,7 +383,15 @@ After disclosure, each performs executable reciprocal verification and records
 
 ### Execution evidence
 
-- Status: not started at activation.
+- Common input created once by GPT at
+  `C:\Users\Admin\Desktop\research\icrl_softmax\results\FP-KERN-002\input`.
+- `config.json` and `task_results.json` match the frozen source sizes and
+  SHA-256 values; `source_manifest.json` parses as strict JSON and has SHA-256
+  `670648f7a2761d919f58b25881db45dc6d9d49d4fec25e307c6fe72bf8b31966`.
+- Claude branch and isolated worktree were created from the common start
+  commit before either route wrote implementation code.
+- Route implementation and scientific analysis: not started at this evidence
+  checkpoint.
 
 ## Definition of done
 
