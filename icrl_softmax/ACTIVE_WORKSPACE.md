@@ -4,7 +4,10 @@
 
 Status: `FP-KERN-001` is in `REVIEW`. The user approved the written kernel
 generalization feasibility design on 2026-09-09. The DRAFT task and execution
-plan are sealed at `b7ef163f11eb5ee41499344c296587efd3516651`; no research
+plan are sealed at `b7ef163f11eb5ee41499344c296587efd3516651`. Claude's
+task-scoped read-only pre-review of
+`c17fa4f28f0ecfb9a08c3c1c8bb11634a7d73801` returned `APPROVED`; its eight
+nonblocking clarifications are closed in task version 0.3. No research
 implementation or experiment has started.
 
 The task asks whether a state kernel learned only from the observed behavior
@@ -43,12 +46,12 @@ baseline or formal input.
 - Common execution-start commit: unavailable before Claude pre-review.
 - GPT branch and isolated worktree: `codex/FP-KERN-001` in
   `results/FP-KERN-001/codex_worktree/`.
-- Claude role: pending task-scoped read-only pre-review; after `APPROVED` and
+- Claude role: read-only pre-review completed with `APPROVED`; after
   activation, independently construct and verify the same frozen study.
 - Current blocker: none; implementation is intentionally gated on Claude
   pre-review.
-- Next action: seal REVIEW, obtain Claude's `APPROVED` or `OBJECTION`, and
-  activate only if no objection remains.
+- Next action: seal the clarified REVIEW contract and create the common
+  execution-start commit that transitions the task to `ACTIVE`.
 - Design:
   `docs/superpowers/specs/2026-09-09-kernel-state-generalization-feasibility-design.md`.
 - Plan:

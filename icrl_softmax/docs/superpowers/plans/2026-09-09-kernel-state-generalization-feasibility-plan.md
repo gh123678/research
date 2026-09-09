@@ -34,6 +34,8 @@ fixtures for:
 - identical, ordered, and degenerate distances;
 - deterministic median bandwidth;
 - Gaussian weight normalization and monotonicity;
+- observation-weighted effective sample size
+  `(sum K*N)^2 / sum K^2*N`;
 - zero-count target estimation from other states;
 - self-only reduction to the local pair mean;
 - same-action control abstention at zero target count or missing target
@@ -108,6 +110,8 @@ must independently reconstruct:
   false-improvement decisions, and diagnostic-policy values;
 - count-bin and comparable-pair denominators;
 - per-record paired differences and Student-t intervals;
+- empty-bin exclusions, signature-eligible zero-count denominators, common
+  complete-action rows, and per-record Spearman diagnostics;
 - the five-item screen for each environment family;
 - the final four-way classification.
 
@@ -131,7 +135,8 @@ iterations=160
 seed=20260909
 ```
 
-The smoke validates execution, schema, both families, all count/abstention
+Median bandwidth must match sorted-float64 `numpy.median` semantics. The smoke
+validates execution, schema, both families, all count/abstention
 paths reachable in the fixture, strict analysis reconstruction, and oracle
 separation. It cannot change scientific constants. Record commands and results
 in `docs/research_branches/FP-KERN-001/codex/first_result.md`, then commit the
@@ -168,8 +173,11 @@ seed=20260909
 records=480
 ```
 
-Run the strict analyzer, all relevant inherited/new verifiers, task-scoped
-Ruff, hash checks, and output inventory. Record failures and successes. A
+Run the strict analyzer, the new verifier, task-scoped Ruff, and the inherited
+`verify_fixed_policy_q_routes.py`, `verify_finite_sample_theorems.py`,
+`verify_visit_indexed_martingale_certificate.py`, and
+`verify_time_uniform_mixture_certificate.py`, followed by hash checks and
+output inventory. Record failures and successes. A
 formal rerun requires a documented user exception; ordinary defects that can
 be repaired from saved observable artifacts must not regenerate the matrix.
 

@@ -5,8 +5,8 @@
 - Created: 2026-09-09.
 - Author: GPT.
 - Status: `REVIEW`.
-- Task version: `0.2` (governance-only transition; scientific contract
-  unchanged).
+- Task version: `0.3` (pre-review clarifications; scientific hypotheses,
+  routes, matrix, thresholds, and decision rule unchanged).
 - Verified scientific baseline:
   `c579047950dfabb2600020cd2e53dd24b3e39c84`.
 - Approved design commit:
@@ -235,6 +235,64 @@ Apply the identical screen independently to the current family:
 - `INVALID`: implementation, provenance, isolation, or frozen-contract checks
   fail.
 
+### Frozen metric clarifications after pre-review
+
+The following rules close Claude's nonblocking pre-review cautions without
+changing the five-item screen:
+
+1. A record contributes a route-paired count-bin error difference only when
+   both routes have at least one finite estimate in that bin. Empty-bin records
+   are excluded from that paired mean, their exclusion count is reported, and
+   an interval with fewer than two contributing records is unavailable and
+   cannot pass a screen item.
+2. A zero-target-count pair is `signature_eligible` when the primary route has
+   at least one other state with two common observed non-target actions and the
+   record/action has a finite positive bandwidth. Thus reasons
+   `insufficient_common_actions` and `bandwidth_unavailable` are outside the
+   eligibility denominator; `target_source_unavailable`, denominator failure,
+   and estimate failure remain in the denominator and count as uncovered.
+3. Median bandwidth uses sorted float64 distances. For an odd number it is the
+   central value; for an even number it is the arithmetic mean of the two
+   central values, matching `numpy.median`.
+4. Effective sample size is observation-weighted. With one weight
+   `K_a(s,s_prime)` for each of the `N_target(s_prime,a)` observations,
+
+   ```text
+   ESS(s,a)
+     = [sum_s_prime K_a(s,s_prime) N_target(s_prime,a)]^2
+       / sum_s_prime K_a(s,s_prime)^2 N_target(s_prime,a).
+   ```
+
+   A nonpositive or nonfinite ESS denominator follows the frozen denominator
+   failure path.
+5. Hypothesis 1 is a secondary falsifiable diagnostic and does not replace the
+   five-item mechanism screen. Within each record/action, compute Spearman
+   correlation between every eligible cross-state signature distance and the
+   corresponding absolute true target-action Q difference. Average only
+   finite per-record correlations and report a two-sided 95% Student-t
+   interval. Hypothesis 1 passes in a family only when mean correlation is
+   positive and the interval excludes zero; fewer than two finite records is
+   an unavailable, nonpassing diagnostic.
+6. The common `V_hat` is an independently estimated shared nuisance value. It
+   reflects fixed-policy continuation, which includes all actions at successor
+   states. Therefore “leave one action out” means the target action is absent
+   from the *state signature coordinates*; it does not mean the shared value
+   nuisance is mathematically independent of the target action. This common
+   dependence is not direct target-trajectory leakage and must be stated in
+   every theory/result note.
+7. The inherited executable preflight is exactly
+   `verify_fixed_policy_q_routes.py`, `verify_finite_sample_theorems.py`,
+   `verify_visit_indexed_martingale_certificate.py`, and
+   `verify_time_uniform_mixture_certificate.py`, followed by the new verifier
+   and task-scoped Ruff.
+8. Top-action accuracy includes only record/state rows for which both compared
+   routes have finite estimates for all four actions. Each record contributes
+   a paired top-action difference only when at least one such common complete
+   sparse state exists. Empty records are excluded and counted; fewer than two
+   contributing records makes the interval unavailable and nonpassing.
+   Diagnostic-policy value remains separately defined: an incomplete route row
+   retains the original policy row.
+
 ## Ordered abstention and error contract
 
 The pure route uses the following order:
@@ -404,9 +462,17 @@ evidence-linked reports ending exactly `PASS`, `FAIL`, or `OBJECTION`.
 
 ### Claude read-only pre-review
 
-- Status: pending.
-- Reviewed commit: the REVIEW seal produced by the next governance commit.
-- Outcome: pending.
+- Date: 2026-09-09.
+- Status: completed.
+- Reviewed commit:
+  `c17fa4f28f0ecfb9a08c3c1c8bb11634a7d73801`.
+- Tool boundary: Claude Code 2.1.138 in `plan` mode with only `Read`, `Glob`,
+  and `Grep`; no Bash, Python, write, edit, Git mutation, or experiment.
+- Outcome: `APPROVED`.
+- Evidence:
+  `docs/research_branches/FP-KERN-001/codex/claude_pre_review.md`.
+- Nonblocking cautions: eight metric/reconstruction clarifications, all closed
+  in task version 0.3 without changing scientific content.
 
 ### Objection
 
