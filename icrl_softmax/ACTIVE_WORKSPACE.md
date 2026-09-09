@@ -2,7 +2,8 @@
 
 ## Current objective
 
-Status: `FP-KERN-001` is `VERIFYING`. Both independent 480-record routes,
+Status: `FP-KERN-001` is `ACTIVE` for a user-authorized corrective GPT rerun.
+Both independent 480-record routes,
 their blind seals, strict reconstructions, and reciprocal reports are
 complete. GPT and Claude independently classify the frozen kernel route as
 `NOT_SUPPORTED`: both families fail the zero-count RMSE, `1-4`-count RMSE,
@@ -15,8 +16,10 @@ Claude verification of GPT is `PASS` at
 found three literal frozen-definition deviations in the sealed GPT route
 (self-weight gating, one-sided false-improvement definition, and
 record/action Spearman granularity). They do not change the common scientific
-classification, but user ruling or authorization for one documented
-corrective GPT formal rerun is required before status `VERIFIED`.
+classification. On 2026-09-09 the user explicitly authorized one documented
+corrective GPT formal rerun, restricted to those three definitions with no
+scientific tuning. The original formal artifacts remain preserved; Claude's
+valid independent formal route will not be rerun.
 
 The task asks whether a state kernel learned only from the observed behavior
 of other actions can improve fixed-policy Q estimation and action ordering for
@@ -46,7 +49,7 @@ baseline or formal input.
 
 ## Active research task
 
-- Task: `docs/research_tasks/FP-KERN-001.md` (`VERIFYING`).
+- Task: `docs/research_tasks/FP-KERN-001.md` (`ACTIVE`, corrective repair).
 - Scientific baseline:
   `c579047950dfabb2600020cd2e53dd24b3e39c84`.
 - Frozen DRAFT task-definition baseline:
@@ -61,10 +64,10 @@ baseline or formal input.
   classification `NOT_SUPPORTED`; GPT verification `PASS`.
 - GPT route: formal seal `640a3f8fb2d0f41b96eef8d9bb76fc5ef2e9b93b`;
   classification `NOT_SUPPORTED`; Claude verification `PASS`.
-- Current blocker: principal audit found three non-classification-changing GPT
-  contract deviations after reciprocal disclosure.
-- Next action: obtain the user's ruling to accept the common classification as
-  an exception or authorize one documented corrective GPT formal rerun.
+- Current blocker: none; the user authorized the exact corrective rerun.
+- Next action: add regression tests for the three frozen definitions, repair
+  only those paths, pass smoke, seal the correction, run the one authorized
+  480-record rerun, and obtain Claude verification of the corrected route.
 - Design:
   `docs/superpowers/specs/2026-09-09-kernel-state-generalization-feasibility-design.md`.
 - Plan:

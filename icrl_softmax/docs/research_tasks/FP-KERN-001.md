@@ -4,7 +4,7 @@
 
 - Created: 2026-09-09.
 - Author: GPT.
-- Status: `VERIFYING`.
+- Status: `ACTIVE` (corrective GPT repair authorized by user).
 - Task version: `1.0` (activated after Claude `APPROVED`; scientific
   hypotheses, routes, matrix, thresholds, and decision rule unchanged).
 - Verified scientific baseline:
@@ -44,6 +44,28 @@ the other actions can recover fixed-policy Q values for zero-count and
 low-count target state-action pairs. It does not modify, rerun, or reinterpret
 `FP-ADV-001`; that separate task and all of its uncommitted artifacts remain
 untouched.
+
+### Corrective-rerun ruling
+
+On 2026-09-09, after reciprocal disclosure identified three literal
+frozen-definition deviations in the sealed GPT route, the user replied
+“授权纠正重跑”. This explicitly authorizes one documented corrective GPT formal
+rerun and no additional scientific tuning. The exception is limited to:
+
+1. making the target state's self weight exactly one whenever it has target
+   observations, without requiring two common non-target signature actions for
+   that self contribution;
+2. defining false improvement only as an estimated positive action difference
+   whose true difference is nonpositive; and
+3. computing the secondary Spearman diagnostic within each record/action
+   before averaging finite correlations.
+
+The kernel, bandwidth, support for cross-state comparisons, environment
+families, seed, random-stream construction, formal matrix, metrics,
+thresholds, and decision rule remain frozen. The original GPT formal artifacts
+and seals must be preserved, the correction must pass new regression tests and
+the mandatory smoke before the authorized rerun, and no Claude formal rerun is
+authorized or needed.
 
 ## Research question
 
@@ -510,15 +532,19 @@ evidence-linked reports ending exactly `PASS`, `FAIL`, or `OBJECTION`.
   disclosed and none changes any screen-item pass/fail result or the common
   `NOT_SUPPORTED` classification. User ruling or a user-authorized documented
   corrective GPT formal rerun is required before `VERIFIED`.
+- User ruling: corrective GPT formal rerun authorized on 2026-09-09. Repair is
+  restricted to the three listed definitions, with no scientific tuning; the
+  task returned from `VERIFYING` to `ACTIVE` for the original author to fix.
 
 ## Definition of done
 
 - [x] No unresolved objection remains.
 - [x] Both independent routes are reproducible.
-- [x] Both reciprocal verification reports are recorded and pass.
+- [ ] Both reciprocal verification reports are recorded and pass for the
+  corrected GPT route.
 - [ ] Every acceptance criterion has evidence.
-- [x] The classification follows the frozen decision rule in both sealed
-  routes.
-- [ ] Differences are reconciled or ruled on by the user.
+- [ ] The corrected classification follows the frozen decision rule.
+- [x] The corrective-rerun exception and exact repair scope were ruled on by
+  the user.
 - [x] `ACTIVE_WORKSPACE.md` is current.
 - [ ] The user approved any merge to `main`.
