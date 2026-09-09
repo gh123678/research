@@ -142,6 +142,18 @@ scope and both failed and successful checks are recorded.
   kimi-k2.6 and k3 (not an independently authenticated model identity).
   Execution start is the commit recording this activation.
 - Final verification: pending.
+- Execution update: Claude call 2 stopped at error_max_budget_usd, session
+  62b4189c-f1ce-4f93-9dfe-ce75a6c4f96b. Reported USD 0.533722 despite the
+  configured USD 0.50 stop threshold; total reported USD 0.675573. Both calls
+  are consumed. No new call without user ruling on this limit.
+- Lifecycle continuation: ACTIVE -> VERIFYING for GPT inspection/rerun of
+  Claude's partial artifacts -> ACTIVE after FAIL. This is an implementation
+  defect, not a task-level OBJECTION: diagnostic.py line 150 omits /k in the
+  numerical mixture contribution. No Claude final report or result commit.
+- Current blocker: CALL_COUNT_LIMIT after budget-interrupted execution.
+  Exact failure, correct values, unchanged scope and author-repair handoff
+  are recorded in codex/report.md. The 36 head rows and two inherited checks
+  passed GPT independent checks, but the overall task is not VERIFIED.
 - Read-only comparison: docs/research_branches/CTRL-PREFLIGHT-001/codex/report.md.
 - Review provenance: docs/research_branches/CTRL-PREFLIGHT-001/codex/claude_review.md.
 - No merge to main is authorized or required for diagnostic completion.

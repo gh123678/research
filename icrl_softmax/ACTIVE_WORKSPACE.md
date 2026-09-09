@@ -8,8 +8,13 @@ economical source comparison and minimal finite-head diagnostic authorized on
 in `docs/research_branches/CTRL-PREFLIGHT-001/codex/report.md`. User authorized
 scoped external transfer and delegated execution: GPT defines requirements,
 Claude pre-reviews and executes the diagnostic, GPT independently verifies.
-Task v1.1 pre-review returned APPROVED; isolated Claude diagnostic execution
-is next, followed by GPT verification. FP-ESARSA remains DRAFT.
+Task v1.1 pre-review returned APPROVED. Claude execution exhausted its second
+call budget after writing a partial diagnostic. GPT verification returned FAIL:
+the numerical mixture term omits /k, and Claude's final report is missing.
+The 36 head rows and inherited checks passed. Task remains ACTIVE pending an
+authorized Claude author-repair call; both permitted calls are consumed
+(reported total USD 0.675573). See codex/report.md for exact handoff.
+FP-ESARSA remains DRAFT; no new formal matrix or control algorithm was run.
 
 Status: `FP-ADV-001` is `VERIFIED` as a negative usefulness result.  Claude's
 task-scoped pre-review returned `APPROVED`; Codex and Claude then independently
