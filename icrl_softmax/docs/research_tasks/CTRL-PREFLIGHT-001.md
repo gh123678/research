@@ -1,6 +1,6 @@
 # CTRL-PREFLIGHT-001: economical control-route preflight
 
-- Date: 2026-09-10. Author: GPT. Version: 1.0. Status: `DRAFT`.
+- Date: 2026-09-10. Author: GPT. Version: 1.0. Status: `REVIEW`.
 - Baseline: `db9d63043489f4ec5660e71c53e7e842a280d04f`.
 - User authorization: after the comparison of directions, the user said
   “好的你去做”, authorizing dependency comparison and minimal validation.
@@ -103,7 +103,12 @@ scope and both failed and successful checks are recorded.
 
 ## Review, lifecycle, and evidence
 
-- Pre-review: pending. No unresolved objection recorded.
-- Lifecycle: DRAFT created; next REVIEW.
+- Pre-review: NOT_EXECUTED; automatic approval review rejected transfer of
+  private AGENTS.md and this new task to the configured external service.
+  No process/session was started. Await explicit scoped user authorization.
+  This is not a scientific OBJECTION; status remains REVIEW.
+- Lifecycle: DRAFT sealed at ebe6bd3; entered REVIEW on 2026-09-10.
 - Final verification: pending.
+- Read-only comparison: docs/research_branches/CTRL-PREFLIGHT-001/codex/report.md.
+- Review provenance: docs/research_branches/CTRL-PREFLIGHT-001/codex/claude_review.md.
 - No merge to main is authorized or required for diagnostic completion.
