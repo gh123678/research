@@ -167,11 +167,15 @@ each record and target action.
 2. Replace an unavailable cross-state distance by `1.0`, the conservative
    maximum normalized distance under the bounded construction.
 3. Enumerate the ten unique balanced partitions of six labelled states into
-   two groups of three. State zero is placed in the first group solely to
-   remove label symmetry.
-4. Score a partition by the arithmetic mean of the six squared within-group
-   pair distances. Choose the minimum; break an exact tie by the
-   lexicographically sorted pair of state-index tuples.
+   two groups of three. Requiring state zero to appear in the first serialized
+   group removes only the duplicate cluster-label representation; it does not
+   remove any partition.
+4. Score a partition by sorting its six squared within-group pair distances in
+   ascending float64 order and taking their arithmetic mean. Sorting makes the
+   reduction independent of pair enumeration. Select the partition only when
+   its score is the unique exact minimum. If two or more partitions have the
+   same minimum float64 score, abstain with `partition_tie` rather than use a
+   state-index-dependent scientific choice.
 5. Estimate every `(s,a)` by count-weighted pooling within its selected group.
 
 The route knows that the structural alternative contains two balanced
@@ -192,6 +196,14 @@ The primary evaluation reuses the exact `FP-KERN-001` definitions:
 - sparse-state top-action accuracy versus `action_only_pool`;
 - one-sided false-improvement rate on common finite action differences; and
 - per-record paired differences with two-sided 95% Student-t intervals.
+
+For every route, the zero-count coverage denominator is exactly the frozen set
+of pairs with `target_counts == 0` and reconstructed
+`leave_one_action_out_kernel.signature_eligible == true` in `FP-KERN-001`.
+An eligible pair on which a new route abstains remains uncovered. Zero-count
+RMSE continues to use all zero-count pairs on which the new route and
+`action_only_pool` are both finite, matching the predecessor's common-finite
+comparison rule.
 
 Each diagnostic route is screened with the same five thresholds:
 
@@ -279,7 +291,8 @@ Required fixtures cover:
 - deterministic two-neighbor selection and tie-breaking;
 - enumeration of exactly ten balanced partitions;
 - missing-distance replacement by exactly `1.0`;
-- deterministic partition tie-breaking;
+- permutation-invariant unique-minimum selection and `partition_tie`
+  abstention;
 - state-label permutation equivariance, modulo the documented canonical label
   representation;
 - zero-count estimates using only other-state target observations;
