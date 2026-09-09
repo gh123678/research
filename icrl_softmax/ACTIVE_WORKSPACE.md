@@ -2,11 +2,13 @@
 
 ## Current objective
 
-Status: `FP-KERN-002` is `REVIEW`. The user approved a reused-record diagnostic
+Status: `FP-KERN-002` is `ACTIVE`. The user approved a reused-record diagnostic
 that will hold all 480 verified `FP-KERN-001` records fixed and separate
 oracle peer headroom, true hidden-cluster usefulness, and observable
 other-action structure recovery. No new trajectory, implementation, input
-copy, or diagnostic run is permitted before Claude pre-review and activation.
+copy, or diagnostic rerun is permitted. Claude pre-review is complete, so
+isolated implementation may begin after the common execution-start identity is
+sealed.
 
 The frozen design compares `oracle_q_nearest2`,
 `oracle_generator_cluster`, and `observable_balanced_cluster` against the
@@ -37,14 +39,17 @@ baseline or formal input.
 
 ## Active research task
 
-- Task: `docs/research_tasks/FP-KERN-002.md` (`REVIEW`).
+- Task: `docs/research_tasks/FP-KERN-002.md` (`ACTIVE`).
 - Predecessor baseline:
   `403884ae6bde46c7c3578ae01d77422ed03faf05`.
 - Approved design commit:
   `be6b7213eeba08d3b9750a850ac2de99ff17be89`.
 - DRAFT task-definition baseline:
   `e04db4c17c7648bc751bef1620ab0d01fe1cb3a3`.
-- Activation and common execution-start commit: not yet created.
+- REVIEW clarification closure:
+  `04584e44e788b7cb50289c6dd447c356bd4081b6`.
+- Activation and common execution-start identities: being sealed before route
+  implementation.
 - GPT branch and isolated worktree: `codex/FP-KERN-002` in
   `results/FP-KERN-002/codex_worktree/`.
 - User decision: reuse the exact verified 480-record predecessor corpus; no
@@ -52,9 +57,11 @@ baseline or formal input.
 - Claude read-only pre-review: `APPROVED` on
   `f72d4fec81bf43f2efe39a770afad68f63d559d9`, with 12 passed checks and seven
   nonblocking wording/secondary-metric clarifications now closed.
-- Current blocker: none after the clarification closure is sealed.
-- Next action: transition to `ACTIVE`, freeze the common input, and begin both
-  isolated implementations from one execution-start commit.
+- Current blocker: none; route work waits only for the metadata-closure commit
+  and isolated Claude branch creation.
+- Next action: record the activation identity, create the common
+  execution-start commit and Claude worktree, then freeze the common input and
+  begin both blind routes.
 - Design:
   `docs/superpowers/specs/2026-09-09-kernel-reuse-oracle-learnability-design.md`.
 - Plan:
@@ -86,7 +93,7 @@ baseline or formal input.
   `evaluate_kernel_state_generalization.py`, and
   `analyze_kernel_state_generalization.py`.
 - Planned FP-KERN-002 implementation: `analyze_kernel_reuse_diagnostics.py`
-  and `verify_kernel_reuse_diagnostics.py` (not created before `ACTIVE`).
+  and `verify_kernel_reuse_diagnostics.py` (not yet created at activation).
 
 ## Active evidence
 

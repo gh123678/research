@@ -4,17 +4,21 @@
 
 - Created: 2026-09-09.
 - Author: GPT.
-- Status: `REVIEW`.
-- Task version: `0.3` (Claude's seven nonblocking clarifications closed;
-  scientific content unchanged).
+- Status: `ACTIVE`.
+- Task version: `1.0` (activated after Claude `APPROVED`; scientific routes,
+  input, metrics, thresholds, and conclusion rule frozen).
 - Predecessor and branch baseline:
   `403884ae6bde46c7c3578ae01d77422ed03faf05` (`FP-KERN-001` verified).
 - Approved design commit:
   `be6b7213eeba08d3b9750a850ac2de99ff17be89`.
 - DRAFT task-definition baseline:
   `e04db4c17c7648bc751bef1620ab0d01fe1cb3a3`.
-- Activation and common execution-start commit: not created while status is
-  `REVIEW`.
+- REVIEW clarification closure:
+  `04584e44e788b7cb50289c6dd447c356bd4081b6`.
+- Activation commit: the commit containing this `REVIEW -> ACTIVE`
+  transition; its exact identity is recorded by the metadata-closure commit.
+- Common route execution-start commit: the metadata-closure commit created
+  immediately after activation and used to create `claude/FP-KERN-002`.
 - Design:
   `docs/superpowers/specs/2026-09-09-kernel-reuse-oracle-learnability-design.md`.
 - Plan:
@@ -379,7 +383,7 @@ After disclosure, each performs executable reciprocal verification and records
 
 ### Execution evidence
 
-- Status: prohibited while task is `REVIEW`.
+- Status: not started at activation.
 
 ## Definition of done
 
