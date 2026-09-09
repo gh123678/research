@@ -71,8 +71,16 @@ baseline or formal input.
   `f37b9730aea4ba692b854dcfb89f8f3d17faa34e`; the sole 480-record formal run
   and all post-run checks passed with initial classification
   `NO_BORROWING_EVIDENCE`.
-- Next action: seal the GPT formal result, obtain Claude's still-independent
-  blind result, then perform reciprocal executable verification.
+- GPT blind formal seal: `0815d0dbef3a8f7784438ac89e2df195d3cab00b`.
+- Claude blind route: implementation/smoke seal
+  `a39323c8011acebfb651c8431d8598e1d1aee244`, formal seal
+  `718d77053801c6f9e3dd958513b7a06918a5e274`, independently reaching the same
+  `NO_BORROWING_EVIDENCE` classification.
+- GPT verification of Claude: `PASS`; every gate and metric agrees, 506
+  independent reconstruction groups and all inherited checks passed.
+- Next action: Claude performs symmetric executable verification of the GPT
+  route; then reconcile acceptance criteria and finalize `VERIFIED` if it
+  passes.
 - Design:
   `docs/superpowers/specs/2026-09-09-kernel-reuse-oracle-learnability-design.md`.
 - Plan:
@@ -149,6 +157,7 @@ baseline or formal input.
 - `docs/research_branches/FP-KERN-002/codex/claude_pre_review.md`
 - `docs/research_branches/FP-KERN-002/codex/first_result.md`
 - `docs/research_branches/FP-KERN-002/codex/formal_result.md`
+- `docs/research_branches/FP-KERN-002/codex/claude_verification.md`
 
 Each independent formal route contains 480 same-seed comparisons, strict-JSON
 route certificates, zero-mismatch legacy regression, certificate/failure

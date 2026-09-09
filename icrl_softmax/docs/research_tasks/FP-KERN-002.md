@@ -4,7 +4,7 @@
 
 - Created: 2026-09-09.
 - Author: GPT.
-- Status: `ACTIVE`.
+- Status: `VERIFYING`.
 - Task version: `1.0` (activated after Claude `APPROVED`; scientific routes,
   input, metrics, thresholds, and conclusion rule frozen).
 - Predecessor and branch baseline:
@@ -25,8 +25,8 @@
   `docs/superpowers/plans/2026-09-09-kernel-reuse-oracle-learnability-plan.md`.
 - GPT branch and worktree: `codex/FP-KERN-002` in
   `results/FP-KERN-002/codex_worktree/`.
-- Planned Claude branch and worktree: `claude/FP-KERN-002` from the future
-  common execution-start commit.
+- Claude branch and worktree: `claude/FP-KERN-002` from the common
+  execution-start commit, in `results/FP-KERN-002/claude_worktree/`.
 - Common host input directory: `results/FP-KERN-002/input/` outside both route
   worktrees.
 - GPT result directory: `results/FP-KERN-002/codex/`.
@@ -408,18 +408,27 @@ After disclosure, each performs executable reciprocal verification and records
   three source constructions failed the frozen all-screen rule, principally
   because cross-state pooling worsened the 1--4-count RMSE. Evidence:
   `docs/research_branches/FP-KERN-002/codex/formal_result.md`.
-- GPT blind formal-result commit: pending at this evidence checkpoint.
-- Claude blind result and reciprocal verification: pending; the GPT result
-  remains initial until those requirements are complete.
+- GPT blind formal-result commit:
+  `0815d0dbef3a8f7784438ac89e2df195d3cab00b`.
+- Claude independently passed verifier-first implementation, Stage 0, smoke,
+  a sole 480-record formal diagnostic, output reconstruction, and hashes. Its
+  implementation/smoke and formal seals are `a39323c8011acebfb651c8431d8598e1d1aee244`
+  and `718d77053801c6f9e3dd958513b7a06918a5e274`; its blind classification is
+  also `NO_BORROWING_EVIDENCE`.
+- GPT's executable reciprocal verification of Claude passed, including 14
+  fixtures, 506 analyzer-independent check groups, exact gate/metric
+  reconciliation, Ruff, hashes, and all inherited verifiers. Evidence:
+  `docs/research_branches/FP-KERN-002/codex/claude_verification.md`.
+- Claude's symmetric verification of GPT: pending at this evidence checkpoint.
 
 ## Definition of done
 
-- [ ] Claude pre-review is recorded with no unresolved objection.
-- [ ] Source identity and Stage 0 reproduction pass.
-- [ ] Both independent route artifacts are complete and reproducible.
+- [x] Claude pre-review is recorded with no unresolved objection.
+- [x] Source identity and Stage 0 reproduction pass.
+- [x] Both independent route artifacts are complete and reproducible.
 - [ ] Both reciprocal verification reports end `PASS`.
 - [ ] Every acceptance criterion has evidence.
-- [ ] The ordered conclusion follows the frozen decision rule.
+- [x] The ordered conclusion follows the frozen decision rule.
 - [ ] Differences are explained or ruled on by the user.
 - [ ] `ACTIVE_WORKSPACE.md` is current.
-- [ ] `main` remains unchanged unless the user separately approves a merge.
+- [x] `main` remains unchanged unless the user separately approves a merge.
