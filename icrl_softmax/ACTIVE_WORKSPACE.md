@@ -67,11 +67,12 @@ baseline or formal input.
   `results/FP-KERN-002/claude_worktree/`, created from the common start before
   implementation.
 - Current blocker: none.
-- GPT blind route: verifier-first, exact 480-record Stage 0, Ruff, fixed
-  16-record smoke, strict smoke reconstruction, and the inherited kernel
-  verifier pass; full diagnostic has not run.
-- Next action: seal GPT implementation/smoke, then run its sole full diagnostic
-  while Claude continues independently without cross-disclosure.
+- GPT blind route: verifier-first implementation/smoke sealed at
+  `f37b9730aea4ba692b854dcfb89f8f3d17faa34e`; the sole 480-record formal run
+  and all post-run checks passed with initial classification
+  `NO_BORROWING_EVIDENCE`.
+- Next action: seal the GPT formal result, obtain Claude's still-independent
+  blind result, then perform reciprocal executable verification.
 - Design:
   `docs/superpowers/specs/2026-09-09-kernel-reuse-oracle-learnability-design.md`.
 - Plan:
@@ -147,6 +148,7 @@ baseline or formal input.
 - `docs/research_tasks/FP-KERN-002.md`
 - `docs/research_branches/FP-KERN-002/codex/claude_pre_review.md`
 - `docs/research_branches/FP-KERN-002/codex/first_result.md`
+- `docs/research_branches/FP-KERN-002/codex/formal_result.md`
 
 Each independent formal route contains 480 same-seed comparisons, strict-JSON
 route certificates, zero-mismatch legacy regression, certificate/failure

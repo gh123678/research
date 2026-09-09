@@ -401,7 +401,16 @@ After disclosure, each performs executable reciprocal verification and records
 - GPT's fixed 16-record smoke, strict bundle replay, and inherited
   `verify_kernel_state_generalization.py` passed. Evidence:
   `docs/research_branches/FP-KERN-002/codex/first_result.md`.
-- GPT full diagnostic: not run before the blind implementation/smoke seal.
+- GPT implementation and smoke were blind-sealed at
+  `f37b9730aea4ba692b854dcfb89f8f3d17faa34e` before the sole full run.
+- GPT's sole 480-record full diagnostic and all post-run verifiers passed. Its
+  blind classification is `NO_BORROWING_EVIDENCE`: coverage was high, but all
+  three source constructions failed the frozen all-screen rule, principally
+  because cross-state pooling worsened the 1--4-count RMSE. Evidence:
+  `docs/research_branches/FP-KERN-002/codex/formal_result.md`.
+- GPT blind formal-result commit: pending at this evidence checkpoint.
+- Claude blind result and reciprocal verification: pending; the GPT result
+  remains initial until those requirements are complete.
 
 ## Definition of done
 
