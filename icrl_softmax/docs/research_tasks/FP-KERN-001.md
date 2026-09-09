@@ -4,16 +4,18 @@
 
 - Created: 2026-09-09.
 - Author: GPT.
-- Status: `REVIEW`.
-- Task version: `0.3` (pre-review clarifications; scientific hypotheses,
-  routes, matrix, thresholds, and decision rule unchanged).
+- Status: `ACTIVE`.
+- Task version: `1.0` (activated after Claude `APPROVED`; scientific
+  hypotheses, routes, matrix, thresholds, and decision rule unchanged).
 - Verified scientific baseline:
   `c579047950dfabb2600020cd2e53dd24b3e39c84`.
 - Approved design commit:
   `f10d04ce1bec6d103c0e1e1f608db4d0d00a2b5e`.
 - DRAFT task-definition baseline:
   `b7ef163f11eb5ee41499344c296587efd3516651`.
-- Common execution-start commit: unavailable before Claude pre-review.
+- Activation commit: recorded immediately after the activation seal.
+- Common route execution-start commit: recorded before either route writes
+  implementation code.
 - Design:
   `docs/superpowers/specs/2026-09-09-kernel-state-generalization-feasibility-design.md`.
 - Plan:
