@@ -4,7 +4,7 @@
 
 - Created: 2026-09-09.
 - Author: GPT.
-- Status: `VERIFYING`.
+- Status: `VERIFIED`.
 - Task version: `1.0` (activated after Claude `APPROVED`; scientific routes,
   input, metrics, thresholds, and conclusion rule frozen).
 - Predecessor and branch baseline:
@@ -419,16 +419,22 @@ After disclosure, each performs executable reciprocal verification and records
   fixtures, 506 analyzer-independent check groups, exact gate/metric
   reconciliation, Ruff, hashes, and all inherited verifiers. Evidence:
   `docs/research_branches/FP-KERN-002/codex/claude_verification.md`.
-- Claude's symmetric verification of GPT: pending at this evidence checkpoint.
+- Claude's symmetric executable verification of GPT passed with 248,566
+  cross-route checks and zero failures; all hashes, metrics, intervals,
+  abstentions, gates, and the ordered classification reconcile. Its report and
+  independent comparison script are sealed at
+  `1567603d5d8f8fd99c266c17a3741ae8fa30c7d3`.
+- Final synthesis:
+  `docs/research_branches/FP-KERN-002/codex/final_synthesis.md`.
 
 ## Definition of done
 
 - [x] Claude pre-review is recorded with no unresolved objection.
 - [x] Source identity and Stage 0 reproduction pass.
 - [x] Both independent route artifacts are complete and reproducible.
-- [ ] Both reciprocal verification reports end `PASS`.
-- [ ] Every acceptance criterion has evidence.
+- [x] Both reciprocal verification reports end `PASS`.
+- [x] Every acceptance criterion has evidence.
 - [x] The ordered conclusion follows the frozen decision rule.
-- [ ] Differences are explained or ruled on by the user.
-- [ ] `ACTIVE_WORKSPACE.md` is current.
+- [x] Differences are explained or ruled on by the user.
+- [x] `ACTIVE_WORKSPACE.md` is current.
 - [x] `main` remains unchanged unless the user separately approves a merge.

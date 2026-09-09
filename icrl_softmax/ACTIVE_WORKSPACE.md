@@ -66,7 +66,7 @@ baseline or formal input.
 - Claude branch and isolated worktree: `claude/FP-KERN-002` in
   `results/FP-KERN-002/claude_worktree/`, created from the common start before
   implementation.
-- Current blocker: none.
+- Current blocker: none; task verification is complete.
 - GPT blind route: verifier-first implementation/smoke sealed at
   `f37b9730aea4ba692b854dcfb89f8f3d17faa34e`; the sole 480-record formal run
   and all post-run checks passed with initial classification
@@ -78,9 +78,14 @@ baseline or formal input.
   `NO_BORROWING_EVIDENCE` classification.
 - GPT verification of Claude: `PASS`; every gate and metric agrees, 506
   independent reconstruction groups and all inherited checks passed.
-- Next action: Claude performs symmetric executable verification of the GPT
-  route; then reconcile acceptance criteria and finalize `VERIFIED` if it
-  passes.
+- Claude verification of GPT: `PASS`, sealed at
+  `1567603d5d8f8fd99c266c17a3741ae8fa30c7d3`; 248,566 cross-route checks
+  passed with zero failures.
+- Final task status: `VERIFIED`; final classification:
+  `NO_BORROWING_EVIDENCE`.
+- Next action: user decides whether to open a new task for zero-only borrowing,
+  count-aware gating/shrinkage, or learned state representations. No merge to
+  `main` is authorized by this verification closure.
 - Design:
   `docs/superpowers/specs/2026-09-09-kernel-reuse-oracle-learnability-design.md`.
 - Plan:
@@ -158,6 +163,7 @@ baseline or formal input.
 - `docs/research_branches/FP-KERN-002/codex/first_result.md`
 - `docs/research_branches/FP-KERN-002/codex/formal_result.md`
 - `docs/research_branches/FP-KERN-002/codex/claude_verification.md`
+- `docs/research_branches/FP-KERN-002/codex/final_synthesis.md`
 
 Each independent formal route contains 480 same-seed comparisons, strict-JSON
 route certificates, zero-mismatch legacy regression, certificate/failure
