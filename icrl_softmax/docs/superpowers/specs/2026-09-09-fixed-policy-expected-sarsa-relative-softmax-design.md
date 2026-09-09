@@ -4,8 +4,8 @@ Date: 2026-09-09
 
 Proposed successor task: `FP-ESARSA-001`
 
-Status: written design pending user review. This document records the direction
-approved in conversation on 2026-09-09. It does not modify the frozen
+Status: approved by the user on 2026-09-10. This document records the direction
+developed in conversation on 2026-09-09. It does not modify the frozen
 `FP-ADV-001` scientific contract, authorize implementation, or activate a new
 formal experiment.
 
@@ -526,11 +526,13 @@ correct conditional safety theorem.
 
 ## 14. Governance and next gate
 
-`FP-ESARSA-001` is expected to be long and conclusion-critical. After the user
-reviews this written design, GPT may draft a formal research task and an
-implementation plan. The formal task must pass Claude's read-only pre-review
-before becoming `ACTIVE`; GPT and Claude then execute independent routes from
-one frozen baseline and reciprocally verify the results.
+`FP-ESARSA-001` is expected to be long and conclusion-critical. The user
+approved this written design on 2026-09-10, so GPT may draft a formal research
+task and an implementation plan. The successor task must remain `DRAFT` until
+`FP-ADV-001` is verified or the user records an explicit scheduling exception.
+It must then pass Claude's read-only pre-review before becoming `ACTIVE`; GPT
+and Claude execute independent routes from one frozen baseline and
+reciprocally verify the results.
 
 No code, experiment, task activation, merge, push, or change to
 `ACTIVE_WORKSPACE.md` is authorized by this design document alone.
