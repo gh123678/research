@@ -26,9 +26,17 @@ index or mask as a learned attention capability.
 
 The iteration comparison reports, at every step, the direct reference value,
 exact attention value, finite attention value, their one-step discrepancies,
-and distance to the fixed-policy Bellman solution. A deterministic fixture
-must include a self-loop, repeated visits, an unvisited pair, and a successor
-state whose two actions have unequal values.
+and distance to the fixed-policy Bellman solution. A deterministic complete
+batch and its missing-pair subset distinguish full-coverage contraction from
+preservation of an absent coordinate. Both contain self-loops and repeats.
+Task v1.1 freezes rows, initial Q, 64 updates, sharpness (0,0,0)/(8,8,8), and
+exact artifact scope. Population comparison is an audit of batch discrepancy,
+without a probabilistic sampling claim. Conditional successor-action weights
+are exactly the fixed policy; cross-state leakage is reported separately.
+
+Both actors independently construct and seal first results on the common
+activation baseline before cross-reading, then perform reciprocal executable
+verification as required for long tasks by AGENTS.md.
 
 ## Out of scope
 

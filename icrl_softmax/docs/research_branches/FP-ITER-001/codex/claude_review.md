@@ -1,5 +1,10 @@
 # FP-ITER-001 Claude pre-review
 
+> Historical v1.0 review summary, preserved at commit 3b9d7b0. It does not
+> approve v1.1. The no-unrelated-access claim below lacks a retained complete
+> tool trace and is not audited fact. The branch blocker is resolved. V1.1
+> freezes missing details and applies AGENTS.md's independent dual-route rule.
+
 - Date: 2026-09-10.
 - Route: Claude Code CLI 2.1.138, read-only `plan` permission mode.
 - Scope: `AGENTS.md`, `ACTIVE_WORKSPACE.md`, the FP-ITER-001 task and design,
