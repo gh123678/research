@@ -1,13 +1,39 @@
 # FP-ITER-001 continuation record
 
+Quota checkpoint: Codex five-hour usage was 90% during this continuation.
+Root branch remains codex/FP-ITER-001; author code/theory is cb26a339,
+original report seal 9bae888. The commit containing this checkpoint stores
+the current GPT review and task status. Claude read-only reciprocal review
+is running in exec session 4542 (earlier repair session 51171 completed).
+If this turn ends, first inspect the reciprocal log/result and Claude HEAD;
+do not assume completion or start a duplicate. Its allowed scope is only
+read-only source/replay/comparison plus its own verification_of_other.md,
+review summary/helper under its ignored raw directory, and a review-only
+commit. No task changes, author-code changes, push or main merge.
+
+GPT recovery must inspect the actual reciprocal verdict and executable
+evidence, reproduce a suspect comparison if needed, and distinguish
+ordinary implementation/report FAIL from task-definition OBJECTION.
+Own final review is already PASS at f6feef6 and need not be rerun unless
+Claude changes author code. All remaining global-memory cleanup is pending
+explicit user approval; no answer has arrived, no deletion is permitted.
+
 CURRENT continuation, superseding all historical state below: task v1.1
-ACTIVE after GPT withdrew its earlier PASS for two ordinary Claude-author
-defects (M-sharp numerical evidence overstated as an exact convergence claim;
-post-reset residual snapshot mislabeled). Claude is repairing these and then
-verifying the sealed Codex route. Invocation evidence:
-results/FP-ITER-001/codex/claude_repair_verify.raw.jsonl and adjacent stderr;
-prompt claude_repair_and_verify_prompt.txt. Existing user-approved api.kimi.com
-configuration is unchanged. Do not launch a duplicate invocation.
+VERIFYING. Claude repaired the two bounded defects at
+f6feef6221a5d623f385094650d8a033b605c420. GPT reviewed the source/proof delta,
+replayed witness/verify/Ruff and returned scientific PASS (1,665 self-checks,
+6,040 independent raw comparisons, all passing). The 24 Q traces and all
+mathematical outputs are exactly unchanged; 16 residual snapshots are fixed.
+GPT's repaired replay files and repair_invariance.json are in its raw directory.
+
+The first repair invocation stopped before reciprocal replay because its
+shell output-file capture was denied. A narrower read-only reciprocal review
+is now running: results/FP-ITER-001/codex/claude_readonly_reciprocal.raw.jsonl
+and adjacent stderr; prompt claude_readonly_reciprocal_prompt.txt. It omits
+the denied file capture, uses console evidence plus authored review records,
+and leaves the sealed raw JSON unchanged. Automatic approval accepted this
+safer workflow under the existing authorization. No settings/provider change.
+Do not launch a duplicate invocation while this one is running.
 
 GPT raw cross_check.py imports neither route and independently reconstructs
 operators, signed stage errors, all horizon bounds, steady/transient bounds
@@ -27,10 +53,14 @@ Future invocation instructions forbid global memory and honoring a denied
 operation through an alternate mechanism. This operational deviation must
 remain disclosed and must not be described as fully scope-compliant execution.
 
-After Claude seals repairs: replay its revised scripts, review the source and
-claim delta, recompute raw cross-checks, inspect the reciprocal report and
-its executable evidence. Only then restore VERIFYING and, with both PASS,
-mark VERIFIED and update current records. No main merge or push is authorized.
+Remaining: inspect Claude's reciprocal report and actual executable evidence,
+including source digests and any cross-comparison failures. With both PASS,
+record final scientific acceptance and update current task/workspace/synthesis.
+Keep operational deviations and the pending cleanup approval visible.
+No main merge or push is authorized. The progress figure uses frozen saved
+results only and has been visually checked.
+
+## Historical execution and blocker records
 
 Update, 2026-09-10: the user explicitly authorized the specified FP-ITER-001
 private transfers to the existing api.kimi.com backend, isolated execution

@@ -1,9 +1,12 @@
 # FP-ITER-001 Codex verification of Claude route
 
-Verifier: GPT/Codex, completed after both first-result seals. The prior PASS
-below is historical and is superseded by the follow-up FAIL at the end.
-Numerical reproduction remains successful; the original author must repair
-the identified claim/evidence defects before this direction can pass.
+Current verdict: PASS on Claude repair commit
+f6feef6221a5d623f385094650d8a033b605c420. GPT independently replayed the
+repaired verifier (1,665 checks, 0 failures), witness and Ruff, audited the
+source/proof delta and completed 6,040 raw cross-checks with 0 failures.
+The final section contains current evidence and limitations. All earlier
+PASS, FAIL and operational-blocker passages below are historical audit trail,
+not current status. Claude's reciprocal verdict is still pending.
 
 ## Identity and scope
 
@@ -119,3 +122,78 @@ no evidence established a Kimi quota failure. Current approval availability
 is being rechecked under the existing explicit user authorization.
 
 FAIL
+
+## Original-author repair and final GPT verification
+
+Claude repaired its own four author files and sealed them at
+f6feef6221a5d623f385094650d8a033b605c420. I inspected the delta from 4034498:
+the witness now captures scratch before reset and labels its columns, the
+verifier adds independent residual/writeback/reset checks, and the theory,
+report and emitted JSON qualify M-sharp spectral and convergence statements
+as numerical indications. The exact flat-case rank-one proof remains valid.
+The frozen formulas, fixtures, masks, Q updates and reset behavior are unchanged.
+
+GPT repeated the three reproduction commands listed above against f6feef6
+in the Claude worktree's icrl_softmax directory. GPT's new outputs, all under
+the root project's results/FP-ITER-001/codex directory, are:
+
+- claude_repaired_replay_results.json (witness exit 0, H1-H5 and capture PASS);
+- claude_repaired_replay_verification.json (exit 0, 1,665 checks, 0 failures);
+- corresponding .stderr.txt files (empty); scoped Ruff exit 0;
+- repair_invariance.json: exact equality before/after repair of all 24 Q
+  traces, frozen inputs, operators, fixed-point values, error decompositions,
+  flat analysis and structural numerical measurements. The 16 captured
+  updates now have residual-versus-writer-value error exactly 0.
+
+Repaired witness SHA-256:
+7e27d1cbbd37f73011fa7bdd133aa755bed8997a70b06597cb2eb83965c6cd9f;
+verifier SHA-256:
+c0b2d88fdb3659ce8f6288d3d29e24b9156242fc08aa8ae9e7e6aa9d3c11281e.
+The witness replay SHA-256 is
+9404a353946465fa171b3e52d8d22d167deee250fb28307bc100483fc1ba57a0;
+verifier replay SHA-256 is
+302288adf16c888be1d28430b6142cd9793b8a6c8f7e174e9bc8e4ace1273b7e.
+
+An independent audit script imports neither actor's source. Reproduce from
+the repository root with:
+
+    C:/Users/Admin/anaconda3/python.exe -B icrl_softmax/results/FP-ITER-001/codex/cross_check.py --claude icrl_softmax/results/FP-ITER-001/codex/claude_repaired_replay_results.json --output icrl_softmax/results/FP-ITER-001/codex/cross_check_repaired.json
+
+It independently reconstructs the frozen operators, checks all 24 aligned
+literal/direct/scalar traces, signed stage vectors, all E_k recursions and
+inequalities, and applicable fixed-point/steady/transient quantities.
+6,040 comparisons pass. Maximum trace difference is 3.109e-15 (the earlier
+16-trace comparison omitted the eight scalar traces); matrix difference is
+3.331e-16. The largest absolute bound-rounding difference is 9.346e-5 on an
+E_k of order 1e10, within the frozen scaled tolerance. Transient-bound
+differences are at most 2.887e-15.
+
+The first raw cross-check attempt used the residual upper bound where both
+actors saved the tighter actual-bias transient expression, producing 260
+audit-script failures. cross_check_before_repair.json preserves that attempt;
+cross_check_corrected.json and cross_check_repaired.json use the correct
+expression without changing either actor's scientific output. Failed inline
+JavaScript patch invocations made no file change. Exact recursive comparison
+of the original Claude witness and initial replay established that only
+/code/baseline_commit_at_start differed, replacing the earlier unverified
+metadata-only assertion with a checked result.
+
+Execution-scope deviations remain disclosed: the blind CLI run created two
+global memory files outside the authorized actor directory, and used a
+Python capture wrapper after shell-redirection denial. The repair invocation
+also used Python for backup copies after cp/mv denial, but honored the later
+output-redirection denial and left its sealed JSON files unchanged. Its
+repaired self-run evidence is in the CLI log; GPT's separately authorized
+independent replay supplies the full repaired raw outputs above. This report
+does not relabel the old Claude JSON files as repaired outputs. Creation
+evidence and read-only memory backups are in codex/scope_cleanup; automatic
+review rejected deletion and originals remain pending explicit user approval.
+These operational deviations are not presented as scope-compliant execution.
+
+The two scientific/evidence defects have been repaired by their original
+author and independently verified. This verdict covers the repaired route's
+reproducibility and frozen scientific acceptance criteria; it does not grant
+a cleanup permission, an operational exception, a main merge or a claim of
+policy improvement.
+
+PASS

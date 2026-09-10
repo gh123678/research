@@ -2,7 +2,7 @@
 
 ## Metadata and scope
 
-- Date: 2026-09-10. Author: GPT. Version: 1.1. Status: `ACTIVE`.
+- Date: 2026-09-10. Author: GPT. Version: 1.1. Status: `VERIFYING`.
 - Scientific baseline: `c579047950dfabb2600020cd2e53dd24b3e39c84`.
 - Inherited code baseline: `fd0b99826026af6868779f1c27fec4e43325df09`.
 - Preserved v1.0 draft/review commit: `3b9d7b0`.
@@ -312,3 +312,22 @@ The first CLI run also created two global memory files outside the actor
 scope. Their creation evidence and backups are preserved under the Codex
 raw scope_cleanup directory. Automatic review refused their deletion;
 originals remain while the explicit deletion question is pending.
+
+Original-author repair sealed at f6feef6221a5d623f385094650d8a033b605c420.
+GPT replayed the repaired witness and verifier (1,665 checks, no failures),
+Ruff and 6,040 independent raw comparisons. All 24 traces and mathematical
+outputs remain exactly unchanged by the repair; the corrected 16 residual
+snapshots match the writer values. GPT's scientific review now ends PASS;
+status returns ACTIVE -> VERIFYING. Full repaired replay outputs are in the
+Codex raw directory and must not be confused with Claude's original sealed
+JSON files, which remain unchanged.
+
+The first repair/review invocation stopped before reciprocal replay because
+its shell redirection was denied. The continuation removes that operation:
+read-only executable comparisons emit compact console evidence (retained in
+the approved CLI log), with an authored review summary and report in Claude's
+authorized directories. Existing sealed raw results remain available. No
+denied capture is re-created, and no global security/provider setting,
+scientific method, tolerance, fixture or acceptance criterion changes.
+This narrower continuation passed automatic approval and is running;
+log: results/FP-ITER-001/codex/claude_readonly_reciprocal.raw.jsonl.

@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Current construction gate: `docs/research_tasks/FP-ITER-001.md` (v1.1, `ACTIVE`). It narrows the
+Current construction gate: `docs/research_tasks/FP-ITER-001.md` (v1.1, `VERIFYING`). It narrows the
 next step to a two-state/two-action fixed-policy Expected SARSA iteration
 witness: direct reference, exact grouped attention, finite-logit attention,
 and a per-iteration error/stability decomposition. The v1.0 review missed
@@ -14,14 +14,15 @@ Codex preliminary construction is now implemented at cb26a339, with 6,332
 self-checks passing. Complete coverage at sharpness 8 contracts; missing-pair
 write leakage remains. The complete fixture has zero population/data bias,
 which limits that diagnostic. Claude's blind route is sealed at 4034498.
-GPT's follow-up audit superseded its earlier PASS with FAIL for unsupported
-M-sharp convergence claims and a mislabeled scratch snapshot. The task
-returned to ACTIVE for original-author repair; a scoped Claude repair and
-reciprocal review invocation is running under the existing user authorization.
-Codex's earlier approval-path quota failure has cleared. The independently
-reconstructed numerical evidence passes 6,040 cross-checks; all 24 aligned
-traces (including scalar routes) differ by at most 3.109e-15. The task is not
-VERIFIED until the claim repairs and both reciprocal directions pass.
+GPT's follow-up audit found unsupported M-sharp convergence claims and a
+mislabeled scratch snapshot. Claude repaired both at f6feef6; GPT's replay
+of the repair passes 1,665 checks plus 6,040 raw cross-checks and the scientific
+review now returns PASS. All 24 aligned traces differ by at most 3.109e-15;
+the repair changes none of their values. The task has resumed VERIFYING.
+Claude's reciprocal review is running with read-only console evidence and
+authored review records, omitting denied replay-file redirection. Existing
+transfer authorization and global settings are unchanged. The task is not
+VERIFIED until the reciprocal report is complete and passes.
 See docs/research_branches/FP-ITER-001/codex/synthesis.md, verification_of_other.md
 and handoff.md.
 It does not activate the broader FP-ESARSA certificate
