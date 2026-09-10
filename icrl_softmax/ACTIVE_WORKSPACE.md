@@ -19,6 +19,14 @@ Provisional next gate: literal fixed-policy Expected SARSA construction with
 explicit finite-error conditions; no overall control-route winner is claimed.
 FP-ESARSA remains DRAFT; no new formal matrix or control algorithm was run.
 
+Next review gate: `docs/research_tasks/FP-ITER-001.md` (`REVIEW`). It narrows the
+next step to a two-state/two-action fixed-policy Expected SARSA iteration
+witness: direct reference, exact grouped attention, finite-logit attention,
+and a per-iteration error/stability decomposition. GPT self-review passed;
+implementation and experiments still wait for Claude's pre-review and an
+activation commit. It does not activate the broader FP-ESARSA certificate
+matrix, policy improvement, or online control.
+
 Status: `FP-ADV-001` is `VERIFIED` as a negative usefulness result.  Claude's
 task-scoped pre-review returned `APPROVED`; Codex and Claude then independently
 sealed matching 480-record formal results, and both reciprocal verification
