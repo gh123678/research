@@ -11,9 +11,10 @@ Claude pre-reviews and executes the diagnostic, GPT independently verifies.
 Task v1.1 pre-review returned APPROVED. Claude execution exhausted its second
 call budget after writing a partial diagnostic. GPT verification returned FAIL:
 the numerical mixture term omits /k, and Claude's final report is missing.
-The 36 head rows and inherited checks passed. Task remains ACTIVE pending an
-authorized Claude author-repair call; both permitted calls are consumed
-(reported total USD 0.675573). See codex/report.md for exact handoff.
+The 36 head rows and inherited checks passed. User lifted Claude call/fee
+limits in task v1.2; task remains ACTIVE for author repair and report completion,
+then GPT independent verification. Previous reported cost USD 0.675573.
+See codex/report.md for exact handoff. No current authorization blocker.
 FP-ESARSA remains DRAFT; no new formal matrix or control algorithm was run.
 
 Status: `FP-ADV-001` is `VERIFIED` as a negative usefulness result.  Claude's

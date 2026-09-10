@@ -1,6 +1,6 @@
 # CTRL-PREFLIGHT-001: economical control-route preflight
 
-- Date: 2026-09-10. Author: GPT. Version: 1.1. Status: `ACTIVE`.
+- Date: 2026-09-10. Author: GPT. Version: 1.2. Status: `ACTIVE`.
 - Baseline: `db9d63043489f4ec5660e71c53e7e842a280d04f`.
 - User authorization: after the comparison of directions, the user said
   “好的你去做”, authorizing dependency comparison and minimal validation.
@@ -14,9 +14,11 @@
   executable verification of GPT's source comparison on `claude/CTRL-PREFLIGHT-001`.
   GPT records returned review provenance on its own branch, does not author
   Claude's artifacts, and independently reruns/inspects Claude's diagnostics.
-- Resource ceiling: two Claude Code calls, each at most USD 0.50 under the
-  existing configured account; no new model/provider configuration. Report
-  actual backend metadata rather than assuming a model from the CLI name.
+- Resource authorization v1.2: user lifted the prior two-call and USD 1 limits
+  for Claude on 2026-09-10 (ruling below). Necessary continuation and verification
+  calls may use the existing configured account without another quota question.
+  Remain economical; no new provider/model configuration or fee category.
+  Report actual backend metadata rather than assuming a model from the CLI name.
 
 ## Questions and falsifiable checks
 
@@ -150,10 +152,19 @@ scope and both failed and successful checks are recorded.
   Claude's partial artifacts -> ACTIVE after FAIL. This is an implementation
   defect, not a task-level OBJECTION: diagnostic.py line 150 omits /k in the
   numerical mixture contribution. No Claude final report or result commit.
-- Current blocker: CALL_COUNT_LIMIT after budget-interrupted execution.
+- Historical blocker: CALL_COUNT_LIMIT after budget-interrupted execution.
   Exact failure, correct values, unchanged scope and author-repair handoff
   are recorded in codex/report.md. The 36 head rows and two inherited checks
   passed GPT independent checks, but the overall task is not VERIFIED.
+- User ruling v1.2 on 2026-09-10: "好的你随便调用它他的额度无所谓".
+  The prior call-count and monetary limits are lifted for necessary Claude
+  continuation, repair and verification. The scientific protocol, authorized
+  inputs/outputs, roles, acceptance criteria and no-push/no-merge boundaries
+  are unchanged. This resource-only amendment resumes the already pre-reviewed
+  task; it is not a new scientific task or permission for broader experiments.
+  Claude must read this current task and GPT's handoff at their absolute paths
+  in the GPT checkout (its frozen worktree retains v1.1). It must not update
+  the task or GPT branch. Current blocker: none; author repair is pending.
 - Read-only comparison: docs/research_branches/CTRL-PREFLIGHT-001/codex/report.md.
 - Review provenance: docs/research_branches/CTRL-PREFLIGHT-001/codex/claude_review.md.
 - No merge to main is authorized or required for diagnostic completion.
