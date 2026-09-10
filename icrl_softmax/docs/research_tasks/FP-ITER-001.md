@@ -257,3 +257,15 @@ now ACTIVE. This activation commit is the common execution baseline; its full
 hash is recorded in each actor's execution-start manifest before implementation.
 No research protocol changed after review. Existing CLI metadata reports
 kimi-k2.6/k3; no model-provider identity is inferred from the CLI brand.
+
+Execution record: common baseline 6d2376968aeb9379c978bd1a7af7929b70fdeb09.
+Codex source/theory is cb26a339b3a9160cc508f0558c507786e79b8304; its bounded
+protocol and 6,332 self-checks pass. Codex report.md records preliminary
+results and all limitations, including zero C population/data discrepancy.
+Claude's isolated branch is created at the common baseline, but its execution
+launch was rejected by automatic approval review over private payload transfer
+authorization and broad permissions. No execution process started. Read-only
+inspection identifies the existing destination as HTTPS api.kimi.com:443.
+This is an operational approval blocker, not a task-definition OBJECTION.
+Task remains ACTIVE pending explicit scoped approval and independent execution.
+No reciprocal verification or VERIFIED claim. Continuation: Codex handoff.md.
