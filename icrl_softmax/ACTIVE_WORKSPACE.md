@@ -2,19 +2,21 @@
 
 ## Current objective
 
-Current follow-up: `docs/research_tasks/CTRL-PREFLIGHT-001.md` (`ACTIVE`), an
+Current follow-up: `docs/research_tasks/CTRL-PREFLIGHT-001.md` (`VERIFIED`), an
 economical source comparison and minimal finite-head diagnostic authorized on
 2026-09-10. GPT branch: `codex/CTRL-PREFLIGHT-001`. Source comparison is recorded
 in `docs/research_branches/CTRL-PREFLIGHT-001/codex/report.md`. User authorized
 scoped external transfer and delegated execution: GPT defines requirements,
 Claude pre-reviews and executes the diagnostic, GPT independently verifies.
-Task v1.1 pre-review returned APPROVED. Claude execution exhausted its second
-call budget after writing a partial diagnostic. GPT verification returned FAIL:
-the numerical mixture term omits /k, and Claude's final report is missing.
-The 36 head rows and inherited checks passed. User lifted Claude call/fee
-limits in task v1.2; task remains ACTIVE for author repair and report completion,
-then GPT independent verification. Previous reported cost USD 0.675573.
-See codex/report.md for exact handoff. No current authorization blocker.
+Task pre-review returned APPROVED. After user-authorized continuation, Claude
+repaired the missing /k and its report's analytic proof. Both reciprocal
+verdicts are PASS; accepted Claude commit da6a727. The 36 head cases and
+inherited checks pass, and the old certificate's no-emission obstruction is
+confirmed analytically. See codex/report.md for preserved failures and final
+acceptance. No current blocker. User requests conserving GPT quota: delegate
+execution/report work to Claude, retain targeted independent GPT verification.
+Provisional next gate: literal fixed-policy Expected SARSA construction with
+explicit finite-error conditions; no overall control-route winner is claimed.
 FP-ESARSA remains DRAFT; no new formal matrix or control algorithm was run.
 
 Status: `FP-ADV-001` is `VERIFIED` as a negative usefulness result.  Claude's

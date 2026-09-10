@@ -1,9 +1,9 @@
 # Control-route comparison: source review
 
 Date: 2026-09-10. Baseline: db9d63043489f4ec5660e71c53e7e842a280d04f.
-Status: preliminary assessment; Claude diagnostic execution was budget-stopped
-and GPT verification returned FAIL. The historical source-review section below
-predates execution; the final section records the current evidence and handoff.
+Status: diagnostic evidence VERIFIED after author repairs and reciprocal PASS.
+Research recommendation remains provisional. Earlier failure and handoff sections
+are preserved as history; the final section records the accepted revision.
 
 ## Comparison of actual computation interfaces
 
@@ -187,4 +187,65 @@ read/residual/writeback witness with an explicitly declared finite-error
 condition. This task does not authorize implementing that gate, and the old
 always-rejecting safety rule must not be mistaken for a useful control result.
 
-FAIL
+FAIL (historical first verification; superseded by the repaired verdict below)
+
+## Final targeted verification and decision
+
+Date: 2026-09-10. User clarified that GPT quota, not Claude quota, should be
+conserved. Execution and report repairs were delegated; GPT reused unchanged
+evidence and independently verified the changed computation and report diff.
+
+Accepted Claude commits: 651fc6e (code repair and initial report), then
+da6a72758537446bcd872f6dd7dc68fedd13a2a1 (report-only repair). The complete
+Claude artifacts remain on claude/CTRL-PREFLIGHT-001 in the worktree above;
+no merge or push occurred. Its worktree is clean; exactly the two permitted
+files differ from the shared activation commit. GPT's unrelated untracked
+learning record was preserved. All inherited scientific sources are unchanged.
+
+GPT compared the failed-source snapshot against the repaired diagnostic:
+exactly the missing /k was added. An independent rerun exited 0; all four
+mixture contributions agree with GPT's earlier independent reference within
+1.4210854715202004e-14, below 1e-12. All 36 head rows still pass, maximum
+finite/reference error 8.604228440844963e-16. The prior independent closed-form
+36-row comparison and inherited-verifier checks are retained because their
+code and inputs are unchanged. New evidence:
+results/CTRL-PREFLIGHT-001/codex/verification_repair_audit.json.
+
+GPT initially rejected the report at 651fc6e: it called the universal mixture
+inequality unproved while claiming its unconditional consequence. The author
+fixed the report, preserved the failed revision, and independently checked:
+
+```text
+exp(-lambda^2 K/2) cosh(lambda q)
+ <= exp(-lambda^2 K/2 + lambda q)
+ = exp(q^2/(2K) - (sqrt(K) lambda - q/sqrt(K))^2/2)
+ <= exp(q^2/(2K)),   K>0, q>=0, lambda>=0.
+```
+
+Normalized nonnegative mixture weights preserve this bound. A conservative
+root therefore has q_mix(K)>=sqrt(2K log(d/delta)) for every positive K.
+The minimum positive held-out count is at most floor(n/(2d)); the analytic
+floor is decreasing in K and exceeds B=5 at all four frozen lengths. Thus
+E_Q>B and every changed state has LB<0. Missing support instead rejects.
+This proves the stated old-certificate obstruction without assuming that
+the four numerical mixture ratios are universal lower bounds. GPT checked
+this proof and the entire repaired diff; the earlier writer/current-read
+overstatement and exact-equality wording were also corrected.
+
+Acceptance: source audit, all rows/adverse cases, finite-score tolerance,
+inherited checks, source preservation/no-oracle inputs, explicit limitations,
+one next gate, Claude executable source-review PASS and GPT independent
+implementation/report PASS are all satisfied. No outstanding scientific
+objection or implementation defect remains within this diagnostic's scope.
+
+Decision: retain fixed-policy Expected SARSA as the preferred *next local
+construction gate*, because its successor normalization decouples state
+selection from Q scale. Retain two-stage as the code-reuse/control comparison;
+do not declare an overall winner. Next gate is one literal fixed-policy
+read/residual/writeback and relative-softmax output witness with a declared
+nonvacuous finite-error condition. It requires its own reviewed task; it has
+not been implemented here. Do not run the old FP-ESARSA matrix merely to
+rediscover an always-rejecting certificate. No proof of full control
+improvement, practical superiority, or publication novelty is claimed.
+
+PASS

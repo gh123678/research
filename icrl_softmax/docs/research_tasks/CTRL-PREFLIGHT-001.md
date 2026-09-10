@@ -1,6 +1,6 @@
 # CTRL-PREFLIGHT-001: economical control-route preflight
 
-- Date: 2026-09-10. Author: GPT. Version: 1.2. Status: `ACTIVE`.
+- Date: 2026-09-10. Author: GPT. Version: 1.2. Status: `VERIFIED`.
 - Baseline: `db9d63043489f4ec5660e71c53e7e842a280d04f`.
 - User authorization: after the comparison of directions, the user said
   “好的你去做”, authorizing dependency comparison and minimal validation.
@@ -165,6 +165,32 @@ scope and both failed and successful checks are recorded.
   Claude must read this current task and GPT's handoff at their absolute paths
   in the GPT checkout (its frozen worktree retains v1.1). It must not update
   the task or GPT branch. Current blocker: none; author repair is pending.
+- User clarification: "我的意思是你的额度得节省". Prefer Claude execution,
+  debugging and report preparation; GPT retains research decisions and targeted
+  independent verification, reusing unchanged evidence rather than repeating
+  the entire audit. Verification requirements are not waived.
+- Continuation at Claude commit 651fc6e: code repair and 36-row rerun PASS
+  in GPT verification; four corrected contributions agree within 1.5e-14.
+  ACTIVE -> VERIFYING -> ACTIVE for a report-only FAIL: sections 3.4-3.5
+  incorrectly leave the analytic mixture inequality unproved while asserting
+  the consequent unconditional no-emission result. GPT supplied the elementary
+  square-completion proof for Claude to check independently. Narrow corrections
+  also cover interface-existence wording, numeric tolerance and references.
+  No new numerical protocol, algorithm, or task-level objection; awaiting
+  author report repair, then targeted GPT diff verification.
+- Report repair submitted at da6a72758537446bcd872f6dd7dc68fedd13a2a1;
+  ACTIVE -> VERIFYING. Only Claude report.md changed relative to 651fc6e.
+  GPT checked the complete diff, including the universal square-completion
+  proof, numerical/analytic distinction, scope corrections and provenance.
+  Final preservation audit and status recording follow; no new experiments.
+- Final: VERIFYING -> VERIFIED on 2026-09-10 after both reciprocal verdicts
+  PASS. Claude accepted report commit da6a72758537446bcd872f6dd7dc68fedd13a2a1;
+  GPT final verification and acceptance checklist are in codex/report.md.
+  Exact /k repair independently rerun, report proof independently inspected,
+  allowed-file/source preservation checked, user learning record untouched.
+  No unresolved objection; earlier failures remain recorded, not erased.
+  Current blocker: none. Recommendation remains provisional; no new control
+  algorithm, FP-ESARSA activation, main merge or push was performed.
 - Read-only comparison: docs/research_branches/CTRL-PREFLIGHT-001/codex/report.md.
 - Review provenance: docs/research_branches/CTRL-PREFLIGHT-001/codex/claude_review.md.
 - No merge to main is authorized or required for diagnostic completion.
