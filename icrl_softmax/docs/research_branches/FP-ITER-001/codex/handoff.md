@@ -1,5 +1,13 @@
 # FP-ITER-001 continuation record
 
+Update, 2026-09-10: the user explicitly authorized the specified FP-ITER-001
+private transfers to the existing api.kimi.com backend, isolated execution
+and reciprocal verification. The authorized blind execution is running in
+the existing worktree. Raw log: results/FP-ITER-001/codex/
+claude_execution_authorized.raw.jsonl; do not inspect scientific content until
+Claude seals its first result (Codex seal is 9bae88825c1aa50c68951cd31389f9680f6d0579).
+The blocker and no-process descriptions below are preserved historical state.
+
 - Frozen task v1.1, ACTIVE. Common execution baseline:
   6d2376968aeb9379c978bd1a7af7929b70fdeb09.
 - Codex branch: codex/FP-ITER-001. Code/theory commit:

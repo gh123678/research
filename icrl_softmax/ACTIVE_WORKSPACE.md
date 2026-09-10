@@ -30,9 +30,11 @@ the common activation commit, with reciprocal verification after blind seals.
 Codex preliminary construction is now implemented at cb26a339, with 6,332
 self-checks passing. Complete coverage at sharpness 8 contracts; missing-pair
 write leakage remains. The complete fixture has zero population/data bias,
-which limits that diagnostic. Claude execution launch was rejected by automatic
-approval review over private payload transfer authorization to the existing
-Kimi backend; no execution started. Task remains ACTIVE, not VERIFIED.
+which limits that diagnostic. The prior Claude execution launch was rejected
+over private payload transfer authorization. On 2026-09-10 the user explicitly
+authorized this task's transfers to api.kimi.com and isolated execution plus
+reciprocal verification. Claude's authorized blind execution has now started
+from the common baseline. Task remains ACTIVE, not VERIFIED.
 See docs/research_branches/FP-ITER-001/codex/synthesis.md and handoff.md.
 It does not activate the broader FP-ESARSA certificate
 matrix, policy improvement, or online control.

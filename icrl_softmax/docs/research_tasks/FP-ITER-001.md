@@ -269,3 +269,13 @@ inspection identifies the existing destination as HTTPS api.kimi.com:443.
 This is an operational approval blocker, not a task-definition OBJECTION.
 Task remains ACTIVE pending explicit scoped approval and independent execution.
 No reciprocal verification or VERIFIED claim. Continuation: Codex handoff.md.
+
+User ruling, 2026-09-10: in direct response to the explicit request to transmit
+this task's governance files, task/design, related private source and results
+to the existing Kimi backend (api.kimi.com), for Claude Code independent
+execution in its isolated branch and reciprocal verification, the user replied
+"授权". This authorizes those scoped transfers and execution/verification
+continuations using the existing configuration, resolving the prior approval
+blocker. It does not authorize unrelated payloads, provider changes, new fee
+categories, main merge or push. Scientific v1.1 protocol and common baseline
+are unchanged; Claude's blind phase receives only that baseline.
