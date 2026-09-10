@@ -1,5 +1,37 @@
 # FP-ITER-001 continuation record
 
+CURRENT continuation, superseding all historical state below: task v1.1
+ACTIVE after GPT withdrew its earlier PASS for two ordinary Claude-author
+defects (M-sharp numerical evidence overstated as an exact convergence claim;
+post-reset residual snapshot mislabeled). Claude is repairing these and then
+verifying the sealed Codex route. Invocation evidence:
+results/FP-ITER-001/codex/claude_repair_verify.raw.jsonl and adjacent stderr;
+prompt claude_repair_and_verify_prompt.txt. Existing user-approved api.kimi.com
+configuration is unchanged. Do not launch a duplicate invocation.
+
+GPT raw cross_check.py imports neither route and independently reconstructs
+operators, signed stage errors, all horizon bounds, steady/transient bounds
+and 24 aligned traces. Corrected run: cross_check_corrected.json, 6,040 checks,
+0 failures, maximum trace difference 3.109e-15. The initial audit script
+mistakenly compared a tighter actual-bias transient bound to a looser
+residual-bound expression; that script-only failure is preserved in
+cross_check_before_repair.json. Exact recursive witness replay differences
+are only /code/baseline_commit_at_start, verified rather than inferred.
+
+Scope deviation: the blind CLI invocation created two global memory files,
+MEMORY.md and feedback_bash_restrictions.md, outside its authorized file scope.
+Creation log, hashes and backup copies are in codex/scope_cleanup/ under raw
+results. Automatic review rejected their deletion; originals are retained,
+and explicit approval is pending. No cleanup workaround is authorized.
+Future invocation instructions forbid global memory and honoring a denied
+operation through an alternate mechanism. This operational deviation must
+remain disclosed and must not be described as fully scope-compliant execution.
+
+After Claude seals repairs: replay its revised scripts, review the source and
+claim delta, recompute raw cross-checks, inspect the reciprocal report and
+its executable evidence. Only then restore VERIFYING and, with both PASS,
+mark VERIFIED and update current records. No main merge or push is authorized.
+
 Update, 2026-09-10: the user explicitly authorized the specified FP-ITER-001
 private transfers to the existing api.kimi.com backend, isolated execution
 and reciprocal verification. The authorized blind execution is running in
@@ -32,6 +64,16 @@ The blocker and no-process descriptions below are preserved historical state.
   Claude code/results; Claude reviews and reproduces Codex's cb26a339 code,
   theory and sealed report. Every verification ends PASS/FAIL/OBJECTION and
   must cite executable evidence. Original author repairs own code on FAIL.
+- Current state after the user authorization: Claude blind seal
+  40344989bc88ea422d5535a7a4b199b98a669413 is complete. GPT's reciprocal
+  review is PASS in codex/verification_of_other.md; replayed Claude verifier
+  has 1,633 checks and 0 failures, and all 16 aligned traces match within
+  1.776e-15. The second Claude invocation to review Codex was rejected by
+  automatic approval because the account usage limit was reached. Raw request
+  log is codex/claude_reciprocal.raw.jsonl and stderr is the adjacent file.
+  Do not retry through a workaround or substitute another agent. Task status
+  is VERIFYING until Claude can produce its reciprocal report or the user
+  explicitly rules an exception.
 - GPT recovery checks: baseline identity, input/weight literalness, absent
   writer semantics, noncontractive conclusions, zero C data-discrepancy
   limitation, all raw bounds, independent seals, exact source digests, and

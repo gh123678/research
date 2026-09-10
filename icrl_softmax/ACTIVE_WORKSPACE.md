@@ -2,7 +2,34 @@
 
 ## Current objective
 
-Current follow-up: `docs/research_tasks/CTRL-PREFLIGHT-001.md` (`VERIFIED`), an
+Current construction gate: `docs/research_tasks/FP-ITER-001.md` (v1.1, `ACTIVE`). It narrows the
+next step to a two-state/two-action fixed-policy Expected SARSA iteration
+witness: direct reference, exact grouped attention, finite-logit attention,
+and a per-iteration error/stability decomposition. The v1.0 review missed
+unfrozen details. V1.1 freezes complete/missing batches, initial Q, 64 updates,
+two sharpness triples and dual independent routes. The dedicated branch now
+exists; v1.1 pre-review returned APPROVED. Both actors start independently from
+the common activation commit, with reciprocal verification after blind seals.
+Codex preliminary construction is now implemented at cb26a339, with 6,332
+self-checks passing. Complete coverage at sharpness 8 contracts; missing-pair
+write leakage remains. The complete fixture has zero population/data bias,
+which limits that diagnostic. Claude's blind route is sealed at 4034498.
+GPT's follow-up audit superseded its earlier PASS with FAIL for unsupported
+M-sharp convergence claims and a mislabeled scratch snapshot. The task
+returned to ACTIVE for original-author repair; a scoped Claude repair and
+reciprocal review invocation is running under the existing user authorization.
+Codex's earlier approval-path quota failure has cleared. The independently
+reconstructed numerical evidence passes 6,040 cross-checks; all 24 aligned
+traces (including scalar routes) differ by at most 3.109e-15. The task is not
+VERIFIED until the claim repairs and both reciprocal directions pass.
+See docs/research_branches/FP-ITER-001/codex/synthesis.md, verification_of_other.md
+and handoff.md.
+It does not activate the broader FP-ESARSA certificate
+matrix, policy improvement, or online control.
+
+## Prior verified diagnostic (CTRL-PREFLIGHT-001)
+
+Prior diagnostic: `docs/research_tasks/CTRL-PREFLIGHT-001.md` (`VERIFIED`), an
 economical source comparison and minimal finite-head diagnostic authorized on
 2026-09-10. GPT branch: `codex/CTRL-PREFLIGHT-001`. Source comparison is recorded
 in `docs/research_branches/CTRL-PREFLIGHT-001/codex/report.md`. User authorized
@@ -19,25 +46,7 @@ Provisional next gate: literal fixed-policy Expected SARSA construction with
 explicit finite-error conditions; no overall control-route winner is claimed.
 FP-ESARSA remains DRAFT; no new formal matrix or control algorithm was run.
 
-Current construction gate: `docs/research_tasks/FP-ITER-001.md` (v1.1, `ACTIVE`). It narrows the
-next step to a two-state/two-action fixed-policy Expected SARSA iteration
-witness: direct reference, exact grouped attention, finite-logit attention,
-and a per-iteration error/stability decomposition. The v1.0 review missed
-unfrozen details. V1.1 freezes complete/missing batches, initial Q, 64 updates,
-two sharpness triples and dual independent routes. The dedicated branch now
-exists; v1.1 pre-review returned APPROVED. Both actors start independently from
-the common activation commit, with reciprocal verification after blind seals.
-Codex preliminary construction is now implemented at cb26a339, with 6,332
-self-checks passing. Complete coverage at sharpness 8 contracts; missing-pair
-write leakage remains. The complete fixture has zero population/data bias,
-which limits that diagnostic. The prior Claude execution launch was rejected
-over private payload transfer authorization. On 2026-09-10 the user explicitly
-authorized this task's transfers to api.kimi.com and isolated execution plus
-reciprocal verification. Claude's authorized blind execution has now started
-from the common baseline. Task remains ACTIVE, not VERIFIED.
-See docs/research_branches/FP-ITER-001/codex/synthesis.md and handoff.md.
-It does not activate the broader FP-ESARSA certificate
-matrix, policy improvement, or online control.
+## Verified action-gap task (FP-ADV-001)
 
 Status: `FP-ADV-001` is `VERIFIED` as a negative usefulness result.  Claude's
 task-scoped pre-review returned `APPROVED`; Codex and Claude then independently
@@ -46,13 +55,13 @@ directions returned `PASS`.  All six routes emitted zero updates, so the safe
 one-step theorem is retained while empirical usefulness hypothesis 8 is
 falsified without retuning.
 
-The current task asks whether the verified `FP-TU-001` event can certify only
+That task asked whether the verified `FP-TU-001` event can certify only
 the action differences used by one policy update. V-first local exact and
 finite-softmax bounds are primary; complete-Q V-first and Direct-Q bounds are
 controls. The update moves half of each certified donor's mass above `pi_min`
 and must guarantee `V^{pi_plus} >= V^pi` componentwise.
 
-The task reuses the frozen 480-record protocol and spends no new risk budget.
+That task reused the frozen 480-record protocol and spends no new risk budget.
 It excludes repeated control, new Direct-Q local theory, variance adaptation,
 oracle inputs, outcome tuning, and conditional-on-emission claims.
 
@@ -70,7 +79,7 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
 - Next action: apply the verified governance rules to the next GPT-authored research task.
 - Approved design: `docs/superpowers/specs/2026-08-31-gpt-led-claude-verified-research-governance-design.md`.
 
-## Most recently verified research task
+## Verified action-gap execution evidence
 
 - Task: `docs/research_tasks/FP-ADV-001.md` (`VERIFIED`).
 - Git and scientific baseline:

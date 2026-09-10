@@ -268,7 +268,14 @@ authorization and broad permissions. No execution process started. Read-only
 inspection identifies the existing destination as HTTPS api.kimi.com:443.
 This is an operational approval blocker, not a task-definition OBJECTION.
 Task remains ACTIVE pending explicit scoped approval and independent execution.
-No reciprocal verification or VERIFIED claim. Continuation: Codex handoff.md.
+Claude first result is sealed at 40344989bc88ea422d5535a7a4b199b98a669413.
+GPT replayed Claude's verifier (1,633/1,633 checks PASS), witness and Ruff;
+all 16 aligned traces and C/S/W matrices match the Codex route within
+1.776e-15 and 3.331e-16 respectively. GPT's verification report is
+docs/research_branches/FP-ITER-001/codex/verification_of_other.md and ends
+PASS. The task is now VERIFYING. Claude's reciprocal review of Codex was
+blocked by the account usage limit after authorization; no workaround or
+substitute agent was used. No VERIFIED claim. Continuation: Codex handoff.md.
 
 User ruling, 2026-09-10: in direct response to the explicit request to transmit
 this task's governance files, task/design, related private source and results
@@ -279,3 +286,29 @@ continuations using the existing configuration, resolving the prior approval
 blocker. It does not authorize unrelated payloads, provider changes, new fee
 categories, main merge or push. Scientific v1.1 protocol and common baseline
 are unchanged; Claude's blind phase receives only that baseline.
+
+Follow-up audit: the earlier GPT PASS is superseded by an implementation/report
+FAIL pending original-author repair. Claude theory section 10, report M-sharp
+claims and witness supplementary interpretation infer exact fixed-point
+existence and convergence from floating-point eigenvalues and near-zero
+left-null residuals. The frozen task requires justification for stronger
+spectral claims. Retain the measurements but qualify those conclusions as
+numerical indications, or supply a rigorous proof; narrowing is preferred.
+Also correct the label/capture of the residual snapshot, which is currently
+taken after scratch reset. No change to fixtures, operators or acceptance
+rules is permitted. Lifecycle returns VERIFYING -> ACTIVE for this repair.
+After repair, resume VERIFYING and both reciprocal checks. The prior usage
+failure was in Codex automatic approval, not evidence that Kimi quota was
+exhausted; current Codex usage is available again. Transfer authorization
+remains valid. Claude must not read/write global auto-memory or unrelated files.
+
+Repair continuation launched using the same existing backend and isolated
+branch. GPT independently reconstructed 6,040 raw comparisons, all passing;
+24 aligned traces including both scalar implementations agree within
+3.109e-15. The first cross-check script had an incorrect expectation for the
+tighter transient bound; its failed output and corrected run are preserved.
+No scientific input or actor result was changed to obtain the corrected pass.
+The first CLI run also created two global memory files outside the actor
+scope. Their creation evidence and backups are preserved under the Codex
+raw scope_cleanup directory. Automatic review refused their deletion;
+originals remain while the explicit deletion question is pending.
