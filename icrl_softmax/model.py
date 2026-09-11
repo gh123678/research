@@ -9,6 +9,8 @@ H_out = H + (1/n) * V H (H^T P H),  P := Q^T K,  D = 3d + 2
 - V21 的第一行
 只有 P12 (2d+1, d+1) 和 V21 的后 d 行（记作 V21bar, (d, 2d+1)）可学习。
 """
+import math
+
 import torch
 import torch.nn as nn
 
@@ -881,3 +883,218 @@ class LiangLaiOperatorBaseline(nn.Module):
         td_values = rewards + self.gamma * (phi_next @ w) - (phi @ w)
         delta_w = (self.alpha / phi.shape[0]) * (phi.transpose(0, 1) @ td_values)
         return w + delta_w, {"td_values": td_values, "delta_w": delta_w}
+
+
+class FixedPolicyActionExpectation(nn.Module):
+    """精确策略动作期望头：qbar_t = sum_a pi(a | s_next) Q(s_next, a)。
+
+    对每个下一状态 query，attention 权重只落在该状态的动作 token 上，权重
+    等于策略概率。该头无 mask、无可训练参数，供 Expected SARSA 的后继项使用。
+    """
+
+    def forward(self, q_values, next_states, policy):
+        if q_values.ndim != 2:
+            raise ValueError("q_values must have shape (n_states, n_actions)")
+        n_states, n_actions = q_values.shape
+        if policy.shape != q_values.shape:
+            raise ValueError("policy must share the Q shape")
+        next_states = next_states.long()
+        if torch.any(next_states < 0) or torch.any(next_states >= n_states):
+            raise ValueError("next_states contain an out-of-range index")
+
+        n_transitions = next_states.shape[0]
+        one_hot = torch.zeros(
+            (n_transitions, n_states), dtype=q_values.dtype, device=q_values.device
+        )
+        one_hot.scatter_(1, next_states[:, None], 1.0)
+        next_policy = policy[next_states]
+        attention = (one_hot[:, :, None] * next_policy[:, None, :]).reshape(
+            n_transitions, n_states * n_actions
+        )
+        memory_values = q_values.reshape(-1)
+        return attention @ memory_values, attention
+
+
+class EndToEndMaskedSoftmaxExpectedSARSA(nn.Module):
+    """精确 masked batch Expected SARSA 的端到端实现。
+
+    两个 retrieval heads 以当前 / 下一状态-action one-hot 为 query，从完整
+    Q-memory token 集合精确读取 Q 值。后继值由精确策略动作期望头给出，而不是
+    采样动作。write-back head 对同一当前 pair 的 Expected-SARSA residual 做
+    softmax 均值；未访问 query 只关注一个零值 null token。
+
+    该模块没有可训练参数。布尔 mask 对应论文 Theorem 3.1 的结构化等值 mask。
+    """
+
+    def __init__(self, gamma=0.5, alpha=0.5):
+        super().__init__()
+        if not 0 <= gamma < 1:
+            raise ValueError("gamma must lie in [0, 1)")
+        if alpha <= 0:
+            raise ValueError("alpha must be positive")
+        self.gamma = float(gamma)
+        self.alpha = float(alpha)
+
+    @staticmethod
+    def _validate_inputs(q_values, states, actions, rewards, next_states):
+        if q_values.ndim != 2:
+            raise ValueError("q_values must have shape (n_states, n_actions)")
+        vectors = (states, actions, rewards, next_states)
+        if any(vector.ndim != 1 for vector in vectors):
+            raise ValueError("transition fields must be one-dimensional")
+        if len({len(vector) for vector in vectors}) != 1:
+            raise ValueError("transition fields must have equal length")
+        if len(states) == 0:
+            raise ValueError("at least one transition is required")
+
+        n_states, n_actions = q_values.shape
+        integer_fields = (
+            (states, n_states, "states"),
+            (actions, n_actions, "actions"),
+            (next_states, n_states, "next_states"),
+        )
+        for values, upper, name in integer_fields:
+            if torch.any(values < 0) or torch.any(values >= upper):
+                raise ValueError(f"{name} contain an out-of-range index")
+
+    @staticmethod
+    def _masked_singleton_retrieval(memory_values, pair_queries):
+        """Standard softmax over the singleton memory source matching each query."""
+        n_pairs = memory_values.numel()
+        pair_axis = torch.arange(n_pairs, device=memory_values.device)
+        allowed = pair_queries[:, None] == pair_axis[None, :]
+        scores = torch.zeros(
+            allowed.shape, dtype=memory_values.dtype, device=memory_values.device
+        )
+        scores = scores.masked_fill(~allowed, float("-inf"))
+        attention = torch.softmax(scores, dim=-1)
+        return attention @ memory_values, attention
+
+    def forward(self, q_values, states, actions, rewards, next_states, policy):
+        self._validate_inputs(q_values, states, actions, rewards, next_states)
+        n_states, n_actions = q_values.shape
+        states = states.long()
+        actions = actions.long()
+        next_states = next_states.long()
+        rewards = rewards.to(dtype=q_values.dtype, device=q_values.device)
+        policy = policy.to(dtype=q_values.dtype, device=q_values.device)
+
+        current_pairs = states * n_actions + actions
+        memory_values = q_values.reshape(-1)
+        current_q, current_attention = self._masked_singleton_retrieval(
+            memory_values, current_pairs
+        )
+        qbar, action_attention = FixedPolicyActionExpectation()(
+            q_values, next_states, policy
+        )
+        residuals = rewards + self.gamma * qbar - current_q
+
+        n_pairs = memory_values.numel()
+        pair_axis = torch.arange(n_pairs, device=q_values.device)
+        match = current_pairs[:, None] == pair_axis[None, :]
+        visited = match.any(dim=0)
+
+        # Context rows are followed by one zero-value null token. A visited query
+        # admits exactly its matching transitions; an unvisited query admits only
+        # the null token. Softmax is therefore always defined.
+        allowed = torch.cat((match, (~visited)[None, :]), dim=0)
+        scores = torch.zeros(
+            allowed.shape, dtype=q_values.dtype, device=q_values.device
+        )
+        scores = scores.masked_fill(~allowed, float("-inf"))
+        write_attention = torch.softmax(scores, dim=0)
+        source_values = torch.cat(
+            (residuals, torch.zeros(1, dtype=q_values.dtype, device=q_values.device))
+        )
+        signed_write = (source_values[:, None] * write_attention).sum(dim=0)
+        update = self.alpha * signed_write
+        q_new = memory_values + update
+
+        diagnostics = {
+            "current_pairs": current_pairs,
+            "current_q": current_q,
+            "qbar": qbar,
+            "residuals": residuals,
+            "current_attention": current_attention,
+            "action_attention": action_attention,
+            "write_attention": write_attention,
+            "visited": visited,
+            "update": update.reshape_as(q_values),
+        }
+        return q_new.reshape_as(q_values), diagnostics
+
+
+class EndToEndFiniteSoftmaxExpectedSARSA(nn.Module):
+    """有限-logit 的 Expected SARSA 实现：无等值 mask、无 visited gate。
+
+    后继、读取、写回三处都使用有限 sharpness 的 softmax，覆盖完整 token 集合，
+    因此每个 attention 都是满支撑的严格正权重；未访问 query 也会收到可报告的
+    泄漏更新。该模块没有可训练参数。
+    """
+
+    def __init__(self, gamma=0.5, alpha=0.5, zeta=8.0, xi=8.0, tau=8.0):
+        super().__init__()
+        if not 0 <= gamma < 1:
+            raise ValueError("gamma must lie in [0, 1)")
+        if alpha <= 0 or zeta <= 0 or xi <= 0 or tau <= 0:
+            raise ValueError("alpha and sharpness parameters must be positive")
+        self.gamma = float(gamma)
+        self.alpha = float(alpha)
+        self.zeta = float(zeta)
+        self.xi = float(xi)
+        self.tau = float(tau)
+
+    def forward(self, q_values, states, actions, rewards, next_states, policy):
+        EndToEndMaskedSoftmaxExpectedSARSA._validate_inputs(
+            q_values, states, actions, rewards, next_states
+        )
+        n_states, n_actions = q_values.shape
+        n_pairs = n_states * n_actions
+        states = states.long()
+        actions = actions.long()
+        next_states = next_states.long()
+        rewards = rewards.to(dtype=q_values.dtype, device=q_values.device)
+        policy = policy.to(dtype=q_values.dtype, device=q_values.device)
+
+        memory_values = q_values.reshape(-1)
+        current_pairs = states * n_actions + actions
+        n_transitions = states.shape[0]
+        token_axis = torch.arange(n_pairs, device=q_values.device)
+
+        # Successor: finite sharpness on the matched next-state block.
+        log_policy = torch.log(policy).reshape(-1)
+        successor_block = token_axis // n_actions
+        successor_mask = (successor_block[None, :] == next_states[:, None]).to(
+            q_values.dtype
+        )
+        successor_scores = log_policy[None, :] + self.zeta * successor_mask
+        action_attention = torch.softmax(successor_scores, dim=1)
+        successor = action_attention @ memory_values
+
+        # Read: finite sharpness on the matched current-pair token.
+        read_mask = (token_axis[None, :] == current_pairs[:, None]).to(q_values.dtype)
+        read_attention = torch.softmax(self.xi * read_mask, dim=1)
+        read = read_attention @ memory_values
+
+        residuals = rewards + self.gamma * successor - read
+
+        # Write: full-support finite kernel over every query, no visited gate.
+        match = (current_pairs[:, None] == token_axis[None, :]).to(q_values.dtype)
+        counts = match.sum(dim=0)
+        numerator = torch.exp(self.tau * match)
+        denominator = counts * math.exp(self.tau) + (n_transitions - counts)
+        write_attention = numerator / denominator[None, :]
+        update = self.alpha * (write_attention.transpose(0, 1) @ residuals)
+        q_new = memory_values + update
+
+        diagnostics = {
+            "current_pairs": current_pairs,
+            "successor": successor,
+            "read": read,
+            "residuals": residuals,
+            "action_attention": action_attention,
+            "read_attention": read_attention,
+            "write_attention": write_attention,
+            "update": update.reshape_as(q_values),
+        }
+        return q_new.reshape_as(q_values), diagnostics
