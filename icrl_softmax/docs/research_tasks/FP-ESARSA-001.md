@@ -8,7 +8,7 @@
   changes responsibilities, baseline, and the allowed read-only input list
   only, and no scientific input, hypothesis, formula, tolerance, matrix, or
   acceptance strength.
-- Status: `REVIEW`.
+- Status: `ACTIVE`.
 - Task version: `1.1`.
 - Scientific/code baseline: `9d0994f03e4a659787c74df4660cdcab1d398c1c`
   (main after the FP-EXPL-001 merge). Every inherited generator, MDP, model,
@@ -604,7 +604,9 @@ explicit user exemption.
 
 ## Claude read-only pre-review
 
-- Status: `IN_REVIEW` (predecessor prerequisite satisfied 2026-09-11).
+- Status: `APPROVED` (2026-09-11; predecessor prerequisite satisfied the same
+  day). Itemized evidence:
+  `docs/research_branches/FP-ESARSA-001/codex/claude_pre_review.md`.
 - Required input: the later frozen DRAFT commit containing this task, approved
   design, and plan, plus task-scoped inherited theory and source files.
   Available since the FP-EXPL-001 merge to main (`9d0994f`).
@@ -613,8 +615,10 @@ explicit user exemption.
 - Transparency note: because Codex is quota-blocked, the v1.1 revision text
   itself is recorded by Claude under the user's direct ruling; the user is
   the arbiter of this deviation from the usual GPT-authored revision flow.
-  The pre-review verdict will be recorded in the ACTIVE publication commit
-  together with its itemized evidence.
+- This commit publishes `ACTIVE` after the itemized APPROVED and serves as
+  the common execution baseline for `codex/FP-ESARSA-001` (acceptance side)
+  and `claude/FP-ESARSA-001` (main route). No research run, sample, or
+  experiment has occurred for this task.
 
 ## Objections and user rulings
 

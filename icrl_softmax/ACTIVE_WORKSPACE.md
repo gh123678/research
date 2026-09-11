@@ -1,5 +1,23 @@
 # Active research workspace
 
+## Current objective
+
+Current task: `docs/research_tasks/FP-ESARSA-001.md` (v1.1, `ACTIVE`).
+Fixed-policy Expected SARSA with a cross-fitted Bellman-residual certificate
+and one certified relative-softmax improvement step on the frozen 480-record
+protocol inherited from FP-ADV-001. Activation prerequisite satisfied
+(FP-ADV-001 VERIFIED). By the direct user ruling of 2026-09-11 (Codex quota
+exhausted), this task uses the FP-EXPL-001 v1.1 responsibility pattern:
+Claude main execution on `claude/FP-ESARSA-001`, GPT independent post-seal
+acceptance on `codex/FP-ESARSA-001` when its quota is restored, then Claude
+reciprocal review. Claude's itemized pre-review returned APPROVED
+(`docs/research_branches/FP-ESARSA-001/codex/claude_pre_review.md`).
+Scientific baseline `9d0994f03e4a659787c74df4660cdcab1d398c1c`; all
+inherited science files are byte-identical to the v1.0 baseline. No research
+run has occurred; results remain preliminary until GPT acceptance or user
+exemption. Design:
+`docs/superpowers/specs/2026-09-09-fixed-policy-expected-sarsa-relative-softmax-design.md`.
+
 ## Verified fixed-exploration task: FP-EXPL-001
 
 `docs/research_tasks/FP-EXPL-001.md` (v1.1) is `VERIFIED` (2026-09-11).
@@ -41,8 +59,9 @@ executable reciprocal review.
   the remote push. GPT's acceptance verdict stands on its own executable
   artifact cited above.
 - Synthesis: `docs/research_branches/FP-EXPL-001/codex/synthesis.md`.
-  This task does not activate FP-ESARSA-001 (remains DRAFT), policy
-  improvement, or online control.
+  This task's closure led directly to the activation of FP-ESARSA-001
+  (see Current objective); it does not itself authorize policy improvement
+  or online control claims beyond that task's frozen scope.
 
 ## Verified predecessor: FP-ITER-001
 
@@ -160,9 +179,9 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
 - Current blocker: none.
 - Shared conclusion:
   `docs/research_branches/action_gap_certificate_report.md`.
-- Next task: `docs/research_tasks/FP-ESARSA-001.md` remains `DRAFT`.  The next
-  permitted action is task review; implementation or experiments must not
-  begin before the governance lifecycle activates it.
+- Next task: `docs/research_tasks/FP-ESARSA-001.md` is now v1.1 `ACTIVE`
+  (see Current objective). Its activation prerequisite (this task being
+  VERIFIED) is satisfied.
 - Design:
   `docs/superpowers/specs/2026-09-08-action-gap-safe-update-design.md`.
 - Plan:
