@@ -7,12 +7,13 @@ research question has its first positive answer.
 
 ### FP-SCALE-002 — first certified policy improvement (2026-09-11)
 
-`docs/research_tasks/FP-SCALE-002.md` (v1.0) executed on `claude/FP-SCALE-001`
-and closed at Gate D. It replaced exactly one ingredient of the inherited
-verified certificate — the worst-case residual envelope `2B` that supplies its
-sub-Gaussian parameter — with a two-half estimate whose every constant is a
-named Hoeffding inequality and which contains no fitted or asserted scaling
-factor.
+`docs/research_tasks/FP-SCALE-002.md` (v1.0) executed on `claude/FP-SCALE-001`,
+closed at Gate D, and **merged to `main` and pushed by user approval on
+2026-09-11** (`d4df7bc..6717707`). It replaced exactly one ingredient of the
+inherited verified certificate — the worst-case residual envelope `2B` that
+supplies its sub-Gaussian parameter — with a two-half estimate whose every
+constant is a named Hoeffding inequality and which contains no fitted or
+asserted scaling factor.
 
 | quantity | result |
 |---|---|
@@ -52,6 +53,31 @@ reciprocal verification.
 eta values both lie inside the inherited grid, so the FP-SCALE-001 v1.1
 downward extension was not the enabler here; and the derived verification
 caught an error in its own first version.
+
+### The mixing effect is explained, not an open question (2026-09-11)
+
+The sealed bundle emits `19/24` at mixing `0.08` but only `3/24` at mixing
+`0.5`. A read-only re-analysis
+(`docs/research_branches/FP-SCALE-002/claude/mixing_mechanism.md`) shows this is
+the already-established mechanism, not a new phenomenon. The controlling ratio
+is `sigma_min / E_Q`, where `sigma_min` is the smallest within-state action
+value spread:
+
+| mixing | mean `E_Q` | mean `sigma_min` | mean ratio |
+|---|---|---|---|
+| `0.08` | 0.2159 | 0.7402 | 3.687 |
+| `0.5` | 0.2693 | 0.3985 | 1.544 |
+
+The effect is carried by the numerator: the spread nearly halves while `E_Q`
+moves only `1.25x`. Low mixing keeps the process in place through the sticky
+self-loop, so the action choice survives into the value differences inside a
+state; high mixing washes it out.
+
+Stated precisely: **the ratio is directionally and substantially predictive,
+not a sharp classifier.** The emitted range `[2.1721, 12.2644]` and the blocked
+range `[0.5715, 2.2080]` overlap, and no single threshold classifies all `48`
+records. Because the mechanism is already supported and no genuinely new
+falsifiable prediction is at hand, **no follow-on task was opened** for it.
 
 ### FP-SCALE-001 — closed at the smoke gate with its finding recorded
 
