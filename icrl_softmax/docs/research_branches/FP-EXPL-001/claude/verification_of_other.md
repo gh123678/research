@@ -1,192 +1,218 @@
-# FP-EXPL-001 (v1.1) — Claude reciprocal review of the GPT verification report
+# FP-EXPL-001 (v1.1) — Claude executable reciprocal review of GPT post-seal acceptance
 
-> **Current status note (2026-09-11):** this review refers to GPT's earlier
-> pre-seal preflight execution and is **superseded/pending**. After GPT's
-> source review found the one-step network probe boundary error, the Claude
-> route was repaired and rerun (see `failure_history.md` and `report.md`).
-> GPT will formally replay the repaired route and send a corrected
-> acceptance; Claude's executable reciprocal review of that corrected
-> acceptance is still to be performed. The text below is retained unchanged
-> as the historical record of the earlier review.
+Date: 2026-09-11. Reviewer: Claude (claude/FP-EXPL-001). Scope: task
+FP-EXPL-001 v1.1 section 7 step 4 — Claude's renewed, executable reciprocal
+review of GPT's post-seal acceptance of author seal
+`6512252934614807916953a65eb5e6ba7ee4a5a5`.
 
-This document is the Claude-side reciprocal review of
-`docs/research_branches/FP-EXPL-001/codex/verification_of_other.md` (the GPT
-verification of the Claude route). Per the review constraints, no Bash was
-run, nothing was committed, and no scientific source or protocol file was
-changed. This review is based exclusively on reading the following files:
+This document **replaces and supersedes** the earlier text-only reciprocal
+PASS previously stored at this path; that review referred to GPT's pre-seal
+preflight and is void per task section 10. No scientific input, seed, policy,
+sample, formula, or tolerance was changed by this review. Nothing was pushed
+or merged.
 
-- `docs/research_branches/FP-EXPL-001/codex/verification_of_other.md` (report under review)
-- `docs/research_branches/FP-EXPL-001/codex/verify_claude.py` (GPT acceptance reference)
-- `docs/research_branches/FP-EXPL-001/claude/witness.py` (Claude witness, in this worktree)
-- `docs/research_branches/FP-EXPL-001/claude/verify.py` (Claude independent verifier, in this worktree)
-- `results/FP-EXPL-001/claude/verification.json` (Claude verifier output)
-- `results/FP-EXPL-001/codex/verification.json` (GPT acceptance output)
+## 1. Reviewed objects and hash identity
 
-No command was executed by this reviewer; all judgments below are file-level
-consistency checks between the report, the two scripts, and the two sealed
-JSON artifacts. No command output is invented here.
+All SHA-256 values below were recomputed independently by Claude in this
+review and compared with GPT's records.
 
-## 1. Frozen inputs
+| object | SHA-256 | matches |
+|---|---|---|
+| GPT acceptance source `verify_claude.py` (codex checkout, `docs/research_branches/FP-EXPL-001/codex/`) | `8a37c790b2fc9a5dcca6dbe7400c135a2761e681ea49d9177ae1b00d5c3435c7` | GPT `verification.json` digests.acceptance_source_sha256 |
+| snapshot `results.json` (post-seal replay output) | `8eea2216c6c7df21c5a25d46bd2adcf4067a8a9189db977d1909c38550302990` | replay_manifest replay_raw_hashes; GPT digests.results_sha256 |
+| snapshot `verification.json` (author self-verify) | `e4750b34e0b979fb7bf94f46d906bbd0eb0326320c80edc8f73f11c440277db5` | replay_manifest sealed+replay hashes; GPT digests.author_verification_sha256 |
+| snapshot `witness.py` | `c48a134b67712aa5361ab6a9e9459a6a5afcda4f0153d36cf97f900d7fa84834` | replay_manifest source_hashes; GPT digests.witness_sha256 |
+| snapshot `verify.py` | `f56ce6df3690b4c55a855dae4eafa50f6b1fce6db7ee66561008717730afc4cb` | replay_manifest source_hashes; GPT digests.verify_sha256 |
+| snapshot `failure_history.md` / `report.md` / `theory.md` / old `verification_of_other.md` | `a51fbc8c…`, `7a0970d6…`, `f25bcb5b…`, `e0f34187…` | replay_manifest source_hashes (all four, exact) |
+| author-sealed raw `results.json` (Claude worktree) | `8f84b6aaa62562b4e97d7794e43cb1e5a081f785fe867d523e6dcc6b67200c89` | replay_manifest sealed_raw_hashes; seal commit message |
 
-The GPT acceptance reference (`verify_claude.py`) hard-codes
-`GAMMA = 0.7`, `ALPHA = 0.5`, `SHARPNESS = 8.0`, target policy
-`[[0.75, 0.25], [0.25, 0.75]]`, behavior threshold `0.5` (via
-`ua < 0.5`), transition matrix
-`[[0.75, 0.25], [0.25, 0.75], [0.5, 0.5], [0.75, 0.25]]`, rewards
-`[1.0, -0.5, 0.25, 0.25]` in pair order `00, 01, 10, 11`, sampler
-`np.random.Generator(np.random.PCG64(20260911))`, 64 transitions from
-initial state 0, exactly two scalar `rng.random()` draws per transition in
-the order (action, then transition), and baseline commit
-`8c915c4bf2bb9533e2374f5d2c91cf34e5c13c77`. Every one of these constants
-matches the frozen inputs declared in `witness.py` and retyped in
-`verify.py`, and the baseline matches the recorded baseline commit
-(`8c915c4`). The report's claim that the independent reference reconstructs
-the batch "from the task specification" is consistent with the code.
+The snapshot directory
+`results/FP-EXPL-001/codex/postseal_replay/6512252934614807916953a65eb5e6ba7ee4a5a5/`
+and its `replay_manifest.json` were read in full. Every hash recorded in the
+manifest was reproduced byte-for-byte from the snapshot files. The replay
+`results.json` differs from the author-sealed raw `results.json` only in the
+`code.baseline_commit_at_start` run-checkout metadata field (039a53a vs
+6512252, both documented in the manifest); after normalizing that single
+field the two JSON payloads are exactly equal, confirming the manifest's
+`scientific_payload_exact_match: true` and
+`non_code_top_level_differences: []`.
 
-## 2. Independent replay claims
+## 2. Commands executed by Claude in this review
 
-`verify_claude.py` imports only `argparse`, `json`, `pathlib`, `fractions`,
-and `numpy`; it does not import any Claude module. The reconstruction in
-`reconstruct()` was checked line by line against the Claude witness
-formulas:
+Note on the review request path: the literal script path
+`…\icrl_softmax\icrl_softmax\docs\…\verify_claude.py` does not exist (the
+project root `icrl_softmax/` appears once inside the repository root
+`research/`). The command was executed with the real path
+`C:\Users\Admin\Desktop\research\icrl_softmax\docs\research_branches\FP-EXPL-001\codex\verify_claude.py`;
+its SHA-256 equals GPT's recorded acceptance source hash, so the executed
+program is byte-identical to the one GPT used.
 
-- `C0`, `S0`, `W0` match `exact_matrices` (indicator current, target-policy
-  successor average, grouped-mean `1/n_x` writer).
-- Finite `C[t,y] = (e^8 or 1)/(e^8 + 3)` matches softmax of logits
-  `xi * 1{x_t = y}`; finite `S` numerator `(e^8 or 1) * pi` with denominator
-  `e^8 + 1` matches softmax of `zeta * 1{u_t = state_y} + log pi` (the two
-  matching-state pairs contribute `e^8 * (pi0 + pi1) = e^8`, the other two
-  contribute `1`); finite `W` denominator `counts[y]*e^8 + 64 - counts[y]`
-  matches softmax of `tau * 1{x = x_t}`.
-- `G0 = I + alpha * W0 @ (gamma * S0 - C0)`, `b0 = alpha * W0 @ r`, and the
-  finite analogues match `affine_maps`.
-- `c_f = max row sum |Gf|` matches the infinity-norm definition used by both
-  Claude scripts.
-- The population audit `T_pi[x,y] = P[x, state_y] * pi[state_y, action_y]`
-  and `q_pi = solve(I - gamma * T_pi, R)` match `population_q_pi`.
-- The signed stage errors `e_current`, `e_successor`, `e_write` and the
-  recursion `E_{k+1} = c_f E_k + ||Ff(q_k) - F0(q_k)||_inf` match the
-  witness decomposition exactly.
-- The direct grouped-mean update matches `direct_reference_step` (grouped
-  residuals averaged by `1/len(group)`, no visitation-frequency multiplier).
-- The conservative analytic certificate uses exact rational arithmetic:
-  `1 + 1 + 1/2 + 1/6 + 1/24 = 65/24 > 8/3`, `(8/3)^8 = 16777216/6561
-  > 2000`, and the rational bound `17/20 + (7/10)/2001 + 3/2003 +
-  (17/10)(63/2063) ~= 0.9038 < 1`. These are exact rational facts that
-  check out by hand; the derivation of the certificate itself is GPT's
-  theory contribution and is outside the numerical evidence compared here.
+1. GPT acceptance program against the sealed snapshot evidence
+   (stdout/stderr captured; `--output` redirects the acceptance record into
+   Claude's own evidence directory so GPT's
+   `results/FP-EXPL-001/codex/verification.json` is not overwritten):
 
-The command-line adapter compares the reconstruction against the sealed
-Claude `results.json` with tolerance `1e-12 * (1 + scale)` for point
-quantities and `1e-10 * (1 + scale)` for traces, checks the Claude
-verifier's own verdict, and writes
-`results/FP-EXPL-001/codex/verification.json`. The output-path logic
-(`parents[4]` of the script location) resolves to the main-repo results
-directory where the sealed GPT artifact was in fact read. The check count is
-internally consistent: 2 sampling checks + 13 matrix/fixed-point checks + 4
-trace checks + 1 verifier-verdict check = 20, matching the sealed summary.
+   ```
+   C:\Users\Admin\anaconda3\python.exe -B C:\Users\Admin\Desktop\research\icrl_softmax\docs\research_branches\FP-EXPL-001\codex\verify_claude.py --results "C:\Users\Admin\Desktop\research\icrl_softmax\results\FP-EXPL-001\codex\postseal_replay\6512252934614807916953a65eb5e6ba7ee4a5a5\icrl_softmax\results\FP-EXPL-001\claude\results.json" --output <claude evidence dir>\verify_claude_rerun.json
+   ```
 
-## 3. Reported differences
+   - exit code: **0**; stderr empty (SHA-256 `e3b0c442…b855`, the empty hash)
+   - stdout (SHA-256 `deb9371d4adcd70a38c12d298aa57923a4e692ebcdf6ce02d3d3d28ef01e90c8`):
+     `{"total_checks": 2589, "total_failures": 0, "verdict": "PASS", "coverage_counts": [19, 16, 12, 17], "c_f": 0.8500000000000001}`
+   - acceptance record `verify_claude_rerun.json` SHA-256
+     `add35b42fb55c25c39ca8fe0376e46eb9a6c34e7e96ff71d59bd6599234dd676`
 
-Every entry in the report's difference table was checked against the sealed
-`results/FP-EXPL-001/codex/verification.json`:
+2. Acceptance-program mutation self-test (guard checks only; no new research
+   samples): same program with
+   `--self-test --output …\verify_claude_mutations.json`.
+   - exit code: **0**; stdout: `{"total_checks": 13, "total_failures": 0, "verdict": "PASS"}`
+   - record SHA-256 `017640877488bb07545e07969bee23156fdcf9dab4a27dcc1e508aac227da35d`
 
-| evidence | report | sealed JSON | consistent |
-|---|---:|---:|:---:|
-| C0, S0, W0 | 0 | 0.0, 0.0, 0.0 | yes |
-| finite C, S, W | 3.33e-16 | 3.33e-16, 2.22e-16, 2.78e-17 | yes (report quotes the worst) |
-| G0, b0 | 0 | 0.0, 0.0 | yes |
-| Gf, bf | 3.33e-16 / 8.33e-17 | 3.3306690738754696e-16 / 8.326672684688674e-17 | yes |
-| q_pi, q_hat | 0 | 0.0, 0.0 | yes |
-| q_f,inf | 8.88e-16 | 8.881784197001252e-16 | yes |
-| exact direct trace | 0 | 0.0 | yes |
-| exact attention trace | 6.66e-16 | 6.661338147750939e-16 | yes |
-| finite literal trace | 8.88e-16 | 8.881784197001252e-16 | yes |
-| finite scalar trace | 1.33e-15 | 1.3322676295501878e-15 | yes |
+3. Author self-verifier re-run inside the snapshot (`cwd` = snapshot
+   `icrl_softmax`):
 
-Scalar claims also match: visit counts `[19, 16, 12, 17]` with minimum 12,
-`c_f = 0.85` (sealed as `0.8500000000000001`), state values
-`[1.7689620758483031, 1.4096806387225547]`, and data bias
-`0.03806150093295335` (the last two from the sealed Claude
-`verification.json`, group `I_fixed_points_decomposition`). The reported
-Claude verifier tally "1285 checks, 0 failures, PASS" matches the sealed
-Claude artifact, and the group check counts in that artifact sum to exactly
-1285. The reported GPT tally "20 checks, 0 failures, PASS" matches the
-sealed GPT artifact.
+   ```
+   C:\Users\Admin\anaconda3\python.exe -B docs/research_branches/FP-EXPL-001/claude/verify.py
+   ```
 
-## 4. Source-boundary claims
+   - exit code: **0**; regenerated `verification.json` is byte-identical
+     (SHA-256 `e4750b34…`) to both the sealed and GPT-replayed copies;
+     summary: 1279 checks, 0 failures, verdict PASS, max group errors
+     ≤ 1.29e-06 (group C; all others ≤ 6.3e-16 or exactly 0).
+   - `witness.py` was deliberately **not** re-run inside the snapshot: its
+     output embeds run-checkout git metadata, and re-running it there (no
+     `.git`) would alter the preserved replay evidence file. Its replay is
+     already covered by the manifest and by item 1's full-payload comparison.
 
-The report's boundary statements were checked against the sources:
+4. Ruff inside the snapshot:
 
-- "GPT did not import Claude modules": confirmed for `verify_claude.py`
-  (imports listed above).
-- "The Claude verifier is self-contained and does not import the witness":
-  confirmed; `verify.py` imports only `json`, `math`, `os`, `platform`,
-  `sys`, `numpy`, and re-derives everything independently (including a
-  separately coded pure-Python literal attention network).
-- "The witness uses the frozen behavior policy only for sampling":
-  confirmed; `BEHAVIOR_PI` appears only in `sample_batch`.
-- "the target policy only for successor averaging": confirmed;
-  `TARGET_PI` feeds the operators, direct reference, and audit, never the
-  sampler.
-- "the transition matrix only for sampling and population audit":
-  confirmed; `P_NEXT` appears only in `sample_batch`, `population_q_pi`,
-  and the audit residual.
-- Fixed projection weights, static role/position masks, dynamic Q only
-  through the attention read/write stages: consistent with the
-  `LiteralNetwork` code (weights built from frozen constants and one-hot
-  identity features; masks depend only on token roles; Q enters via the
-  memory-token field and stage outputs).
-- No external Q lookup, visitation gate, resampling, policy update, or
-  result-driven parameter change: nothing in either Claude script
-  contradicts this; the coverage gate only stops the run before any Q
-  update.
-- The exact same-batch route uses declared equality masks only as its
-  reference operator and is not presented as finite-network capability:
-  consistent with both the code (`mode="exact"` branch) and the witness
-  documentation.
+   ```
+   C:\Users\Admin\anaconda3\python.exe -m ruff check docs/research_branches/FP-EXPL-001/claude/witness.py docs/research_branches/FP-EXPL-001/claude/verify.py
+   ```
 
-The report's summary sentence that the signed three-term identity, affine
-reconstruction, contraction bounds, fixed-point decomposition,
-target-policy preservation, grouped-mean property, scratch clearing,
-immutable fields, and input rejection all pass is supported by the sealed
-Claude `verification.json` (all twelve groups report 0 failures).
+   - exit code: **0**, `All checks passed!` — matches the manifest's ruff
+     record.
 
-## 5. Execution-provenance caveat
+5. Field-level comparison of Claude's acceptance record (item 1) with GPT's
+   `results/FP-EXPL-001/codex/verification.json`: the full `checks` array
+   (all 2589 entries, including per-check modes and max_abs_error values),
+   `summary`, and `digests` are exactly equal; environment identical
+   (Python 3.13.9, NumPy 2.4.6, same executable).
 
-The report discloses that Claude's Bash tool was blocked by a local `EPERM`
-and that GPT, not Claude, executed the two Claude-authored scripts from the
-Claude worktree to produce the sealed evidence, before replaying the
-results independently. This reviewer confirms the caveat is stated openly in
-the report and is not contradicted by any artifact: the sealed Claude
-`verification.json` records the interpreter `C:\Users\Admin\anaconda3\python.exe`
-(Python 3.13.9, numpy 2.4.6), consistent with the GPT-side command lines
-quoted in the report. The deviation concerns execution provenance only; it
-does not change any frozen input, source file, or protocol step, and the
-GPT acceptance route re-derives every sealed number independently, so the
-numerical evidence does not rest on who pressed the keys. This reviewer
-additionally notes it cannot re-execute anything (Read/Edit only), so the
-execution claim itself is accepted as disclosed rather than independently
-reproduced.
+Evidence files for items 1–2 are stored (untracked, results/ is git-ignored)
+at `results/FP-EXPL-001/claude/reciprocal_postseal_20260911/` in the Claude
+worktree, with the hashes listed above.
 
-## 6. Limitations of this review
+## 3. What the 2589-check acceptance independently covers
 
-- No command was run; all "matches" above are file-content comparisons, not
-  re-executions.
-- `theory.md` and `report.md` (mentioned in the GPT report) and the sealed
-  Claude `results.json` itself were not part of the required reading set;
-  the GPT report's claims about them were assessed only through the two
-  scripts and the two verification artifacts.
-- The analytic uniform-contraction certificate's derivation (as opposed to
-  its exact rational arithmetic, which checks out) lives in GPT's theory
-  document and was not re-derived here.
+GPT's `verify_claude.py` imports no Claude author module. It independently
+reconstructs, from the frozen protocol constants only: all 128 PCG64 raw
+draws and 64 discrete transitions; coverage counts [19,16,12,17]; C0/S0/W0
+and C/S/W formula matrices; affine maps G0,b0,Gf,bf; the complete 65-row
+exact, direct, and finite traces; all 64 signed stage-error decompositions
+and telescoping residuals; the full perturbation bound sequence E_k; exact
+and finite contraction trajectory bounds; q_hat, q_pi (audit), q_f,inf with
+solve residuals; the data-bias bound; the steady-state shift bound; the
+signed three-term total-error decomposition; and a rational-arithmetic
+analytic contraction certificate (uniform bound 29891070013/33074040756
+≈ 0.90376 < 1; batch-specific proof that Gf is strictly positive with exact
+row sums 17/20, hence c_f = 0.85 exactly for this batch). It additionally
+re-evaluates the literal network for all 64 updates from the saved
+prompt/weights/masks via a generic matrix evaluator, checks the saved
+first-step projections, affine reconstruction on Q0=0 plus the four standard
+basis vectors, immutable-field preservation and scratch clearing, and
+rejects corrupted evidence (mutation self-test, item 2).
 
-## Status
+Maximum independent-reconstruction discrepancies over the compared groups
+(all within the frozen tolerances; probability/one-step checks use absolute
+1e-12, repeated checks the frozen scaled 1e-10 tolerance):
 
-The report's claims about frozen inputs, independent replay, reported
-differences, and source boundaries are supported by the evidence files
-listed above, and the execution-provenance deviation is disclosed in the
-report rather than concealed. No discrepancy was found between the report
-and the sealed artifacts.
+- four mandatory traces vs independent reconstruction: ≤ 1.34e-15
+- 576 stage-error entries: ≤ 1.51e-15; signed stage identity: ≤ 5.87e-16
+- exact/finite contraction bound records (196 each): ≤ 4.45e-16 / ≤ 1.34e-15
+- 390 total-decomposition records: ≤ 2.00e-15
+- literal-network trace (64 steps, nonzero Q after step 1): ≤ 8.89e-16
+- literal attention probabilities vs formula matrices (192 blocks): ≤ 1.12e-16
+- fixed parameters WQ/WK/WV/WO/scale (15 matrices), static role masks (3),
+  feedforward maps M3/M5/P_reset (3): exactly 0.0
+- immutable fields and scratch clearing over all 64 updates: exactly 0.0
+- affine basis/zero reconstruction (10 checks): ≤ 2.78e-16
+- q_hat, q_pi, V_pi, data-bias components: exactly 0.0; q_f,inf: ≤ 8.89e-16
+
+## 4. Requested item-by-item findings
+
+1. **Exit code, check count, failures.** The acceptance command exits 0 with
+   2589 checks and 0 failures (verdict PASS). Confirmed independently; the
+   full check array is identical to GPT's recorded acceptance.
+
+2. **Raw sampling, matrices, complete trajectories, stage errors, all
+   bounds.** All reconstructed independently by the acceptance program and
+   compared against the sealed evidence; per-group maxima in section 3. Raw
+   draws and the discrete trajectory are compared with exact equality;
+   threshold reconstruction error is 0; coverage counts [19,16,12,17] match
+   the frozen-batch requirement min n_x ≥ 1.
+
+3. **Literal network WQ/WK/WV/WO, static masks, scratch clearing.** The
+   saved stage-1/2/4 WQ/WK/WV/WO and scales equal the independently
+   reconstructed fixed parameter sparsity exactly (0.0). Static role masks
+   and the three fixed feedforward maps match exactly. Scratch fields
+   (15–18) are exactly zero after every one of the 64 updates; immutable
+   fields never change; context-token Q fields stay zero. Claude's own
+   source read of the sealed `witness.py` agrees: weights are built from
+   dimensions, frozen target_pi (as prompt log-pi data), gamma, alpha and
+   the frozen sharpness only; masks depend only on token role/position; the
+   scratch reset is a fixed projection `P_reset_scratch`.
+
+4. **q_pi as network input.** Not present. In the sealed source,
+   `population_q_pi()` is used only in the audit/fixed-point section; the
+   network prompt carries no q_pi/q_hat field, and the one-step probe lists
+   contain only Q0=0 and the four standard basis vectors (the seal commit's
+   boundary repair removed the earlier audit-truth probes). The acceptance
+   program re-derives the probe set the same way.
+
+5. **Hidden Q lookup or visitation-frequency multiplier.** None found.
+   Dynamic Q enters and leaves the network only through the declared Q
+   memory field via the saved literal matrices; the writeback is the grouped
+   mean (exact W0 rows are 1/n_x indicators; finite W rows are normalized
+   softmax weights) with no n_x/N or visit-count factor. The author's
+   `grouped_mean_no_frequency_multiplier` hypothesis check is among the
+   acceptance checks and passes. Exact-route equality probabilities are the
+   declared exact reference only; the finite route uses no content-equality
+   mask.
+
+6. **Snapshot SHA-256 and replay_manifest.json.** All snapshot file hashes
+   recomputed and equal to the manifest (section 1); the manifest's three
+   run records (verify/witness/ruff, each exit 0) are consistent with
+   Claude's own re-runs of verify.py and ruff; the author-sealed raw
+   results.json hash matches the seal commit message.
+
+## 5. Observations (non-blocking)
+
+- The codex-side
+  `docs/research_branches/FP-EXPL-001/codex/verification_of_other.md`
+  still ends with the pre-repair FAIL text (it is the resumed-audit record
+  that triggered the author repairs). Per task section 11 the governing
+  post-seal acceptance evidence is the 2589-check PASS at
+  `results/FP-EXPL-001/codex/verification.json` reviewed here; updating the
+  codex report/synthesis/ACTIVE_WORKSPACE text remains GPT's own scope and
+  is not a defect in the reviewed evidence.
+- The disclosed provenance deviation (GPT executed the author scripts
+  because Claude's Bash session could not create its session-env directory)
+  stands as recorded in both routes' reports; the post-seal replay removes
+  any dependence on that pre-seal execution.
+- This review ran read-only/replay commands plus writes confined to Claude's
+  own results directory and this report. No codex file, task definition, or
+  frozen input was modified.
+
+## 6. Verdict
+
+GPT's post-seal acceptance of author seal
+`6512252934614807916953a65eb5e6ba7ee4a5a5` is executable, reproducible, and
+complete: Claude independently re-ran it (exit 0, 2589 checks, 0 failures),
+reproduced every recorded hash, confirmed the mutation guards, and found no
+network-boundary, oracle, or frequency-multiplier violation in the sealed
+source. The acceptance evidence supports the frozen task's H1–H5 as
+reported, including the exact c_f = 17/20 batch certificate and the
+0.03806150093295335 data bias.
 
 **PASS**
