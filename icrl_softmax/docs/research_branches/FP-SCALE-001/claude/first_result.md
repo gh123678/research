@@ -231,31 +231,101 @@ residual-dominated certificate"). This run is that scale-adequate run, and it
 shows the opposite of what section 6 assumed: the residual *scale* — not its
 mean — is what binds.
 
-## 8. Status
+## 9. Prototype validation of the variance-adaptive certificate
 
-Stopped at the smoke gate before any formal run, to report a contract-level
-finding rather than a tuning result. No formal run has occurred, and none
-should occur under v1.1: the protocol now delivers `H1` with a valid
-certificate and still cannot emit, so a formal run would only reconfirm a
-result already established at reachable scale.
+The user chose the variance-adaptive direction on 2026-09-11. Before freezing a
+task around it, the fix was prototyped and measured at full matrix scale.
 
-The scale revision is exhausted. Acting on the finding requires a genuine
-change to the mathematical contract (the certificate's concentration
-argument), which is a new frozen hypothesis and therefore needs the user's
-decision before it is written into a task revision.
+### Construction (rigorous, non-circular)
+
+Per pair, split the certification items into disjoint halves A and B:
+
+1. on A, compute the residual sample standard deviation `sigma_A(x)`;
+2. the confidence radius uses only B:
+   `r_x = SAFETY * sqrt(2) * sigma_A(x) * sqrt(2 log(2 / delta_pair) / N_B)`
+   with `delta_pair = delta / (2d)`;
+3. `R = max_x(|Ybar_x^B| + r_x)`, `E_Q = R / (1-gamma)`.
+
+The scale estimate never touches the half it certifies, so the bound is not
+circular and no certification item is reused. Residuals are bounded by `2B`, so
+the sub-Gaussian property is discharged by Hoeffding's lemma rather than
+assumed. `SAFETY` inflates the estimated spread to absorb estimation error; at
+`N_A ~ 10^4` a multiplicative 1.1 is ample.
+
+### Full-matrix prototype result
+
+Frozen matrix shape (2 mixing settings x 12 tasks), two primary routes,
+`CERT_CHAINS x CERT_CHAIN_LENGTH = 16384 x 64 = 1048576`,
+`SAFETY = 1.1`, total risk `delta = 0.05` split over pairs:
+
+| quantity | result |
+|---|---|
+| route-records attempted | 48 |
+| **certificates emitted** | 48 |
+| **safe updates emitted** | **31** |
+| componentwise non-degrading | **31 / 31** |
+| strict improvements (`sum_s delta V > 0`) | **31 / 31** |
+| certificate violations (`E_Q < realized error`) | **0** |
+| `E_Q` among emitted | 0.064 -- 0.188 |
+| realized `||Qhat - Q*||_inf` among emitted | 0.006 -- 0.045 |
+| selected `eta` | 1.0 in every emission |
+| wall time | 341.8 s for 48 route-records |
+
+Every emission satisfies both `V^{pi_plus} >= V^pi` componentwise and a strictly
+positive total value gain, which is exactly the "small complete policy
+improvement example" the project has been trying to reach since `FP-ADV-001`.
+
+Remaining abstentions (17 of 48) are ordinary: several records fall below the
+`H1` count target (minimum counts as low as `12849`), and a few have
+`min_s LB` marginally negative. They are reported, not repaired.
+
+### The decisive comparison
+
+| | FP-ESARSA-001 | FP-SCALE-001 v1.1 | variance-adaptive prototype |
+|---|---|---|---|
+| certificate | frozen cosh-mixture, envelope `2B` | same | estimated residual scale |
+| `E_Q` | 22.47 (min) | 0.98 | 0.064 -- 0.188 |
+| emission rate | 0 / 480 | 0 / 1 probed | **31 / 48** |
+| oracle violations | 0 | 0 | **0** |
+
+### What this does not yet establish
+
+- The prototype is a design probe, not sealed evidence: it writes no formal
+  output, has no sealed verifier, and its `SAFETY` constant and risk split are
+  not yet frozen.
+- The prototype's certificate is not yet independently reconstructed.
+- `SAFETY = 1.1` must be justified against a stated bound on the estimation
+  error of `sigma_A`, and that justification must be executable, not asserted.
+
+These are the substance of the follow-on task, for which the user gave
+direction on 2026-09-11.
+
+## 10. Status
+
+Stopped at the smoke gate before any formal run. No formal run has occurred and
+none should occur under v1.1: the protocol now delivers `H1` with a valid
+certificate and still cannot emit, so a formal run would only reconfirm at
+higher cost a result already established at reachable scale.
+
+The scale revision is exhausted and its finding is complete: the obstruction is
+the worst-case residual envelope `2B`, which the verified cosh-mixture argument
+cannot avoid because it requires a *known* sub-Gaussian parameter. The
+variance-adaptive replacement removes that requirement and, in prototype,
+turns a `0 / 480` emission rate into `31 / 48` with zero certificate
+violations.
+
+The certificate contract change is a new frozen hypothesis and is carried by a
+separate task, for which the user gave direction on 2026-09-11.
 
 ### Recorded and disclosed limitations
 
-- The `0.1` margin-to-TV ratio used in section 6 and 7 is a measured order-of-
-  magnitude from this record's `q_hat`, not a theorem. It is used only to size
-  the levers, never as an acceptance criterion.
-- The residual scale `0.5` used in the Lever 2 table is a conservative
-  stand-in for the measured residual spread (`max_x |Ybar_x| = 0.0236`, so the
-  per-item spread is the relevant quantity, not the mean). A real
-  implementation must certify the scale from data, which is the substance of
-  the deferred work.
+- The `0.1` margin-to-TV ratio used in sections 6 and 7 is a measured
+  order-of-magnitude from one record's `q_hat`, not a theorem. It is used only
+  to size levers, never as an acceptance criterion.
 - Section 7's Lever 1 probe normalises base rewards into `[-1, 1]` before
-  applying the enlarged gap, so its declared reward bound is honest. The probe
-  is a criterion check, writes no formal output, and is not evidence for any
-  acceptance criterion.
+  applying the enlarged gap, so its declared reward bound is honest. That probe
+  writes no formal output and is not evidence for any acceptance criterion.
+- The variance-adaptive prototype is a design probe. Its results are motivation
+  for the follow-on task and must not be cited as verified evidence.
+
 

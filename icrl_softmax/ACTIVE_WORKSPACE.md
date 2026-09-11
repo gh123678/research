@@ -48,16 +48,50 @@ a *known* sub-Gaussian parameter. This is the opposite of what the FP-SCALE-001
 design assumed when it placed variance-adaptive residuals out of scope; this
 run is the scale-adequate run that design was waiting for.
 
-Acting on the finding changes the certificate's concentration argument. That is
-a new frozen hypothesis, so it awaits the user's decision before being written
-into a task revision. No formal run has occurred and none should occur under
-v1.1, since it would only reconfirm at higher cost a result already established
-at reachable scale.
+### The fix is validated in prototype (2026-09-11)
+
+On the user's direction of 2026-09-11, a variance-adaptive residual certificate
+was prototyped before freezing any task. Per pair, the certification items are
+split into disjoint halves: one half estimates the residual spread
+`sigma_A(x)`, the other half carries the confidence radius
+`r_x = SAFETY * sqrt(2) * sigma_A(x) * sqrt(2 log(2/delta_pair)/N_B)`, with
+`delta_pair = delta/(2d)`. The scale estimate never touches the half it
+certifies, so the bound is not circular; residuals are bounded by `2B`, so the
+sub-Gaussian property is discharged by Hoeffding's lemma rather than assumed.
+
+Full-matrix prototype (2 mixing settings x 12 tasks, two primary routes,
+`16384 x 64 = 1048576` certification items per record, `SAFETY = 1.1`):
+
+| quantity | result |
+|---|---|
+| certificates emitted | 48 / 48 |
+| **safe updates emitted** | **31 / 48** |
+| componentwise non-degrading | 31 / 31 |
+| strict improvements | 31 / 31 |
+| **certificate violations** | **0** |
+| `E_Q` among emitted | 0.064 -- 0.188 |
+| realized `||Qhat - Q*||_inf` | 0.006 -- 0.045 |
+| selected `eta` | 1.0 in every emission |
+| wall time | 341.8 s |
+
+That is a `0/480` emission rate becoming `31/48`, with every emission
+componentwise non-degrading and strictly improving in total value, and zero
+oracle violations. It is the "small complete policy improvement example" the
+project has sought since `FP-ADV-001`.
+
+**Prototype status, stated plainly:** this is a design probe, not sealed
+evidence. It has no sealed verifier, its `SAFETY` constant and risk split are
+not yet frozen, and its certificate has not been independently reconstructed.
+The follow-on task must convert it into frozen, sealed, verifiable evidence.
+
+No formal run has occurred under v1.1 and none should occur: it would only
+reconfirm at higher cost a result already established at reachable scale.
 
 Design:
 `docs/superpowers/specs/2026-09-11-reachable-certificate-scale-design.md`;
 plan: `docs/superpowers/plans/2026-09-11-reachable-certificate-scale-plan.md`;
-route evidence: `docs/research_branches/FP-SCALE-001/claude/`.
+route evidence: `docs/research_branches/FP-SCALE-001/claude/` and
+`results/FP-SCALE-001/claude/evidence/`.
 
 ## Previous task state (closed)
 
