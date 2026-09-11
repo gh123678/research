@@ -16,6 +16,13 @@ remain required. No experiment starts before APPROVED and activation. Design:
 docs/superpowers/specs/2026-09-11-fixed-exploration-grouped-iteration-design.md.
 This draft does not adopt the paper's visitation-weighted critic update.
 
+Operational blocker: automatic approval rejected the attempted tool-free
+Claude Code pre-review because task-specific private-document transfer to
+the existing api.kimi.com backend needs explicit destination/payload approval.
+No process started and no content was sent. The scoped prompt is ready under
+results/FP-EXPL-001/codex/pre_review_prompt.txt. Task remains REVIEW; this is
+not a Claude task-definition objection. See the task-scoped codex/handoff.md.
+
 ## Verified predecessor: FP-ITER-001
 
 Current construction gate: `docs/research_tasks/FP-ITER-001.md` (v1.1, `VERIFIED`). It narrows the

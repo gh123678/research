@@ -266,3 +266,10 @@ Claude 登录/额度/权限/环境不可用时记录真实阻塞，不能用 Cod
   GPT 据此发布 v1.1，DRAFT -> REVIEW。豁免本任务双路线完整盲态执行，
   保留 Claude 预审、原作者修复、GPT 独立验收及 Claude 对验收证据复核。
   本次角色裁决不是数值协议变更，不授权合并、推送或新收费类别。
+- 预审启动尝试被 Codex 自动审批拒绝，未创建执行进程。拒绝理由：
+  用户已授权主要交给 Claude，但尚未明确授权将本任务私有文档发送到
+  现有 HTTPS api.kimi.com:443 目的地。未重试、换工具或发送材料。
+  已准备的载荷为 AGENTS.md、本任务、设计、计划及 ACTIVE_WORKSPACE.md
+  的本任务当前段落，保存在 results/FP-EXPL-001/codex/pre_review_prompt.txt。
+  任务仍为 REVIEW；这是外发授权阻塞，不是 Claude 的任务定义 OBJECTION。
+  书面方案与执行分工的批准保持有效。
