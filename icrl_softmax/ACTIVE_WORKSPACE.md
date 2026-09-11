@@ -1,42 +1,48 @@
 # Active research workspace
 
-## Current objective
+## Verified fixed-exploration task: FP-EXPL-001
 
-Current task: docs/research_tasks/FP-EXPL-001.md (v1.1, ACTIVE).
-The user chose fixed behavior-policy sampling followed by repeated updates on
-one frozen batch, retaining our per-pair grouped mean. Target policy remains
-fixed. The draft specifies one 64-transition Markov batch, checks actual
-coverage without resampling, and compares exact and finite attention for
-64 updates. One reward changes before sampling to avoid equal population
-state values. The user approved the written protocol and directed Claude to
-perform the main work, with GPT responsible for independent acceptance.
-This task-specific ruling replaces dual complete blind implementations;
-Claude pre-review, independent GPT replay, and review of acceptance evidence
-remain required. Claude's tool-free pre-review returned APPROVED; this commit
-activates the frozen task for isolated execution. Design:
-docs/superpowers/specs/2026-09-11-fixed-exploration-grouped-iteration-design.md.
-This draft does not adopt the paper's visitation-weighted critic update.
+`docs/research_tasks/FP-EXPL-001.md` (v1.1) is `VERIFIED` (2026-09-11).
+Claude executed the frozen protocol as main author (user ruling), GPT
+performed independent post-seal acceptance, and Claude performed the renewed
+executable reciprocal review.
 
-The user answered "继续" to the explicit destination/payload authorization
-request for this task's private documents, related inherited construction
-materials, code and results to the existing api.kimi.com backend, for review,
-execution and validation. This resolves the prior transfer-approval blocker.
-The completed pre-review is preserved in codex/claude_pre_review.md under the
-task's research_branches directory, with its full raw log in the results directory.
-The earlier execution retry was blocked by Codex's own current execution
-quota, not by Claude/Kimi. The user corrected this and authorized direct Claude
-startup. Claude subsequently authored the route and its reports in the
-isolated worktree. Its Bash tool could not create the session-env directory
-(EPERM), so GPT ran the authored scripts from that worktree; this provenance
-deviation is disclosed in both reciprocal reports.
-
-Resumed audit correction: the 20-check GPT PASS was preliminary and incomplete
-(stage errors, bounds and saved literal projections were not compared; probability
-tolerance was scaled incorrectly). A data-bias proof step needs author repair.
-The previous text-only reciprocal PASS is superseded. Status returns to ACTIVE
-for author proof/verifier repairs and GPT acceptance repairs, with v1.1 scientific
-inputs unchanged. An author seal, full post-seal replay and renewed reciprocal
-verification remain. No VERIFIED claim or main merge is authorized.
+- Frozen protocol: one 64-transition Markov batch (seed 20260911), fixed
+  behavior and target policies, grouped-mean Q iteration, 64 updates from
+  Q0=0, sharpness xi=zeta=tau=8, reward of pair (1,1) changed to 0.25 before
+  sampling. No resampling or scans.
+- Coverage passed with counts [19,16,12,17]. Direct reference, exact grouped
+  attention, literal finite network and independent scalar finite formula
+  agree (max cross-route deviation <= 1.34e-15). Exact and finite operators
+  both contract; a rational-arithmetic certificate proves Gf strictly
+  positive with exact row sums 17/20, hence c_f = 0.85 exactly for this
+  batch. Final error decomposition at k=64: iteration 4.894e-05, finite
+  softmax 1.79092e-03, data bias 0.03806150093295335; the two true state
+  values differ. Bounds are reported, not sample-complexity claims.
+- Author seal: `6512252934614807916953a65eb5e6ba7ee4a5a5` on
+  `claude/FP-EXPL-001`. GPT post-seal replay (verify/witness/Ruff all exit
+  0) and independent acceptance: 2589 checks, 0 failures, PASS at
+  `results/FP-EXPL-001/codex/verification.json`; replay manifest under
+  `results/FP-EXPL-001/codex/postseal_replay/6512252934614807916953a65eb5e6ba7ee4a5a5/`.
+- Claude reciprocal review: executable rerun of the GPT acceptance (exit 0,
+  identical 2589-check record), all snapshot SHA-256 values match the replay
+  manifest, mutation guards 13/13, no q_pi network input, no hidden Q lookup
+  or visitation-frequency multiplier. Report ends PASS at
+  `docs/research_branches/FP-EXPL-001/claude/verification_of_other.md`,
+  commit `5025cdf535b8f1c9d1460930ccc5ffdd92d3bd87`.
+- The earlier 20-check GPT PASS and the text-only reciprocal PASS were
+  superseded and archived; the resumed-audit repairs (probe boundary,
+  data-bias proof) were sealed by the author and are covered by the final
+  acceptance. The GPT/Claude execution-provenance deviation (session-env
+  EPERM) remains disclosed in both reports.
+- Codex exhausted its execution quota during closure; the user explicitly
+  authorized Claude on 2026-09-11 to take over all closure work, including
+  this update, the synthesis/codex report final texts, the merge to main and
+  the remote push. GPT's acceptance verdict stands on its own executable
+  artifact cited above.
+- Synthesis: `docs/research_branches/FP-EXPL-001/codex/synthesis.md`.
+  This task does not activate FP-ESARSA-001 (remains DRAFT), policy
+  improvement, or online control.
 
 ## Verified predecessor: FP-ITER-001
 

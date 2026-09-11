@@ -2,7 +2,7 @@
 
 ## 1. 元数据与授权
 
-- 日期：2026-09-11。作者：GPT。版本：1.1。状态：ACTIVE。
+- 日期：2026-09-11。作者：GPT。版本：1.1。状态：VERIFIED。
 - 分支：codex/FP-EXPL-001 与 claude/FP-EXPL-001。
 - 基线：8c915c4bf2bb9533e2374f5d2c91cf34e5c13c77。
 - 前序 FP-ITER-001 v1.1 已 VERIFIED；FP-ESARSA-001 保持 DRAFT。
@@ -334,3 +334,50 @@ Claude 执行新的互审。所有数值目前仍称初步结果。
 科学激活基线为 8c915c4；设计前序基线 c710e32 保留为历史来源。
 历史上 GPT 在 Claude 封存前代跑和检查，未遵循封存后正式验收顺序；
 该检查降为预检，保留记录，新一轮正式验收将发生在原作者封存之后。
+
+## 11. 封存后正式验收（2026-09-11，以本节为当前状态）
+
+Claude 原作者路线已在 `claude/FP-EXPL-001` 封存提交
+`6512252934614807916953a65eb5e6ba7ee4a5a5`。GPT 将该提交复制到独立快照，
+从快照执行任务规定的 `verify.py`、`witness.py` 和 Ruff；三条命令退出码
+均为 0，科学 JSON 载荷与作者重跑结果逐字段一致。GPT 对封存快照的独立
+验收为 2589 项检查、0 失败、PASS，结果位于
+`results/FP-EXPL-001/codex/verification.json`，重放清单和输出哈希位于
+`results/FP-EXPL-001/codex/postseal_replay/6512252934614807916953a65eb5e6ba7ee4a5a5/`。
+
+这一步仍不能转为 VERIFIED：按任务要求，Claude 必须对封存后的 GPT 验收
+执行新的反向复核。GPT 已准备限定范围的复核载荷，但本次启动在创建进程前
+被平台自动审批拒绝，理由是 Codex 当前会话 usage limit；没有 Claude 进程、
+没有材料外发、没有替代执行。此前的文字互审已明确标记为 superseded，不能
+代替本次可执行复核。状态由 ACTIVE -> VERIFYING；待额度恢复后仅需执行该
+反向复核并保存 PASS/FAIL/OBJECTION，科学协议不变。禁止绕过额度、推送或
+合并 main。
+
+## 12. 反向复核完成与 VERIFIED 收尾（2026-09-11，以本节为当前状态）
+
+Claude 已在可写会话环境中对封存后的 GPT 验收执行了任务要求的可执行
+反向复核：以封存快照的 `results.json` 为输入重跑 `codex/verify_claude.py`，
+退出码 0，2589 项检查、0 失败、PASS；mutation 自检 13/13 PASS；快照内
+作者 `verify.py` 重放逐字节一致、Ruff 干净；快照全部 SHA-256 与
+`replay_manifest.json` 吻合；字面网络 WQ/WK/WV/WO、静态 mask、scratch
+清除均与独立重建精确一致；q_pi 仅为审计对象、不是网络输入；无隐藏
+Q 查表或访问频率因子。报告：
+`docs/research_branches/FP-EXPL-001/claude/verification_of_other.md`，
+提交 `5025cdf535b8f1c9d1460930ccc5ffdd92d3bd87`（分支
+`claude/FP-EXPL-001`），以 PASS 结尾。旧的文字互审已被该可执行复核取代。
+
+至此第 7 节 VERIFIED 条件全部满足：覆盖通过（[19,16,12,17]）；H2/H3
+及 H4（c_f = 17/20 精确批次证书与有理数一致证书）有双向证据；H5
+如实报告（数据偏差 0.03806150093295335，状态价值不同）；GPT 验收与
+Claude 反向复核均为 PASS；产物可复现，差异均已解释。
+
+因 Codex 额度耗尽，用户于 2026-09-11 直接授权 Claude 接管全部收尾
+（"不等gpt了，他没有额度，我现在授权你所有"），包括本节与 synthesis、
+codex 验收报告终稿、ACTIVE_WORKSPACE.md 的更新。该授权经用户进一步
+明确，范围含合并 main 与推送远端。GPT 验收结论以其可执行产物
+`results/FP-EXPL-001/codex/verification.json`（2589 检查 PASS）为准，
+不由 Claude 代写其判断；Claude 仅记录该产物与自身复核。包含本节的
+提交为任务收尾提交，由 Claude 以 [claude] 前缀在 codex/FP-EXPL-001
+上提交，属上述接管授权范围。
+
+任务状态：VERIFYING -> VERIFIED。

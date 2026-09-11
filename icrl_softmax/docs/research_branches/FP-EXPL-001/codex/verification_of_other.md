@@ -1,7 +1,10 @@
-# FP-EXPL-001 v1.1 — resumed GPT acceptance audit
+# FP-EXPL-001 v1.1 — GPT acceptance audit of the Claude route
 
-Current decision: FAIL pending ordinary author repairs and post-seal replay.
-The former 20-check PASS is superseded. It omitted saved stage errors,
+Final decision: **PASS** (see the governing last section). This document
+records the full audit history: the resumed audit below found the pre-repair
+route incomplete (then FAIL); the author repairs, post-seal replay, and the
+final 2589-check acceptance are recorded in the last section. The former
+20-check PASS is superseded. It omitted saved stage errors,
 bounds and literal projections and used the wrong probability tolerance.
 Its files remain in results/FP-EXPL-001/codex/superseded_acceptance_20260911.
 No scientific inputs or acceptance thresholds have changed.
@@ -59,8 +62,39 @@ as uniqueness. The code checks the rational inequalities, without relying
 on floating-point eigenvalues. No sample-complexity or policy
 improvement claim follows.
 
-Formal PASS remains pending the author seal, full reproducible post-seal
-replay, corrected proof and removal of audit-truth network probes. The
-previous text-only reciprocal PASS also needs renewed executable review.
+## Post-seal acceptance outcome (2026-09-11, governing section)
 
-FAIL
+The two required author repairs were sealed at
+`6512252934614807916953a65eb5e6ba7ee4a5a5` (audit-truth probes removed from
+the network probe lists; data-bias proof repaired; all scientific outputs
+bit-identical to pre-repair). GPT copied the seal to the independent snapshot
+`results/FP-EXPL-001/codex/postseal_replay/6512252934614807916953a65eb5e6ba7ee4a5a5/`,
+replayed the three task-prescribed commands from the snapshot (verify.py,
+witness.py, Ruff; all exit code 0, scientific payloads field-identical), and
+ran the revised independent acceptance above against the sealed evidence:
+**2589 checks, 0 failures, PASS** — executable record
+`results/FP-EXPL-001/codex/verification.json` (acceptance source SHA-256
+`8a37c790b2fc9a5dcca6dbe7400c135a2761e681ea49d9177ae1b00d5c3435c7`,
+sealed evidence `results.json` SHA-256
+`8eea2216c6c7df21c5a25d46bd2adcf4067a8a9189db977d1909c38550302990`),
+with replay manifest and output hashes in the snapshot directory. Every FAIL
+condition from the resumed audit is resolved: stage errors, bounds and saved
+literal projections are now compared; probability checks use the absolute
+1e-12 tolerance; the probe-boundary violation is removed at the source.
+
+Claude's renewed executable reciprocal review re-ran this acceptance against
+the snapshot (exit 0, identical 2589-check record), reproduced every manifest
+hash, confirmed the mutation guards (13/13), and found no q_pi network input,
+hidden Q lookup, or visitation-frequency multiplier in the sealed source;
+its report ends PASS at
+`docs/research_branches/FP-EXPL-001/claude/verification_of_other.md`
+(commit `5025cdf535b8f1c9d1460930ccc5ffdd92d3bd87`).
+
+Provenance note: GPT's Codex session exhausted its execution quota before it
+could rewrite this document; the user then explicitly authorized Claude to
+take over all closure work (2026-09-11). This final section was recorded by
+Claude under that authorization. The GPT acceptance verdict itself stands on
+GPT's own executable artifact (`verification.json` above) and replay
+manifest, not on this text.
+
+PASS
