@@ -4,7 +4,7 @@
 
 - 日期：2026-09-11。作者：GPT。版本：1.1。状态：ACTIVE。
 - 分支：codex/FP-EXPL-001 与 claude/FP-EXPL-001。
-- 基线：c710e32b24d77085adea134c3f470773037ffbb1。
+- 基线：8c915c4bf2bb9533e2374f5d2c91cf34e5c13c77。
 - 前序 FP-ITER-001 v1.1 已 VERIFIED；FP-ESARSA-001 保持 DRAFT。
 - 设计：docs/superpowers/specs/2026-09-11-fixed-exploration-grouped-iteration-design.md。
 - 用户已同意保留组内平均、只借鉴探索采样，且明确选择
@@ -14,7 +14,8 @@
   AGENTS.md 默认双路线完整盲态执行的用户裁决例外，不修改仓库通则。
 - v1.1 只改变职责和相应产物，不改变 v1.0 的任何科学输入、公式、
   数值容差、覆盖处理或验收强度。Claude 只读预审现已 APPROVED，
-  本提交发布 ACTIVE，作为 Claude 主执行与 GPT 验收的共同基线。
+  本提交发布 ACTIVE，作为 Claude 主执行与 GPT 验收的共同基线；数值
+  结果和双向复核完成后，任务现进入 VERIFYING，等待 Claude 分支封存。
 
 ## 2. 研究问题与可证伪假设
 
@@ -274,6 +275,15 @@ Claude 登录/额度/权限/环境不可用时记录真实阻塞，不能用 Cod
   的本任务当前段落，保存在 results/FP-EXPL-001/codex/pre_review_prompt.txt。
   任务仍为 REVIEW；这是外发授权阻塞，不是 Claude 的任务定义 OBJECTION。
   书面方案与执行分工的批准保持有效。
+- 上述记录是历史过程：拒绝针对 Codex 当前会话的外部执行额度，并非
+  Claude/Kimi 的额度不足。用户随后明确纠正并授权直接启动 Claude。
+- 首次主执行尝试仅触发了本地权限探针，未产生研究文件；进程已停止，
+  探针已清理，原始日志保留。现按用户授权直接重启 Claude 主执行。
+- 本次直接启动再次在创建进程前被自动审批拒绝，原因明确为 Codex 当前
+  会话的 usage limit，而非 Claude/Kimi 额度。用户已明确授权，仍无法由
+  本会话越过平台额度限制；没有启动 Claude、没有发送新材料、没有实验。
+  不使用替代代理、换提供方或绕过权限。任务保持 ACTIVE，待 Codex 额度
+  恢复后从同一基线直接启动，或由用户提供新的执行通道。
 - 用户随后直接回应列明目的地和载荷的授权请求：“继续”。
   该请求明确列出向现有 api.kimi.com 发送本任务治理文档、任务与设计、
   相关前序构造资料，以及本任务代码和结果，用于预审、执行和验证，并
@@ -287,3 +297,40 @@ Claude 登录/额度/权限/环境不可用时记录真实阻塞，不能用 Cod
   期间因暂时没有输出检查过进程；它在任何停止操作发生前已正常退出，
   没有中止或重复调用。未运行样本或实验。
   本提交发布 REVIEW -> ACTIVE；科学协议与用户裁决不变。
+
+## 9. 当前执行与验证更新（2026-09-11）
+
+- Claude 已在隔离工作树写出 `witness.py`、`verify.py`、`theory.md`、
+  `report.md` 和 reciprocal `verification_of_other.md`。两次由 Claude
+  只读/编辑修复的验证器记录错误均已保留在 codex 原始日志中：字符串
+  字段比较和布尔区间检查，不涉及科学公式或冻结输入。
+- GPT 从该工作树运行 Claude-authored 的 `verify.py` 与 `witness.py`，
+  因 Claude Bash 会话创建 `C:\Users\Admin\\.claude\\session-env` 时
+  持续返回 EPERM；该执行来源偏差已在双方报告中明示。结果文件为
+  `results/FP-EXPL-001/claude/results.json` 和 `verification.json`。
+- Claude 自检：1285 checks，0 failures，PASS。GPT 独立重放：20 checks，
+  0 failures，PASS；覆盖计数 `[19,16,12,17]`，`c_f=0.85`，数据偏差
+  `0.03806150093295335`。GPT 报告：
+  `docs/research_branches/FP-EXPL-001/codex/verification_of_other.md`；
+  Claude reciprocal review 以 PASS 结尾：
+  `docs/research_branches/FP-EXPL-001/claude/verification_of_other.md`。
+- 当前状态保持 `VERIFYING`：Claude 工作树源码和报告尚未形成 `[claude]`
+  封存提交。Claude 尝试执行封存时仍被同一 EPERM 阻塞；不得把任务标为
+  `VERIFIED`，也不得把未提交的 Claude 工作树带入 main。下一步只需在
+  可写的 Claude 会话环境中，按任务范围提交
+  `[claude] seal FP-EXPL-001 route and reciprocal verification`，随后由
+  GPT 更新 synthesis 和 `ACTIVE_WORKSPACE.md`；main 合并仍需用户批准。
+
+## 10. 续审更正（2026-09-11，以本节为当前状态）
+
+此前第 9 节及 GPT 报告的 20 项 PASS 仅覆盖部分数值，未核对保存的
+逐步误差/界及字面投影，且概率比较误用了缩放容差；Claude 的互审
+仅为文件审阅，未执行更新后的验收程序。理论第 7 节的数据偏差界
+结论正确但推导不成立。按实现/验证失败修复流程，VERIFYING -> ACTIVE。
+这些是验收和证明修复，不改变 v1.1 冻结任务。旧报告已归档，原先
+“只差提交”的判断撤回。原作者修复并封存后，GPT 再正式验收，随后
+Claude 执行新的互审。所有数值目前仍称初步结果。
+
+科学激活基线为 8c915c4；设计前序基线 c710e32 保留为历史来源。
+历史上 GPT 在 Claude 封存前代跑和检查，未遵循封存后正式验收顺序；
+该检查降为预检，保留记录，新一轮正式验收将发生在原作者封存之后。

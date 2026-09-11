@@ -23,6 +23,20 @@ materials, code and results to the existing api.kimi.com backend, for review,
 execution and validation. This resolves the prior transfer-approval blocker.
 The completed pre-review is preserved in codex/claude_pre_review.md under the
 task's research_branches directory, with its full raw log in the results directory.
+The earlier execution retry was blocked by Codex's own current execution
+quota, not by Claude/Kimi. The user corrected this and authorized direct Claude
+startup. Claude subsequently authored the route and its reports in the
+isolated worktree. Its Bash tool could not create the session-env directory
+(EPERM), so GPT ran the authored scripts from that worktree; this provenance
+deviation is disclosed in both reciprocal reports.
+
+Resumed audit correction: the 20-check GPT PASS was preliminary and incomplete
+(stage errors, bounds and saved literal projections were not compared; probability
+tolerance was scaled incorrectly). A data-bias proof step needs author repair.
+The previous text-only reciprocal PASS is superseded. Status returns to ACTIVE
+for author proof/verifier repairs and GPT acceptance repairs, with v1.1 scientific
+inputs unchanged. An author seal, full post-seal replay and renewed reciprocal
+verification remain. No VERIFIED claim or main merge is authorized.
 
 ## Verified predecessor: FP-ITER-001
 
