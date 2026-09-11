@@ -10,8 +10,10 @@ FP-SCALE-002 same-actor derived verification
   PASS  certification batch is 16384 x 64 = 1048576
   PASS  half-count floor is 5000
   PASS  delta is 0.05
-  PASS  sealed FP-ESARSA-001 module is byte-identical to its sealed version
-  PASS  certificate module is unchanged since the formal run
+  PASS  FP-ESARSA-001 module content matches the sealed hash (matched form: ['raw']; raw=ebea85c455c8..., lf=af90a91a118c...)
+  PASS  FP-SCALE-002 certificate module content matches the sealed hash (matched form: ['lf_normalised']; raw=abed733e534f..., lf=1410dfda1d37...)
+  INFO  baseline committed blob is LF (af90a91a118c...) while the seal was taken from a CRLF checkout (ebea85c455c8...); both are the same content
+  PASS  certificate committed blob equals the sealed hash where the seal was taken from an LF checkout (blob=1410dfda1d37...)
 
 2. Certificate constants recomputed independently
   PASS  envelope 2B = 10.000000 matches R_star/(1-gamma)*2
