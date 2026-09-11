@@ -3,10 +3,18 @@
 ## Task metadata
 
 - Created: 2026-09-10.
-- Author: GPT.
-- Status: `DRAFT`.
-- Task version: `1.0`.
-- Scientific/code baseline: `c579047950dfabb2600020cd2e53dd24b3e39c84`.
+- Author: GPT (v1.0). The v1.1 revision is recorded by Claude under the
+  direct user ruling of 2026-09-11 (Codex execution quota exhausted); it
+  changes responsibilities, baseline, and the allowed read-only input list
+  only, and no scientific input, hypothesis, formula, tolerance, matrix, or
+  acceptance strength.
+- Status: `REVIEW`.
+- Task version: `1.1`.
+- Scientific/code baseline: `9d0994f03e4a659787c74df4660cdcab1d398c1c`
+  (main after the FP-EXPL-001 merge). Every inherited generator, MDP, model,
+  mixture-certificate, and fixed-policy file is byte-identical to the v1.0
+  baseline `c579047950dfabb2600020cd2e53dd24b3e39c84`, so this refresh is
+  scientifically neutral; c579047 remains the historical v1.0 baseline.
 - Approved design commit: `75fc07217ec8a3e096804caade436ab8c2358659`.
 - Design:
   `docs/superpowers/specs/2026-09-09-fixed-policy-expected-sarsa-relative-softmax-design.md`.
@@ -19,9 +27,19 @@
   `REVIEW`.
 - Activation prerequisite: `FP-ADV-001` is `VERIFIED`, or the user records an
   explicit scheduling exception. This task cannot enter `REVIEW` or execute
-  research while that prerequisite is false.
-- Classification: long, multi-stage, and conclusion-critical; independent GPT
-  and Claude construction and reciprocal verification are mandatory.
+  research while that prerequisite is false. **Satisfied on 2026-09-11**:
+  FP-ADV-001 is VERIFIED (negative usefulness result).
+- Classification: long, multi-stage, and conclusion-critical. v1.0 required
+  independent GPT and Claude construction with reciprocal verification. By
+  the direct user ruling of 2026-09-11 ("直接例外", Codex execution quota
+  exhausted), this task adopts the FP-EXPL-001 v1.1 responsibility pattern:
+  Claude main execution with author seal, GPT independent acceptance of the
+  sealed route (executable reconstruction, no import of Claude operators),
+  and Claude reciprocal review of the acceptance evidence. This is a
+  task-scoped exception and does not modify `AGENTS.md`. GPT's acceptance
+  verdict must stand on its own executable artifact; if GPT remains
+  unavailable, results stay preliminary until its acceptance or an explicit
+  user exemption.
 - Estimated resources: four to seven hours per independent actor, CPU-only,
   one smoke matrix and one frozen 480-record formal run per actor, with no new fee
   category.
@@ -405,27 +423,43 @@ fallback, a different eta grid, a different Q route, or a second risk budget.
 - verified `FP-MART-001` and `FP-TU-001` theory, mixture code, and verifiers;
 - existing SARSA, two-stage Q-control, fixed-policy, MDP, and strict-JSON code;
 - the frozen `FP-TU-001` baseline for regression and generator identity;
+- verified `FP-EXPL-001` theory, literal-network witness/verifier, and sealed
+  results (v1.1 addition: read-only construction reference for the grouped
+  fixed-policy literal attention route; no FP-EXPL-001 operator may be
+  imported as a verification computation basis);
 - task-scoped primary references needed for assumption mapping.
 
 ### GPT write scope on `codex/FP-ESARSA-001`
 
-- additive task-scoped classes in `model.py`;
-- `fixed_policy_expected_sarsa.py`;
-- `verify_fixed_policy_expected_sarsa.py`;
-- `evaluate_fixed_policy_expected_sarsa.py`;
-- `analyze_fixed_policy_expected_sarsa.py`;
-- `docs/research_branches/FP-ESARSA-001/codex/`;
-- `docs/research_branches/fixed_policy_expected_sarsa_theory.md`;
-- `docs/research_branches/fixed_policy_expected_sarsa_report.md`;
-- this task, its design, plan, and a compact `ACTIVE_WORKSPACE.md` pointer;
-- `results/FP-ESARSA-001/codex/`.
+Under the v1.1 responsibility exception, GPT's write scope is the acceptance
+side, exercised when its execution quota is restored:
+
+- an independent acceptance verifier (e.g. `verify_claude.py`) and
+  `docs/research_branches/FP-ESARSA-001/codex/`;
+- `results/FP-ESARSA-001/codex/`;
+- this task, its design, plan, synthesis/handoff records, and a compact
+  `ACTIVE_WORKSPACE.md` pointer.
+
+The v1.0 GPT implementation scope (additive task-scoped classes in
+`model.py`, `fixed_policy_expected_sarsa.py`,
+`verify_fixed_policy_expected_sarsa.py`,
+`evaluate_fixed_policy_expected_sarsa.py`,
+`analyze_fixed_policy_expected_sarsa.py`, and the codex theory/report files)
+is transferred to Claude's main route; GPT may still author them later only
+as a separate task or after a user ruling.
 
 ### Claude write scope on `claude/FP-ESARSA-001`
 
-- independent versions of the same task-scoped model additions and four new
-  Python entry points;
+- the main route: additive task-scoped classes in `model.py`,
+  `fixed_policy_expected_sarsa.py`, `verify_fixed_policy_expected_sarsa.py`,
+  `evaluate_fixed_policy_expected_sarsa.py`,
+  `analyze_fixed_policy_expected_sarsa.py`;
 - `docs/research_branches/FP-ESARSA-001/claude/`;
-- `results/FP-ESARSA-001/claude/`.
+- `docs/research_branches/fixed_policy_expected_sarsa_theory.md` and
+  `docs/research_branches/fixed_policy_expected_sarsa_report.md` (main-route
+  versions, authored by Claude);
+- `results/FP-ESARSA-001/claude/`;
+- its reciprocal verification report of the GPT acceptance evidence.
 
 Claude may record only its own proof, commands, results, limitations, and
 verification report in its assigned branch and directories.
@@ -548,26 +582,39 @@ Stop affected work and notify the user if:
 
 ## Route assignments and verification
 
-After activation, GPT and Claude independently derive the proof, write tests
-before implementation, implement the three routes, run labelled smoke, seal
-their first result, and run exactly one frozen 480-record formal evaluation.
-Neither reads the other's first result, code conclusion, or output before both
-formal seals exist.
+Under the v1.1 exception, Claude executes the main route after activation:
+derive the proof, write tests before implementation, implement the three
+routes, run labelled smoke, seal the first result, and run exactly one
+frozen 480-record formal evaluation, then seal code, theory, report and raw
+results with a `[claude]` commit before any acceptance begins.
 
-After disclosure, GPT reproduces Claude and Claude reproduces GPT. Each report
-must inspect formulas, source, direct tensor witnesses, strict outputs,
-configuration, hashes, oracle separation, every acceptance criterion, and a
-clean command-level reproduction. A task-definition defect is `OBJECTION`; an
-implementation, evidence, or inference defect is `FAIL` and returns that route
-to `ACTIVE` for author repair.
+After the Claude seal, GPT independently reconstructs all frozen inputs and
+key numerical results, replays the sealed programs, reviews the literal
+network/proofs and source boundaries, and records its acceptance verdict
+with executable evidence. GPT does not read Claude's results before the
+author seal exists. Claude then reviews GPT's acceptance evidence and
+records its own reciprocal report. Each report must inspect formulas,
+source, direct tensor witnesses, strict outputs, configuration, hashes,
+oracle separation, every acceptance criterion, and a clean command-level
+reproduction. A task-definition defect is `OBJECTION`; an implementation,
+evidence, or inference defect is `FAIL` and returns that route to `ACTIVE`
+for author repair. While GPT is quota-blocked, Claude's sealed results
+remain preliminary; they are not VERIFIED without GPT acceptance or an
+explicit user exemption.
 
 ## Claude read-only pre-review
 
-- Status: `NOT_STARTED`.
+- Status: `IN_REVIEW` (predecessor prerequisite satisfied 2026-09-11).
 - Required input: the later frozen DRAFT commit containing this task, approved
   design, and plan, plus task-scoped inherited theory and source files.
+  Available since the FP-EXPL-001 merge to main (`9d0994f`).
 - Required outcome: itemized `APPROVED` or `OBJECTION`.
 - No review may begin until the predecessor activation prerequisite is met.
+- Transparency note: because Codex is quota-blocked, the v1.1 revision text
+  itself is recorded by Claude under the user's direct ruling; the user is
+  the arbiter of this deviation from the usual GPT-authored revision flow.
+  The pre-review verdict will be recorded in the ACTIVE publication commit
+  together with its itemized evidence.
 
 ## Objections and user rulings
 
@@ -587,9 +634,25 @@ to `ACTIVE` for author repair.
 - Scope: planning documents only; activation, implementation, experiments,
   merge, and push remain governed by this task and `AGENTS.md`.
 
+### User ruling (v1.1)
+
+- Date: 2026-09-11.
+- Decision: with the Codex session out of execution quota, the user ruled
+  directly ("直接例外") to waive the dual blind-construction requirement for
+  this task and adopt the FP-EXPL-001 v1.1 pattern: Claude main execution,
+  GPT independent post-seal acceptance, Claude reciprocal review. The user
+  authorized Claude to record this v1.1 revision, including the baseline
+  refresh to `9d0994f03e4a659787c74df4660cdcab1d398c1c` (scientifically
+  neutral: all inherited science files byte-identical) and the addition of
+  verified FP-EXPL-001 artifacts to the read-only input list.
+- Scope: responsibilities, baseline, and input list only. No scientific
+  input, hypothesis, formula, tolerance, matrix, or acceptance strength
+  changed. Activation, experiments, merge, and push remain governed by this
+  task and `AGENTS.md`.
+
 ## Definition of done
 
-- [ ] Predecessor/scheduling gate is satisfied.
+- [x] Predecessor/scheduling gate is satisfied (FP-ADV-001 VERIFIED, 2026-09-11).
 - [ ] Claude pre-review returns `APPROVED` with no unresolved objection.
 - [ ] Both independent routes and all required artifacts are reproducible.
 - [ ] Both reciprocal verification reports pass.
