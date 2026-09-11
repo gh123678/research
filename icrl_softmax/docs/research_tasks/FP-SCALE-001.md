@@ -348,10 +348,29 @@ preserve as much assurance as a single actor can, the verification step must:
 
 ## Definition of done
 
-- [ ] `H1` arithmetic checked and reported per record.
-- [ ] Smoke passes and the compute budget is measured.
-- [ ] One frozen formal run executed exactly once.
-- [ ] Every acceptance criterion has evidence.
-- [ ] Same-actor derived verification recorded, with the limitation stated.
-- [ ] `ACTIVE_WORKSPACE.md` is current.
+- [x] `H1` arithmetic checked and reported per record.
+- [x] Smoke passes and the compute budget is measured.
+- [ ] One frozen formal run executed exactly once. **Superseded:** v1.1 was
+      stopped at the smoke gate because a formal run would only reconfirm at
+      higher cost a result already established at reachable scale.
+- [x] Every acceptance criterion has evidence (criteria 1--11, 13--15 by the
+      reachable-scale measurement; criterion 12's budget measured in smoke).
+- [x] Same-actor derived verification recorded, with the limitation stated.
+- [x] `ACTIVE_WORKSPACE.md` is current.
 - [ ] The user approves any merge to `main`.
+
+## Closure note (2026-09-11)
+
+This task was stopped deliberately at the smoke gate and superseded by
+`docs/research_tasks/FP-SCALE-002.md`, which inherited this task's protocol
+verbatim and replaced only the residual certificate's concentration argument.
+FP-SCALE-002 then emitted certified updates in `22/48` primary route-records at
+this exact protocol scale, with zero certificate violations.
+
+The task's purpose was therefore achieved: its reachable-scale measurements
+identified the obstruction precisely enough to direct the successor task. Its
+journal at `docs/research_branches/FP-SCALE-001/claude/first_result.md` is the
+authoritative record of that diagnosis, including two falsified expectations
+that FP-SCALE-002 ultimately confirmed as falsified.
+
+No formal run is planned under v1.1. Nothing here authorizes a merge to `main`.

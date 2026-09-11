@@ -2,96 +2,84 @@
 
 ## Current objective
 
-`docs/research_tasks/FP-SCALE-001.md` (v1.1) is `ACTIVE` on
-`claude/FP-SCALE-001`, stopped at the smoke gate before any formal run. By the
-direct user ruling of 2026-09-11, Claude holds both execution and verification
-for this task ("不管 codex 了，验证也交给你"), which waives the reciprocal
-verification of `AGENTS.md` section 7; this is recorded as a task-scoped
-exception and lowers this task's verification strength.
+Both scale tasks are closed at their gates; **no task is active**. The core
+research question has its first positive answer.
 
-### Where FP-SCALE-001 stands (2026-09-11)
+### FP-SCALE-002 — first certified policy improvement (2026-09-11)
 
-Gate A (H1 arithmetic re-derived) and the implementation are complete; the
-first reachable-scale measurement succeeded and is recorded in
-`docs/research_branches/FP-SCALE-001/claude/first_result.md`.
-
-The scale repair worked. Against the `FP-ESARSA-001` baseline the certificate
-tightened by more than an order of magnitude:
-
-| quantity | FP-ESARSA-001 | FP-SCALE-001 |
-|---|---|---|
-| worst-pair certification count | 14 | 40000 |
-| `max_x r_x` | 37.7612 | 0.2703 |
-| `max_x |Ybar_x|` | 2.4125 | 0.0236 |
-| `E_Q` | 22.47 (min) | 0.98 |
-
-`H1` passes with a valid certificate, **but no update is emitted**, and the
-reason is now measured rather than conjectured. Two diagnostics settled which
-lever matters:
-
-1. **Widening the value spectrum does not work.** At `gamma = 0.95`,
-   gap bonus `6.0`, `R_star = 7.5`, the within-state `q_pi` spreads grew about
-   `6x` but `E_Q` grew `170x` to `164.2`, because a Bellman-residual
-   certificate with envelope `2B` is itself proportional to `R_star`. `E_Q` and
-   the spread both scale linearly with the reward bound, so the decisive ratio
-   `E_Q/sigma` is invariant to reward scaling.
-2. **A variance-adaptive residual radius is the decisive lever.** Replacing the
-   worst-case envelope `2B = 10` by the residual scale (order `0.5`), at the
-   same risk and the same union over `d` groups, drops `r_x` at `N_x = 40000`
-   from `0.2703` to `0.0166`, and the certification count needed for
-   `E_Q <= 0.15` from above `2**26` to about `5,956`. At the measured rollout
-   throughput the whole matrix then costs about `0.6` minutes.
-
-So the obstruction is the **worst-case residual envelope `2B`** — the one
-ingredient the verified cosh-mixture argument cannot avoid, because it requires
-a *known* sub-Gaussian parameter. This is the opposite of what the FP-SCALE-001
-design assumed when it placed variance-adaptive residuals out of scope; this
-run is the scale-adequate run that design was waiting for.
-
-### The fix is validated in prototype (2026-09-11)
-
-On the user's direction of 2026-09-11, a variance-adaptive residual certificate
-was prototyped before freezing any task. Per pair, the certification items are
-split into disjoint halves: one half estimates the residual spread
-`sigma_A(x)`, the other half carries the confidence radius
-`r_x = SAFETY * sqrt(2) * sigma_A(x) * sqrt(2 log(2/delta_pair)/N_B)`, with
-`delta_pair = delta/(2d)`. The scale estimate never touches the half it
-certifies, so the bound is not circular; residuals are bounded by `2B`, so the
-sub-Gaussian property is discharged by Hoeffding's lemma rather than assumed.
-
-Full-matrix prototype (2 mixing settings x 12 tasks, two primary routes,
-`16384 x 64 = 1048576` certification items per record, `SAFETY = 1.1`):
+`docs/research_tasks/FP-SCALE-002.md` (v1.0) executed on `claude/FP-SCALE-001`
+and closed at Gate D. It replaced exactly one ingredient of the inherited
+verified certificate — the worst-case residual envelope `2B` that supplies its
+sub-Gaussian parameter — with a two-half estimate whose every constant is a
+named Hoeffding inequality and which contains no fitted or asserted scaling
+factor.
 
 | quantity | result |
 |---|---|
-| certificates emitted | 48 / 48 |
-| **safe updates emitted** | **31 / 48** |
-| componentwise non-degrading | 31 / 31 |
-| strict improvements | 31 / 31 |
+| records / primary route-records | 24 / 48 |
+| **primary emissions** | **22 / 48 (45.8%)** |
+| componentwise non-degrading | 22 / 22 |
+| strict improvements in total value | 22 / 22 |
 | **certificate violations** | **0** |
-| `E_Q` among emitted | 0.064 -- 0.188 |
-| realized `||Qhat - Q*||_inf` | 0.006 -- 0.045 |
-| selected `eta` | 1.0 in every emission |
-| wall time | 341.8 s |
+| `E_Q` adaptive / envelope control, mean | 0.2426 / 1.0744 |
+| control/adaptive `E_Q` ratio | 3.448--5.457 in **all 24** records |
+| selected eta | `1.0` x 21, `0.1` x 1 |
+| mean value gain among emitted | 2.7177 |
 
-That is a `0/480` emission rate becoming `31/48`, with every emission
-componentwise non-degrading and strictly improving in total value, and zero
-oracle violations. It is the "small complete policy improvement example" the
-project has sought since `FP-ADV-001`.
+`H2`--`H6` all **PASS**. `H5` is the attribution: on identical tasks, batches,
+split sizes and risk allocation, the only difference is the concentration
+argument, and the variance-adaptive radius is smaller in every record.
 
-**Prototype status, stated plainly:** this is a design probe, not sealed
-evidence. It has no sealed verifier, its `SAFETY` constant and risk split are
-not yet frozen, and its certificate has not been independently reconstructed.
-The follow-on task must convert it into frozen, sealed, verifiable evidence.
+This is the first time the project has produced a policy update that is
+certifiably non-degrading *and* strictly improving. The three predecessors all
+returned zero: `FP-ADV-001` `0/480`, `FP-ESARSA-001` `0/480`, and
+`FP-SCALE-001` v1.1 `0/1` probed at a certificate scale an order of magnitude
+tighter than either.
 
-No formal run has occurred under v1.1 and none should occur: it would only
-reconfirm at higher cost a result already established at reachable scale.
+Evidence: `docs/research_branches/FP-SCALE-002/claude/` (`pre_review.md`,
+`first_result.md`, `verification_same_actor.md`); sealed bundle
+`results/FP-SCALE-002/claude/formal/`.
+
+**Verification strength, stated plainly:** same-actor derived verification
+only. The user assigned both execution and verification to Claude for these
+tasks, waiving the reciprocal verification of `AGENTS.md` section 7. The
+verification recomputes every reported quantity from the sealed records through
+a separate code path, replays the sealed programs, and checks sealed-module
+hashes — but no second actor reconstructed the route, and none of this is
+reciprocal verification.
+
+**Two falsified expectations are reported rather than dropped:** the selected
+eta values both lie inside the inherited grid, so the FP-SCALE-001 v1.1
+downward extension was not the enabler here; and the derived verification
+caught an error in its own first version.
+
+### FP-SCALE-001 — closed at the smoke gate with its finding recorded
+
+`docs/research_tasks/FP-SCALE-001.md` (v1.1) is `ACTIVE` but stopped before any
+formal run, deliberately: it established the diagnosis that made FP-SCALE-002
+possible and would only have reconfirmed at higher cost a result already known.
+Full journal: `docs/research_branches/FP-SCALE-001/claude/first_result.md`.
+
+Its sequence of findings, all measured:
+
+1. The certificate slack is the concentration radius, not the empirical
+   residual (worst-pair `|Ybar|` 2.4125 versus radius 37.7612).
+2. The radius is set by the rarest held-out pair (count 14 in the sealed
+   matrix), and the inherited frozen inversion is only about `1.35x` looser
+   than a calibrated bound, so the inversion is not the culprit.
+3. Separating the training trajectory from a dedicated certification batch
+   tightened `E_Q` from a `22.47` floor to `0.98`, worst-pair count from `14` to
+   `40000` — and still emitted nothing.
+4. Emission needs `E_Q < sigma`, the within-state value spread, and `E_Q` and
+   `sigma` both scale with the reward bound, so widening the value spectrum is
+   invariant (spreads `6x` up, `E_Q` `170x` up).
+5. The obstruction is therefore the `2B` envelope, which the verified
+   cosh-mixture argument cannot avoid because it requires a *known*
+   sub-Gaussian parameter.
 
 Design:
 `docs/superpowers/specs/2026-09-11-reachable-certificate-scale-design.md`;
-plan: `docs/superpowers/plans/2026-09-11-reachable-certificate-scale-plan.md`;
-route evidence: `docs/research_branches/FP-SCALE-001/claude/` and
-`results/FP-SCALE-001/claude/evidence/`.
+plan: `docs/superpowers/plans/2026-09-11-reachable-certificate-scale-plan.md`.
 
 ## Previous task state (closed)
 
