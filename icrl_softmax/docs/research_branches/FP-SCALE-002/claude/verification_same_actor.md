@@ -44,6 +44,15 @@ FP-SCALE-002 same-actor derived verification
   PASS  analyze_fp_scale_002.py replays with exit 0 (got 0)
 
 ============================================================
+SUMMARY OF THE VERIFIED RESULT
+  primary route-records attempted : 48
+  primary emissions               : 22 / 48 (45.8%)
+  componentwise non-degrading     : 22 / 22
+  strict improvements             : 22 / 22
+  certificate violations          : 0
+  envelope control emissions      : 1 / 24
+  control/adaptive E_Q ratio      : 3.448 .. 5.457 in every record
+============================================================
 RESULT: PASS (all derived checks passed)
 LIMITATION: same-actor derived verification only. No second actor
 reconstructed this route; this is not reciprocal verification.

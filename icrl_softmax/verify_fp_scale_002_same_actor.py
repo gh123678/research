@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import math
 import subprocess
 import sys
 from pathlib import Path
@@ -215,6 +214,19 @@ def main() -> None:
         )
 
     REPORT.append("\n" + "=" * 60)
+    REPORT.append("SUMMARY OF THE VERIFIED RESULT")
+    REPORT.append(
+        f"  primary route-records attempted : {attempted}\n"
+        f"  primary emissions               : {emitted} / {attempted} "
+        f"({100.0 * emitted / attempted:.1f}%)\n"
+        f"  componentwise non-degrading     : {nondegrading} / {emitted}\n"
+        f"  strict improvements             : {strict} / {emitted}\n"
+        f"  certificate violations          : {violations}\n"
+        f"  envelope control emissions      : {control_emitted} / {len(records)}\n"
+        f"  control/adaptive E_Q ratio      : {min(ratios):.3f} .. {max(ratios):.3f} "
+        "in every record"
+    )
+    REPORT.append("=" * 60)
     if FAILURES:
         REPORT.append(f"RESULT: FAIL ({FAILURES} checks failed)")
     else:
