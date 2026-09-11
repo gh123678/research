@@ -16,12 +16,12 @@ remain required. No experiment starts before APPROVED and activation. Design:
 docs/superpowers/specs/2026-09-11-fixed-exploration-grouped-iteration-design.md.
 This draft does not adopt the paper's visitation-weighted critic update.
 
-Operational blocker: automatic approval rejected the attempted tool-free
-Claude Code pre-review because task-specific private-document transfer to
-the existing api.kimi.com backend needs explicit destination/payload approval.
-No process started and no content was sent. The scoped prompt is ready under
-results/FP-EXPL-001/codex/pre_review_prompt.txt. Task remains REVIEW; this is
-not a Claude task-definition objection. See the task-scoped codex/handoff.md.
+The user answered "继续" to the explicit destination/payload authorization
+request for this task's private documents, related inherited construction
+materials, code and results to the existing api.kimi.com backend, for review,
+execution and validation. This resolves the prior transfer-approval blocker.
+Task remains REVIEW pending actual Claude pre-review. The scoped prompt is
+under results/FP-EXPL-001/codex/pre_review_prompt.txt.
 
 ## Verified predecessor: FP-ITER-001
 
