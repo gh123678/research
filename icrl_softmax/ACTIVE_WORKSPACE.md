@@ -2,47 +2,62 @@
 
 ## Current objective
 
-`docs/research_tasks/FP-SCALE-001.md` (v1.0) is `DRAFT`: a certified
-relative-softmax improvement step at a reachable certificate scale. By the
+`docs/research_tasks/FP-SCALE-001.md` (v1.1) is `ACTIVE` on
+`claude/FP-SCALE-001`, stopped at the smoke gate before any formal run. By the
 direct user ruling of 2026-09-11, Claude holds both execution and verification
 for this task ("不管 codex 了，验证也交给你"), which waives the reciprocal
 verification of `AGENTS.md` section 7; this is recorded as a task-scoped
-exception and lowers this task's verification strength. No execution has
-begun. Design:
+exception and lowers this task's verification strength.
+
+### Where FP-SCALE-001 stands (2026-09-11)
+
+Gate A (H1 arithmetic re-derived) and the implementation are complete; the
+first reachable-scale measurement succeeded and is recorded in
+`docs/research_branches/FP-SCALE-001/claude/first_result.md`.
+
+The scale repair worked. Against the `FP-ESARSA-001` baseline the certificate
+tightened by more than an order of magnitude:
+
+| quantity | FP-ESARSA-001 | FP-SCALE-001 |
+|---|---|---|
+| worst-pair certification count | 14 | 40000 |
+| `max_x r_x` | 37.7612 | 0.2703 |
+| `max_x |Ybar_x|` | 2.4125 | 0.0236 |
+| `E_Q` | 22.47 (min) | 0.98 |
+
+`H1` passes with a valid certificate, **but no update is emitted**, and the
+reason is now measured rather than conjectured. Two diagnostics settled which
+lever matters:
+
+1. **Widening the value spectrum does not work.** At `gamma = 0.95`,
+   gap bonus `6.0`, `R_star = 7.5`, the within-state `q_pi` spreads grew about
+   `6x` but `E_Q` grew `170x` to `164.2`, because a Bellman-residual
+   certificate with envelope `2B` is itself proportional to `R_star`. `E_Q` and
+   the spread both scale linearly with the reward bound, so the decisive ratio
+   `E_Q/sigma` is invariant to reward scaling.
+2. **A variance-adaptive residual radius is the decisive lever.** Replacing the
+   worst-case envelope `2B = 10` by the residual scale (order `0.5`), at the
+   same risk and the same union over `d` groups, drops `r_x` at `N_x = 40000`
+   from `0.2703` to `0.0166`, and the certification count needed for
+   `E_Q <= 0.15` from above `2**26` to about `5,956`. At the measured rollout
+   throughput the whole matrix then costs about `0.6` minutes.
+
+So the obstruction is the **worst-case residual envelope `2B`** — the one
+ingredient the verified cosh-mixture argument cannot avoid, because it requires
+a *known* sub-Gaussian parameter. This is the opposite of what the FP-SCALE-001
+design assumed when it placed variance-adaptive residuals out of scope; this
+run is the scale-adequate run that design was waiting for.
+
+Acting on the finding changes the certificate's concentration argument. That is
+a new frozen hypothesis, so it awaits the user's decision before being written
+into a task revision. No formal run has occurred and none should occur under
+v1.1, since it would only reconfirm at higher cost a result already established
+at reachable scale.
+
+Design:
 `docs/superpowers/specs/2026-09-11-reachable-certificate-scale-design.md`;
-plan: `docs/superpowers/plans/2026-09-11-reachable-certificate-scale-plan.md`.
-
-### Why the scale changed: measured diagnosis (2026-09-11)
-
-A read-only diagnostic over the sealed `FP-ESARSA-001` records
-(`results/FP-ESARSA-001/claude/task_results.json`, `expected_exact` route)
-replaced the project's guess about the obstruction with arithmetic:
-
-| trajectory length | emitted records | mean `E_Q` | mean realized `|Qhat-Q*|` | ratio |
-|---|---|---|---|---|
-| 1024 | 45 | 125.229 | 0.869 | 144 |
-| 4096 | 118 | 62.876 | 0.351 | 179 |
-| 16384 | 120 | 27.254 | 0.167 | 163 |
-
-Three findings fix the next design:
-
-1. The certified `E_Q` is the **concentration radius**, not the empirical
-   residual: the worst-pair `|Ybar_x|` is at most `2.4125` while the worst-pair
-   radius `r_x` is `37.7612`.
-2. The radius is set by the **rarest held-out pair**. The inherited verified
-   inversion gives `r_x = 37.76` at `N_x = 1`, `4.15` at `128`, `1.51` at
-   `1024`; the worst pair count in the sealed matrix was `14`, which alone
-   explains the observed `E_Q` floor of about `22.5`.
-3. The inversion is **not** the culprit: it is only about `1.32`--`1.41` times
-   a calibrated two-sided sub-Gaussian radius at the same count and risk, so
-   replacing it cannot recover the factor of roughly `150`.
-
-Consequently weakening the guarantee type alone cannot succeed either: an
-occupancy-weighted value guarantee has full support over the states, so its
-radius is still the worst-pair radius. The obstruction is per-pair occupancy,
-which is a protocol parameter that can be chosen before execution and recorded
-as a pre-registered calculation. `FP-SCALE-001` targets `N_x >= 20000` per
-held-out pair, where `r_x/(1-gamma) <= 0.25`.
+plan: `docs/superpowers/plans/2026-09-11-reachable-certificate-scale-plan.md`;
+route evidence: `docs/research_branches/FP-SCALE-001/claude/`.
 
 ## Previous task state (closed)
 
