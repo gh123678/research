@@ -1,5 +1,22 @@
 """Frozen paired evaluator for FP-KERN-001."""
 
+# FP-KERN-001 canonical route code: Codex corrected route.
+#
+# Added 2026-09-11, outside the sealed route, when the verified FP-KERN-001 and
+# FP-KERN-002 tasks were merged into main under explicit user approval.
+#
+# This file is the Codex route implementation, sealed at
+#   640a3f8  original formal seal
+#   5af3dc6  corrective implementation and smoke seal
+#   1001d23  corrected formal seal (authoritative 480-record corpus)
+# Claude's independent route implementation is preserved byte-for-byte at
+#   docs/research_branches/FP-KERN-001/claude/route/
+# See that directory's README.md: both routes used these identical top-level
+# module names, so only one implementation can occupy this path in main.
+# The statement above the imports is provenance only; it is not part of the
+# sealed program and changes no formula, matrix, seed, threshold, or decision
+# rule.
+
 from __future__ import annotations
 
 import argparse
