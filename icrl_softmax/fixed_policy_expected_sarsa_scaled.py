@@ -378,8 +378,15 @@ def improvement_for(
 
 
 def route_failure_reasons(certificate: dict[str, Any], improvement: dict[str, Any]) -> list[str]:
-    """Ordered non-emission reasons, in the frozen order."""
-    cert_reasons = list(certificate.get("reasons", []))
+    """Ordered non-emission reasons, in the frozen order.
+
+    Reads both ``reasons`` and ``failure_reasons`` because the sealed builder
+    and the task-scoped variance-adaptive certificate use those two key names
+    respectively; the ordered list is the frozen inherited one either way.
+    """
+    cert_reasons = list(certificate.get("reasons", [])) or list(
+        certificate.get("failure_reasons", [])
+    )
     improvement_reasons = list(improvement.get("failure_reasons", []))
     present = set(cert_reasons) | set(improvement_reasons)
     ordered = [reason for reason in REASON_ORDER if reason in present]
