@@ -10,8 +10,15 @@ Design: `docs/superpowers/specs/2026-09-11-reachable-certificate-scale-design.md
 2. Re-derive the `H1` arithmetic from the inherited verified mixture code
    `time_uniform_mixture_certificate.py` and store the derivation as a route
    note. This is a prerequisite, not an experiment.
-3. Freeze the task revision and open the execution branch
+3. Run the pre-execution feasibility probe (occupancy and compute) and use its
+   measurements to correct the protocol to v1.1. Record the probe scripts and
+   outputs as route evidence.
+4. Freeze the task revision and open the execution branch
    `claude/FP-SCALE-001`.
+
+Gate A (passed 2026-09-11): `H1` arithmetic re-derived; two blocking v1.0
+protocol defects found and repaired in v1.1 by pre-execution measurement. See
+`docs/research_branches/FP-SCALE-001/claude/pre_review.md`.
 
 ## Stage 1: tests first
 
@@ -39,10 +46,12 @@ Design: `docs/superpowers/specs/2026-09-11-reachable-certificate-scale-design.md
 
 ## Stage 3: smoke
 
-1. Run a labelled smoke matrix: `1` task, both lengths, both mixing settings,
-   the fixed gap bonus.
-2. Measure and record: wall time per record, memory, per-pair held-out counts,
-   the `H1` check, and the emission count.
+1. Run a labelled smoke matrix: `1` task, both mixing settings, the fixed gap
+   bonus, and a shortened certification batch, so smoke exercises the full code
+   path without paying the full sampling cost.
+2. Measure and record: rollout wall time per certification step, iteration
+   wall time, memory, per-pair certification counts, the `H1` check, and the
+   emission count.
 3. Verify the projected formal wall time against the task budget. If it
    exceeds the budget, stop and return to `ACTIVE` with the measurement; do not
    shrink the matrix by choice.

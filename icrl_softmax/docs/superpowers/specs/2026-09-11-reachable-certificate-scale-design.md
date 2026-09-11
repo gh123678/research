@@ -78,17 +78,36 @@ protocol scale, fixing it by the arithmetic above.
 - Reduce the state-action space to `4` states and `3` actions (`d = 12` pairs)
   so a long trajectory can concentrate observations.
 - Raise the behavior-policy floor to `pi_min = 0.15` so occupancy is more even.
-- Use trajectory lengths `32768` and `131072`, with the second half held out,
-  giving `16384` and `65536` held-out transitions.
+- **Separate the two roles a single trajectory was serving** (v1.1 correction):
+  a *training trajectory* of `65536` transitions builds `Qhat`, and an
+  independent *certification batch* of `1048576` transitions from the same
+  frozen behavior policy supplies the held-out residual certificate. The v1.0
+  design used one contiguously split trajectory of length `32768`/`131072`,
+  which measurement showed cannot give the rarest pair more than about `1500`
+  observations, because the sticky chain's stationary occupancy caps the
+  average pair count at `heldout/d`.
+- Require every pair to reach `N_min >= 20000` certification observations; a
+  record that fails is excluded with the frozen
+  `heldout_pair_support_missing` reason.
 - Fix the reward-gap bonus at `0.5`, the nontrivial setting, because the
   zero-bonus cells were the support-limited ones.
-- Reduce tasks per cell to `12` and use `8` cells, for `96` matched records, so
-  the long trajectories stay within a CPU budget.
+- Use `2` mixing settings (`0.08`, `0.5`) and `12` tasks per cell, for `24`
+  matched records.
+- **Extend the eta candidate grid downward** (v1.1 correction) to
+  `1.0, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01`. The emission condition
+  `E_Q < within-state Q spread` is essentially eta-independent, so the
+  inherited grid could not emit at a certified error of order `1`; the
+  extension makes `H4` sharper rather than easier, and it also predicts the
+  selected eta.
 
-The target is `N_x >= 20000` per held-out pair, at which the radius
-contribution satisfies `r_x/(1-gamma) <= 0.25`. That is the scale at which a
-one-step improvement of the size the relative-softmax tilt actually produces
-can dominate the certified error.
+The target is `N_x >= 20000` per certification pair, at which the radius
+contribution satisfies `r_x/(1-gamma)` in `0.947`--`1.085`, inside the `H1`
+target of `1.2`. Measured worst-pair counts at `1048576` certification steps
+over five probes were `23498, 27013, 28154, 31815, 34051`.
+
+Compute is not the binding constraint: the exact grouped `65536`-train route
+costs `0.34` s and a `262144`-point certificate `0.02` s, so the formal
+iteration is about two minutes in total and the rollout sampler dominates.
 
 ## 4. What success and failure mean
 
