@@ -1,8 +1,52 @@
 # Active research workspace
 
-## Current state
+## Current objective
 
-No task is active. The most recent task,
+`docs/research_tasks/FP-SCALE-001.md` (v1.0) is `DRAFT`: a certified
+relative-softmax improvement step at a reachable certificate scale. By the
+direct user ruling of 2026-09-11, Claude holds both execution and verification
+for this task ("不管 codex 了，验证也交给你"), which waives the reciprocal
+verification of `AGENTS.md` section 7; this is recorded as a task-scoped
+exception and lowers this task's verification strength. No execution has
+begun. Design:
+`docs/superpowers/specs/2026-09-11-reachable-certificate-scale-design.md`;
+plan: `docs/superpowers/plans/2026-09-11-reachable-certificate-scale-plan.md`.
+
+### Why the scale changed: measured diagnosis (2026-09-11)
+
+A read-only diagnostic over the sealed `FP-ESARSA-001` records
+(`results/FP-ESARSA-001/claude/task_results.json`, `expected_exact` route)
+replaced the project's guess about the obstruction with arithmetic:
+
+| trajectory length | emitted records | mean `E_Q` | mean realized `|Qhat-Q*|` | ratio |
+|---|---|---|---|---|
+| 1024 | 45 | 125.229 | 0.869 | 144 |
+| 4096 | 118 | 62.876 | 0.351 | 179 |
+| 16384 | 120 | 27.254 | 0.167 | 163 |
+
+Three findings fix the next design:
+
+1. The certified `E_Q` is the **concentration radius**, not the empirical
+   residual: the worst-pair `|Ybar_x|` is at most `2.4125` while the worst-pair
+   radius `r_x` is `37.7612`.
+2. The radius is set by the **rarest held-out pair**. The inherited verified
+   inversion gives `r_x = 37.76` at `N_x = 1`, `4.15` at `128`, `1.51` at
+   `1024`; the worst pair count in the sealed matrix was `14`, which alone
+   explains the observed `E_Q` floor of about `22.5`.
+3. The inversion is **not** the culprit: it is only about `1.32`--`1.41` times
+   a calibrated two-sided sub-Gaussian radius at the same count and risk, so
+   replacing it cannot recover the factor of roughly `150`.
+
+Consequently weakening the guarantee type alone cannot succeed either: an
+occupancy-weighted value guarantee has full support over the states, so its
+radius is still the worst-pair radius. The obstruction is per-pair occupancy,
+which is a protocol parameter that can be chosen before execution and recorded
+as a pre-registered calculation. `FP-SCALE-001` targets `N_x >= 20000` per
+held-out pair, where `r_x/(1-gamma) <= 0.25`.
+
+## Previous task state (closed)
+
+The most recent closed task,
 `docs/research_tasks/FP-ESARSA-001.md` (v1.1), closed `VERIFIED` on
 2026-09-11 by an explicit user exemption of the independent GPT acceptance
 (see the acceptance-exemption ruling in the task sheet); no GPT acceptance
@@ -182,7 +226,7 @@ executable reciprocal review.
   artifact cited above.
 - Synthesis: `docs/research_branches/FP-EXPL-001/codex/synthesis.md`.
   This task's closure led directly to the activation of FP-ESARSA-001
-  (see Current state); it does not itself authorize policy improvement
+  (see "Previous task state (closed)"); it does not itself authorize policy improvement
   or online control claims beyond that task's frozen scope.
   The question it leaves open is the one the next task should answer: under a
   fixed policy, how do the coverage event of a real trajectory and the
@@ -307,7 +351,8 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
   `docs/research_branches/action_gap_certificate_report.md`.
 - Next task: `docs/research_tasks/FP-ESARSA-001.md` v1.1 became `ACTIVE` after
   this verification and later closed `VERIFIED` on 2026-09-11 by an explicit
-  user exemption of the independent GPT acceptance (see Current state). Its
+  user exemption of the independent GPT acceptance (see "Previous task state
+  (closed)"). Its
   activation prerequisite (this task being VERIFIED) was satisfied.
 - Design:
   `docs/superpowers/specs/2026-09-08-action-gap-safe-update-design.md`.
@@ -407,6 +452,10 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
 
 ## Active implementation
 
+No FP-SCALE-001 code exists yet; the task is in `DRAFT` and nothing may be
+implemented before it becomes `ACTIVE`. The inherited and verified programs
+below remain the active code base.
+
 - `action_gap_certificate.py`
 - `verify_action_gap_certificate.py`
 - `evaluate_action_gap_certificates.py`
@@ -503,6 +552,9 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
 - `docs/research_branches/FP-KERN-002/codex/final_synthesis.md`
 - `docs/research_branches/FP-KERN-002/claude/route/` (relocated Claude route
   code, byte-identical blobs, plus the path-remapping README)
+- `docs/research_tasks/FP-SCALE-001.md` (DRAFT, current objective)
+- `docs/superpowers/specs/2026-09-11-reachable-certificate-scale-design.md`
+- `docs/superpowers/plans/2026-09-11-reachable-certificate-scale-plan.md`
 
 Each independent formal route contains 480 same-seed comparisons, strict-JSON
 route certificates, zero-mismatch legacy regression, certificate/failure
