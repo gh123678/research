@@ -8,7 +8,8 @@
   changes responsibilities, baseline, and the allowed read-only input list
   only, and no scientific input, hypothesis, formula, tolerance, matrix, or
   acceptance strength.
-- Status: `ACTIVE`.
+- Status: `VERIFIED` (2026-09-11; closed by the acceptance-exemption user
+  ruling below, not by reciprocal verification).
 - Task version: `1.1`.
 - Scientific/code baseline: `9d0994f03e4a659787c74df4660cdcab1d398c1c`
   (main after the FP-EXPL-001 merge). Every inherited generator, MDP, model,
@@ -654,13 +655,39 @@ explicit user exemption.
   changed. Activation, experiments, merge, and push remain governed by this
   task and `AGENTS.md`.
 
+### User ruling (2026-09-11, acceptance exemption)
+
+- Date: 2026-09-11.
+- Decision: with Codex still out of execution quota, the user selected the
+  explicit-exemption path already written into acceptance criterion 20 ("or
+  the task remains unverified pending repair or user ruling"). The Claude
+  main route's sealed results are accepted and this task is closed
+  `VERIFIED` **without** the independent GPT post-seal acceptance and
+  without a Claude reciprocal review of GPT evidence, because no GPT
+  acceptance artifact exists.
+- Scientific limitation recorded: there is **no** independent executable
+  reconstruction of the sealed 480-record route (criterion 20's "GPT
+  verifies Claude"). All evidence is single-route: the author's executable
+  verifier (13550 checks), the frozen evaluator run, and the oracle audit.
+  This task's verification strength is therefore strictly lower than a task
+  closed with both reciprocal reports passing; the negative-usefulness
+  result for hypothesis 8 is reported, not independently reproduced.
+- Scope: acceptance closure of this task only. It waives the independent
+  GPT acceptance for FP-ESARSA-001; it changes no formula, hypothesis,
+  tolerance, matrix, or acceptance-criterion text, and it does not modify
+  `AGENTS.md`.
+
 ## Definition of done
 
 - [x] Predecessor/scheduling gate is satisfied (FP-ADV-001 VERIFIED, 2026-09-11).
-- [ ] Claude pre-review returns `APPROVED` with no unresolved objection.
+- [x] Claude pre-review returns `APPROVED` with no unresolved objection.
 - [ ] Both independent routes and all required artifacts are reproducible.
-- [ ] Both reciprocal verification reports pass.
-- [ ] Every acceptance criterion has evidence.
-- [ ] Differences are reconciled or ruled on by the user.
-- [ ] `ACTIVE_WORKSPACE.md` is current.
-- [ ] The user approves any merge to `main`.
+  Only the Claude main route exists; the GPT acceptance route produced no
+  artifact (Codex quota-blocked).
+- [ ] Both reciprocal verification reports pass. **Waived** by the 2026-09-11
+  acceptance-exemption user ruling; no GPT acceptance artifact exists.
+- [x] Every acceptance criterion has evidence (criteria 1-19 by the Claude
+  route; criterion 20 by the acceptance-exemption user ruling).
+- [x] Differences are reconciled or ruled on by the user (exemption ruling).
+- [x] `ACTIVE_WORKSPACE.md` is current.
+- [x] The user approves any merge to `main` (2026-09-11).

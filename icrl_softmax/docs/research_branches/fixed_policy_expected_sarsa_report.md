@@ -2,7 +2,9 @@
 
 Claude main-route scientific report under the v1.1 responsibility exception.
 Companion theory: `docs/research_branches/fixed_policy_expected_sarsa_theory.md`.
-Preliminary until GPT post-seal acceptance or an explicit user exemption.
+Closed `VERIFIED` on 2026-09-11 by an explicit user exemption of the
+independent GPT post-seal acceptance; the results were not independently
+reconstructed and rest on this single route's evidence alone.
 
 ## Question
 

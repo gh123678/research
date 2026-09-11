@@ -3,8 +3,9 @@
 Route: `claude/FP-ESARSA-001` from activation commit `e2859f2`. This is the
 Claude main-route report for the FP-ESARSA-001 task under the v1.1
 responsibility exception (Claude main execution + author seal, GPT independent
-post-seal acceptance, Claude reciprocal review). Preliminary until GPT
-acceptance or an explicit user exemption.
+post-seal acceptance, Claude reciprocal review). Closed on 2026-09-11 by an
+explicit user exemption of that independent GPT acceptance; the results are
+single-route evidence and were never independently reconstructed.
 
 ## What was built
 
@@ -58,10 +59,17 @@ result; no frozen parameter was retuned.
 17. Empirical violations and premise failures enumerated, excluded from theorem evidence — **PASS** (0 certificate/residual/value violations; 210 finite-route premise failures enumerated).
 18. Hypothesis 8 without retuning; zero emissions reported as verified negative — **PASS**.
 19. Sealed evidence before mutual disclosure — **PASS** for the Claude route (this seal).
-20. GPT accepts Claude and Claude accepts GPT — **PENDING** (GPT quota-blocked; results preliminary).
+20. GPT accepts Claude and Claude accepts GPT — **closed by explicit user
+    exemption** (2026-09-11). No GPT acceptance artifact exists (Codex
+    quota-blocked), so no independent executable reconstruction of this
+    route was performed; the task is `VERIFIED` on the single-route evidence
+    alone under the user's ruling. See the acceptance-exemption ruling in
+    `docs/research_tasks/FP-ESARSA-001.md`.
 
 ## Verdict
 
-`PASS` for the Claude main route (criteria 1–19); the task remains
-unverified pending criterion 20 (GPT post-seal acceptance) or an explicit
-user exemption.
+`PASS` for the Claude main route (criteria 1–19). Criterion 20 is closed by
+the explicit user exemption of 2026-09-11 rather than by reciprocal
+verification; the task is `VERIFIED` with **no independent executable
+reconstruction** of this route, and this route's results are single-route
+evidence only.

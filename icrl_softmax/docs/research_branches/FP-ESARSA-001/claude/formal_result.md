@@ -1,8 +1,14 @@
 # FP-ESARSA-001 — Claude main route, frozen formal result
 
 Status: sealed formal run, exactly one execution of the frozen 480-record
-matrix. Preliminary until GPT post-seal acceptance or an explicit user
-exemption.
+matrix. At seal time, preliminary pending GPT post-seal acceptance or an
+explicit user exemption.
+
+Closure note (2026-09-11): this route was never independently reconstructed.
+The task closed `VERIFIED` on 2026-09-11 by an explicit user exemption of the
+independent GPT acceptance (see the acceptance-exemption ruling in
+`docs/research_tasks/FP-ESARSA-001.md`). The seal-time status above is
+preserved as the historical record.
 
 ## Command
 
@@ -86,4 +92,6 @@ Python 3.13.9, numpy 2.4.6, Windows 11.
   changed to force an emission.
 - The finite route makes no no-bias claim; its final estimate is certified
   only by the exact held-out Bellman residual.
-- Preliminary until GPT post-seal acceptance or an explicit user exemption.
+- Closed on 2026-09-11 by an explicit user exemption of the independent GPT
+  acceptance; no independent executable reconstruction of this route was
+  performed. See the closure note at the top of this file.

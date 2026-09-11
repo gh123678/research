@@ -98,9 +98,12 @@ formal runs both reproduced the frozen FP-TU-001 generator identities with
 ## Provenance notes
 
 - The Claude main route runs on branch `claude/FP-ESARSA-001`, created from
-  activation commit `e2859f2`. No push and no main merge without separate
-  authorization.
+  activation commit `e2859f2`. The branch was pushed and fast-forwarded into
+  `main` by explicit user authorization on 2026-09-11.
 - Dual blind construction was waived by explicit user exception
-  ("直接例外"): Claude main execution plus author seal, GPT independent
-  post-seal acceptance when quota is restored, Claude reciprocal review.
-  Results remain preliminary until GPT acceptance or explicit user exemption.
+  ("直接例外"): Claude main execution plus author seal. The independent GPT
+  post-seal acceptance never occurred (Codex quota-blocked).
+- Closure (2026-09-11): the user chose the explicit-exemption path written
+  into acceptance criterion 20. The task closed `VERIFIED` on this route's
+  single-side evidence alone, with no independent executable reconstruction.
+  See the acceptance-exemption ruling in `docs/research_tasks/FP-ESARSA-001.md`.

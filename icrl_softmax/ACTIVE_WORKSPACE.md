@@ -1,36 +1,39 @@
 # Active research workspace
 
-## Current objective
+## Current state
 
-Current task: `docs/research_tasks/FP-ESARSA-001.md` (v1.1, `ACTIVE`).
-Fixed-policy Expected SARSA with a cross-fitted Bellman-residual certificate
-and one certified relative-softmax improvement step on the frozen 480-record
-protocol inherited from FP-ADV-001. Activation prerequisite satisfied
-(FP-ADV-001 VERIFIED). By the direct user ruling of 2026-09-11 (Codex quota
-exhausted), this task uses the FP-EXPL-001 v1.1 responsibility pattern:
-Claude main execution on `claude/FP-ESARSA-001`, GPT independent post-seal
-acceptance on `codex/FP-ESARSA-001` when its quota is restored, then Claude
-reciprocal review. Claude's itemized pre-review returned APPROVED
+No task is active. The most recent task,
+`docs/research_tasks/FP-ESARSA-001.md` (v1.1), closed `VERIFIED` on
+2026-09-11 by an explicit user exemption of the independent GPT acceptance
+(see the acceptance-exemption ruling in the task sheet); no GPT acceptance
+artifact exists and this route was never independently reconstructed, so the
+task's verification rests on single-route evidence only.
+
+Task summary: fixed-policy Expected SARSA with a cross-fitted Bellman-residual
+certificate and one certified relative-softmax improvement step on the frozen
+480-record protocol inherited from FP-ADV-001. Activation prerequisite
+satisfied (FP-ADV-001 VERIFIED). By the direct user ruling of 2026-09-11
+(Codex quota exhausted), this task used the FP-EXPL-001 v1.1 responsibility
+pattern: Claude main execution on `claude/FP-ESARSA-001` with author seal.
+Claude's itemized pre-review returned APPROVED
 (`docs/research_branches/FP-ESARSA-001/codex/claude_pre_review.md`).
 Scientific baseline `9d0994f03e4a659787c74df4660cdcab1d398c1c`; all
 inherited science files are byte-identical to the v1.0 baseline. Design:
 `docs/superpowers/specs/2026-09-09-fixed-policy-expected-sarsa-relative-softmax-design.md`.
 
-Claude's main route is sealed at `1cb59f0` on `claude/FP-ESARSA-001`; the
-workspace-pointer commit `cc49599` was pushed to `origin` and fast-forwarded
-into `main` by explicit user authorization on 2026-09-11 (`main` and
-`origin/main` both at `cc49599`). One frozen 480-record formal run into
-`results/FP-ESARSA-001/claude/`: 283/480 certificates per route, 0 oracle
-certificate/residual-event/value violations, generator identity 0/480
-mismatches against the frozen FP-TU-001 baseline, and no safe update emitted,
-so hypothesis 8 is a verified negative usefulness result with no retuning.
-Route evidence: `docs/research_branches/FP-ESARSA-001/claude/`
-(`theory.md`, `first_result.md`, `formal_result.md`, `report.md`,
-`failure_history.md`); main-route report
+Claude's main route is sealed at `1cb59f0` on `claude/FP-ESARSA-001`; it was
+pushed to `origin` and fast-forwarded into `main` by explicit user
+authorization on 2026-09-11 (`main` and `origin/main` both at `0ac8eb6`).
+One frozen 480-record formal run into `results/FP-ESARSA-001/claude/`:
+283/480 certificates per route, 0 oracle certificate/residual-event/value
+violations, generator identity 0/480 mismatches against the frozen FP-TU-001
+baseline, and no safe update emitted, so hypothesis 8 is a verified negative
+usefulness result with no retuning. Route evidence:
+`docs/research_branches/FP-ESARSA-001/claude/` (`theory.md`, `first_result.md`,
+`formal_result.md`, `report.md`, `failure_history.md`); main-route report
 `docs/research_branches/fixed_policy_expected_sarsa_report.md`. Verdict for
-acceptance criteria 1-19: PASS. Results remain **preliminary** until GPT
-post-seal acceptance (criterion 20), which is quota-blocked, or an explicit
-user exemption.
+acceptance criteria 1-19: PASS; criterion 20 closed by the
+acceptance-exemption user ruling.
 
 ## Verified fixed-exploration task: FP-EXPL-001
 
@@ -74,7 +77,7 @@ executable reciprocal review.
   artifact cited above.
 - Synthesis: `docs/research_branches/FP-EXPL-001/codex/synthesis.md`.
   This task's closure led directly to the activation of FP-ESARSA-001
-  (see Current objective); it does not itself authorize policy improvement
+  (see Current state); it does not itself authorize policy improvement
   or online control claims beyond that task's frozen scope.
 
 ## Verified predecessor: FP-ITER-001
@@ -193,9 +196,10 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
 - Current blocker: none.
 - Shared conclusion:
   `docs/research_branches/action_gap_certificate_report.md`.
-- Next task: `docs/research_tasks/FP-ESARSA-001.md` is now v1.1 `ACTIVE`
-  (see Current objective). Its activation prerequisite (this task being
-  VERIFIED) is satisfied.
+- Next task: `docs/research_tasks/FP-ESARSA-001.md` v1.1 became `ACTIVE` after
+  this verification and later closed `VERIFIED` on 2026-09-11 by an explicit
+  user exemption of the independent GPT acceptance (see Current state). Its
+  activation prerequisite (this task being VERIFIED) was satisfied.
 - Design:
   `docs/superpowers/specs/2026-09-08-action-gap-safe-update-design.md`.
 - Plan:
