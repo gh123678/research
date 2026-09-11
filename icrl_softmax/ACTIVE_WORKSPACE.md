@@ -501,6 +501,8 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
 - `docs/research_branches/FP-KERN-002/codex/formal_result.md`
 - `docs/research_branches/FP-KERN-002/codex/claude_verification.md`
 - `docs/research_branches/FP-KERN-002/codex/final_synthesis.md`
+- `docs/research_branches/FP-KERN-002/claude/route/` (relocated Claude route
+  code, byte-identical blobs, plus the path-remapping README)
 
 Each independent formal route contains 480 same-seed comparisons, strict-JSON
 route certificates, zero-mismatch legacy regression, certificate/failure

@@ -1,5 +1,20 @@
 """Deterministic verifier for FP-KERN-002 reused-record diagnostics."""
 
+# FP-KERN-002 canonical route code: Codex route.
+#
+# Added 2026-09-11, outside the sealed route, when the verified FP-KERN-001 and
+# FP-KERN-002 tasks were merged into main under explicit user approval.
+#
+# This file is the Codex route implementation, sealed at
+#   f37b973  implementation and smoke seal
+#   0815d0d  formal seal (canonical 480-record diagnostic output)
+# Claude's independent route implementation is preserved byte-for-byte at
+#   docs/research_branches/FP-KERN-002/claude/route/
+# See that directory's README.md: both routes used these identical top-level
+# module names, so only one implementation can occupy this path in main.
+# The statement above the imports is provenance only; it is not part of the
+# sealed program and changes no input, metric, threshold, or decision rule.
+
 from __future__ import annotations
 
 import argparse
