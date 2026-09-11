@@ -2,6 +2,19 @@
 
 ## Current objective
 
+Next proposed task: docs/research_tasks/FP-EXPL-001.md (v1.0, DRAFT).
+The user chose fixed behavior-policy sampling followed by repeated updates on
+one frozen batch, retaining our per-pair grouped mean. Target policy remains
+fixed. The draft specifies one 64-transition Markov batch, checks actual
+coverage without resampling, and compares exact and finite attention for
+64 updates. One reward changes before sampling to avoid equal population
+state values. The written protocol awaits user review, then Claude pre-review
+before activation or experiments. Design:
+docs/superpowers/specs/2026-09-11-fixed-exploration-grouped-iteration-design.md.
+This draft does not adopt the paper's visitation-weighted critic update.
+
+## Verified predecessor: FP-ITER-001
+
 Current construction gate: `docs/research_tasks/FP-ITER-001.md` (v1.1, `VERIFIED`). It narrows the
 next step to a two-state/two-action fixed-policy Expected SARSA iteration
 witness: direct reference, exact grouped attention, finite-logit attention,
