@@ -176,9 +176,86 @@ statement than either `FP-ADV-001` or `FP-ESARSA-001` could make, because those
 results were confounded by a certificate that was three orders of magnitude too
 loose.
 
-## 7. Status
+## 7. Second reachable-scale diagnostic — which lever actually works
+
+Two candidate levers were tested quantitatively at reachable scale.
+
+### Lever 1: widen the value spectrum. **Does not work.**
+
+Running the same frozen certificate and decision rule on a wider-spectrum MDP
+(`gamma = 0.95`, gap bonus `6.0`, `R_star = 7.5`) gave:
+
+| case | within-state `q_pi` spreads | `E_Q` | best `min_s LB` | emitted |
+|---|---|---|---|---|
+| frozen (`gamma=0.7`, gap `0.5`, `R_star=1.5`) | 0.713, 0.316, 1.225, 1.951 | 0.9531 | -0.00172 | no |
+| wide spectrum (`gamma=0.95`, gap `6.0`, `R_star=7.5`) | 6.543, 5.393, 5.873, 6.579 | **164.224** | -4.00247 | no |
+
+The spread grew by roughly `6x` but `E_Q` grew by `170x`, because a
+Bellman-residual certificate with envelope `2B` and `B = R_star/(1-gamma)` is
+itself proportional to `R_star`. **`E_Q` and `sigma` both scale linearly with
+the reward bound, so the decisive ratio `E_Q/sigma` is invariant to reward
+scaling.** Multiplying rewards cannot buy an emission.
+
+### Lever 2: variance-adaptive residual radius. **Works, and is cheap.**
+
+The frozen radius uses the worst-case envelope `2B = 10` for every residual,
+while the measured residual spread is of order `0.5`. Replacing the envelope by
+the residual scale only — keeping the same risk and the same union over `d`
+groups — changes the radius by more than an order of magnitude:
+
+| certificate | `r_x` at `N_x = 40000` | implied `E_Q` | count for `E_Q <= 0.15` |
+|---|---|---|---|
+| frozen envelope `2B` | 0.2703 | 0.9009 | `> 2**26` (unaffordable) |
+| adaptive scale `1.00` | 0.0166 | 0.0552 | **5,956** |
+| adaptive scale `0.50` | 0.0083 | 0.0276 | **1,562** |
+| adaptive scale `0.25` | 0.0041 | 0.0138 | **1,000** |
+
+So the certification count that the frozen envelope cannot reach at `2**26`
+is reached by a variance-adaptive radius at roughly `6,000`. At the measured
+rollout throughput of about `83,000` certification items per second, the whole
+`24`-record matrix at `N_x = 10000` costs about `0.6` minutes of rollout.
+
+### Conclusion
+
+The obstruction is neither the protocol scale (repaired and verified) nor the
+value spectrum (invariant). It is the **worst-case residual envelope `2B`**,
+which is the one ingredient the frozen certificate cannot avoid because the
+verified cosh-mixture argument requires a *known* sub-Gaussian parameter. A
+variance-adaptive (self-normalised or empirical-Bernstein) residual bound
+replaces that parameter with an estimated scale and is the decisive lever.
+
+This is exactly what the FP-SCALE-001 design placed out of scope in section 6
+("Variance-adaptive or Bernstein-type residuals: the diagnosis shows the mean
+is not the binding term, so this is deferred until a scale-adequate run shows a
+residual-dominated certificate"). This run is that scale-adequate run, and it
+shows the opposite of what section 6 assumed: the residual *scale* — not its
+mean — is what binds.
+
+## 8. Status
 
 Stopped at the smoke gate before any formal run, to report a contract-level
-finding rather than a tuning result. No formal run has occurred. The scale
-revision is exhausted: the protocol now delivers `H1` with a valid certificate
-and still cannot emit, so the remaining obstruction is not the scale.
+finding rather than a tuning result. No formal run has occurred, and none
+should occur under v1.1: the protocol now delivers `H1` with a valid
+certificate and still cannot emit, so a formal run would only reconfirm a
+result already established at reachable scale.
+
+The scale revision is exhausted. Acting on the finding requires a genuine
+change to the mathematical contract (the certificate's concentration
+argument), which is a new frozen hypothesis and therefore needs the user's
+decision before it is written into a task revision.
+
+### Recorded and disclosed limitations
+
+- The `0.1` margin-to-TV ratio used in section 6 and 7 is a measured order-of-
+  magnitude from this record's `q_hat`, not a theorem. It is used only to size
+  the levers, never as an acceptance criterion.
+- The residual scale `0.5` used in the Lever 2 table is a conservative
+  stand-in for the measured residual spread (`max_x |Ybar_x| = 0.0236`, so the
+  per-item spread is the relevant quantity, not the mean). A real
+  implementation must certify the scale from data, which is the substance of
+  the deferred work.
+- Section 7's Lever 1 probe normalises base rewards into `[-1, 1]` before
+  applying the enlarged gap, so its declared reward bound is honest. The probe
+  is a criterion check, writes no formal output, and is not evidence for any
+  acceptance criterion.
+
