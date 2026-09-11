@@ -1,7 +1,7 @@
 # 固定探索采样与组内平均 Q 迭代设计
 
-日期：2026-09-11。作者：GPT。状态：用户已确认，Claude 预审准备中。
-正式任务：docs/research_tasks/FP-EXPL-001.md，v1.1，REVIEW。
+日期：2026-09-11。作者：GPT。状态：用户已确认，Claude 预审 APPROVED。
+正式任务：docs/research_tasks/FP-EXPL-001.md，v1.1，ACTIVE。
 基线：c710e32b24d77085adea134c3f470773037ffbb1。
 
 ## 已确定的方向
@@ -102,7 +102,7 @@ Difference Learning: Sample Complexity under Online Markov Data，
 用户已确认方案并要求“你主要交给claude就可以，你负责验收”。
 按这次直接裁决，Claude 预审后主执行，GPT 独立重建并验收关键计算，
 Claude 最后复核验收证据。此例外仅适用于本任务，不修改仓库通则。
-结果未经规定验证仅称初步结果。数值协议不变；目前 REVIEW，不启动实验。
+结果未经规定验证仅称初步结果。数值协议不变；预审已通过，现发布 ACTIVE。
 
 ## 设计自查与工作区记录
 

@@ -2,7 +2,7 @@
 
 ## 1. 元数据与授权
 
-- 日期：2026-09-11。作者：GPT。版本：1.1。状态：REVIEW。
+- 日期：2026-09-11。作者：GPT。版本：1.1。状态：ACTIVE。
 - 分支：codex/FP-EXPL-001 与 claude/FP-EXPL-001。
 - 基线：c710e32b24d77085adea134c3f470773037ffbb1。
 - 前序 FP-ITER-001 v1.1 已 VERIFIED；FP-ESARSA-001 保持 DRAFT。
@@ -13,7 +13,8 @@
   本任务据此采用 Claude 主执行、GPT 独立验收；这是针对本任务对
   AGENTS.md 默认双路线完整盲态执行的用户裁决例外，不修改仓库通则。
 - v1.1 只改变职责和相应产物，不改变 v1.0 的任何科学输入、公式、
-  数值容差、覆盖处理或验收强度。目前进入只读预审，不执行实验。
+  数值容差、覆盖处理或验收强度。Claude 只读预审现已 APPROVED，
+  本提交发布 ACTIVE，作为 Claude 主执行与 GPT 验收的共同基线。
 
 ## 2. 研究问题与可证伪假设
 
@@ -279,3 +280,10 @@ Claude 登录/额度/权限/环境不可用时记录真实阻塞，不能用 Cod
   告知私有材料由 Kimi 服务处理。此回应授权上述限定传送及必要续接，
   解决先前的外发授权阻塞；不扩大到无关文件、新提供方/收费类别、
   全局配置变更、推送或 main 合并。科学协议 v1.1 不变。
+- 只读预审正常完成（工具列表为空、permissionMode=dontAsk、模型元数据 k3），
+  共一轮，约 200 秒，返回 APPROVED。原文：
+  docs/research_branches/FP-EXPL-001/codex/claude_pre_review.md；
+  原始日志：results/FP-EXPL-001/codex/claude_pre_review.raw.jsonl。
+  期间因暂时没有输出检查过进程；它在任何停止操作发生前已正常退出，
+  没有中止或重复调用。未运行样本或实验。
+  本提交发布 REVIEW -> ACTIVE；科学协议与用户裁决不变。

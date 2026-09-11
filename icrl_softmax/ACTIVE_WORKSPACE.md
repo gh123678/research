@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Current task: docs/research_tasks/FP-EXPL-001.md (v1.1, REVIEW).
+Current task: docs/research_tasks/FP-EXPL-001.md (v1.1, ACTIVE).
 The user chose fixed behavior-policy sampling followed by repeated updates on
 one frozen batch, retaining our per-pair grouped mean. Target policy remains
 fixed. The draft specifies one 64-transition Markov batch, checks actual
@@ -12,7 +12,8 @@ state values. The user approved the written protocol and directed Claude to
 perform the main work, with GPT responsible for independent acceptance.
 This task-specific ruling replaces dual complete blind implementations;
 Claude pre-review, independent GPT replay, and review of acceptance evidence
-remain required. No experiment starts before APPROVED and activation. Design:
+remain required. Claude's tool-free pre-review returned APPROVED; this commit
+activates the frozen task for isolated execution. Design:
 docs/superpowers/specs/2026-09-11-fixed-exploration-grouped-iteration-design.md.
 This draft does not adopt the paper's visitation-weighted critic update.
 
@@ -20,8 +21,8 @@ The user answered "继续" to the explicit destination/payload authorization
 request for this task's private documents, related inherited construction
 materials, code and results to the existing api.kimi.com backend, for review,
 execution and validation. This resolves the prior transfer-approval blocker.
-Task remains REVIEW pending actual Claude pre-review. The scoped prompt is
-under results/FP-EXPL-001/codex/pre_review_prompt.txt.
+The completed pre-review is preserved in codex/claude_pre_review.md under the
+task's research_branches directory, with its full raw log in the results directory.
 
 ## Verified predecessor: FP-ITER-001
 
