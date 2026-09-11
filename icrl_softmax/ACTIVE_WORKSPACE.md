@@ -72,24 +72,16 @@ user-authorized corrective GPT rerun classify the frozen kernel route as
 control but fail the zero-count RMSE, `1-4`-count RMSE, and sparse-state
 top-action requirements.
 
-The corrected GPT formal result is sealed at
-`1001d23273bdf29b92d9b84a3f3956e83819da4a`. GPT verification of Claude is
-`PASS` at `5e538ad06e1167c8c644db9db7f7f25573b470cb`; Claude's final executable
-verification of the corrected GPT route is `PASS` at
-`c17561620d02a08210b1702f4ff576e7bde17366`. The three disclosed literal
-definition deviations were repaired without changing the kernel, matrix,
-seed, thresholds, or decision rule. Original GPT artifacts remain preserved,
-and Claude's valid independent formal route was not rerun.
+The frozen design compares `oracle_q_nearest2`,
+`oracle_generator_cluster`, and `observable_balanced_cluster` against the
+reconstructed predecessor controls. It reuses the predecessor's five-item
+sparse-estimation screen and assigns one ordered scoped conclusion. Only a
+passing observable route may be described as promising; oracle results remain
+diagnostic.
 
-The task asks whether a state kernel learned only from the observed behavior
-of other actions can improve fixed-policy Q estimation and action ordering for
-zero-count and low-count target pairs. The unchanged current random MDP family
-tests project applicability; a hidden-cluster family with structure concealed
-from the estimator is the positive control.
-
-The frozen study has four routes and 480 records. It is empirical feasibility
-work only: true Q, hidden clusters, and exact returns are oracle-audit outputs,
-and no safety or policy-nondegradation theorem is claimed.
+`FP-KERN-001` is the verified predecessor at
+`403884ae6bde46c7c3578ae01d77422ed03faf05`. Its corrected Gaussian-kernel
+classification remains `NOT_SUPPORTED` and is not modified by this task.
 
 ### FP-KERN-002: reused-record oracle and learnability diagnostic
 
@@ -325,10 +317,12 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
 
 ## FP-KERN-001 execution evidence
 
-- Task: `docs/research_tasks/FP-KERN-001.md` (`VERIFIED`).
-- Scientific baseline:
-  `c579047950dfabb2600020cd2e53dd24b3e39c84`.
-- Frozen DRAFT task-definition baseline:
+- Task: `docs/research_tasks/FP-KERN-002.md` (`ACTIVE`).
+- Predecessor baseline:
+  `403884ae6bde46c7c3578ae01d77422ed03faf05`.
+- Approved design commit:
+  `be6b7213eeba08d3b9750a850ac2de99ff17be89`.
+- DRAFT task-definition baseline:
   `b7ef163f11eb5ee41499344c296587efd3516651`.
 - Activation commit:
   `2308c372eb47ce7c181f98caee952121f4e47644`.
@@ -354,6 +348,62 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
   `docs/superpowers/specs/2026-09-09-kernel-state-generalization-feasibility-design.md`.
 - Plan:
   `docs/superpowers/plans/2026-09-09-kernel-state-generalization-feasibility-plan.md`.
+
+## FP-KERN-002 execution evidence
+
+- Task: `docs/research_tasks/FP-KERN-002.md` (`VERIFIED`); classification
+  `NO_BORROWING_EVIDENCE`.
+- Predecessor and branch baseline:
+  `403884ae6bde46c7c3578ae01d77422ed03faf05` (`FP-KERN-001` verified).
+- Frozen DRAFT task-definition baseline:
+  `e04db4c17c7648bc751bef1620ab0d01fe1cb3a3`.
+- REVIEW clarification closure:
+  `04584e44e788b7cb50289c6dd447c356bd4081b6`.
+- Activation commit:
+  `698ebdc62859ec26ae6b623099ab499fc6b410fa`.
+- Common execution-start commit:
+  `ffdf26b029efde08ea794454a7b5da890108c355`.
+- GPT branch and isolated worktree: `codex/FP-KERN-002` in
+  `results/FP-KERN-002/codex_worktree/`.
+- User decision: reuse the exact verified 480-record predecessor corpus; no
+  new trajectories.
+- Claude read-only pre-review: `APPROVED` on
+  `f72d4fec81bf43f2efe39a770afad68f63d559d9`, with 12 passed checks and seven
+  nonblocking wording/secondary-metric clarifications now closed.
+- Common input: created once and frozen at host path
+  `results/FP-KERN-002/input/`; both source hashes match the task and manifest
+  SHA-256 is
+  `670648f7a2761d919f58b25881db45dc6d9d49d4fec25e307c6fe72bf8b31966`.
+- Claude branch and isolated worktree: `claude/FP-KERN-002` in
+  `results/FP-KERN-002/claude_worktree/`, created from the common start before
+  implementation.
+- Current blocker: none; task verification is complete.
+- GPT blind route: verifier-first implementation/smoke sealed at
+  `f37b9730aea4ba692b854dcfb89f8f3d17faa34e`; the sole 480-record formal run
+  and all post-run checks passed with initial classification
+  `NO_BORROWING_EVIDENCE`.
+- GPT blind formal seal: `0815d0dbef3a8f7784438ac89e2df195d3cab00b`.
+- Claude blind route: implementation/smoke seal
+  `a39323c8011acebfb651c8431d8598e1d1aee244`, formal seal
+  `718d77053801c6f9e3dd958513b7a06918a5e274`, independently reaching the same
+  `NO_BORROWING_EVIDENCE` classification.
+- GPT verification of Claude: `PASS`; every gate and metric agrees, 506
+  independent reconstruction groups and all inherited checks passed.
+- Claude verification of GPT: `PASS`, sealed at
+  `1567603d5d8f8fd99c266c17a3741ae8fa30c7d3`; 248,566 cross-route checks
+  passed with zero failures.
+- Final task status: `VERIFIED`; final classification:
+  `NO_BORROWING_EVIDENCE`. The merge to `main` was authorized by the user on
+  2026-09-11.
+- Next action: user decides whether to open a new task for zero-only borrowing,
+  count-aware gating/shrinkage, or learned state representations. The
+  certificate-scale direction recorded under "Measured scale of the current
+  bottleneck" is the separate, currently unopened alternative.
+- Design:
+  `docs/superpowers/specs/2026-09-09-kernel-reuse-oracle-learnability-design.md`.
+- Plan:
+  `docs/superpowers/plans/2026-09-09-kernel-reuse-oracle-learnability-plan.md`.
+- Prior verified task: `docs/research_tasks/FP-KERN-001.md` (`VERIFIED`).
 
 ## Active implementation
 
@@ -386,7 +436,13 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
 - FP-KERN-001 implementation: `kernel_state_generalization.py`,
   `kernel_generalization_mdps.py`, `verify_kernel_state_generalization.py`,
   `evaluate_kernel_state_generalization.py`, and
-  `analyze_kernel_state_generalization.py`.
+  `analyze_kernel_state_generalization.py` (Codex corrected route at these
+  canonical paths; the Claude route's byte-identical copies live under
+  `docs/research_branches/FP-KERN-001/claude/route/`).
+- FP-KERN-002 implementation: `analyze_kernel_reuse_diagnostics.py` and
+  `verify_kernel_reuse_diagnostics.py`.
+- Planned FP-KERN-002 implementation: `analyze_kernel_reuse_diagnostics.py`
+  and `verify_kernel_reuse_diagnostics.py` (not yet created at activation).
 
 ## Active evidence
 
@@ -435,6 +491,16 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
 - Kernel-route result corpora: see "FP-KERN evidence location correction"
   above; the task-sheet `results/FP-KERN-001/...` paths resolve to the
   registered route worktrees, not to host-level directories.
+- `docs/research_branches/FP-KERN-001/claude/route/` (relocated Claude route
+  code, byte-identical blobs, plus the path-remapping README)
+- `docs/superpowers/specs/2026-09-09-kernel-reuse-oracle-learnability-design.md`
+- `docs/superpowers/plans/2026-09-09-kernel-reuse-oracle-learnability-plan.md`
+- `docs/research_tasks/FP-KERN-002.md`
+- `docs/research_branches/FP-KERN-002/codex/claude_pre_review.md`
+- `docs/research_branches/FP-KERN-002/codex/first_result.md`
+- `docs/research_branches/FP-KERN-002/codex/formal_result.md`
+- `docs/research_branches/FP-KERN-002/codex/claude_verification.md`
+- `docs/research_branches/FP-KERN-002/codex/final_synthesis.md`
 
 Each independent formal route contains 480 same-seed comparisons, strict-JSON
 route certificates, zero-mismatch legacy regression, certificate/failure
