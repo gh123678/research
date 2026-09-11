@@ -16,8 +16,10 @@ Scientific baseline `9d0994f03e4a659787c74df4660cdcab1d398c1c`; all
 inherited science files are byte-identical to the v1.0 baseline. Design:
 `docs/superpowers/specs/2026-09-09-fixed-policy-expected-sarsa-relative-softmax-design.md`.
 
-Claude's main route is sealed at `1cb59f0` on `claude/FP-ESARSA-001`
-(no push, no main merge). One frozen 480-record formal run into
+Claude's main route is sealed at `1cb59f0` on `claude/FP-ESARSA-001`; the
+workspace-pointer commit `cc49599` was pushed to `origin` and fast-forwarded
+into `main` by explicit user authorization on 2026-09-11 (`main` and
+`origin/main` both at `cc49599`). One frozen 480-record formal run into
 `results/FP-ESARSA-001/claude/`: 283/480 certificates per route, 0 oracle
 certificate/residual-event/value violations, generator identity 0/480
 mismatches against the frozen FP-TU-001 baseline, and no safe update emitted,
