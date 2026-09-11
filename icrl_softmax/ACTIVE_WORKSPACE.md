@@ -13,10 +13,22 @@ acceptance on `codex/FP-ESARSA-001` when its quota is restored, then Claude
 reciprocal review. Claude's itemized pre-review returned APPROVED
 (`docs/research_branches/FP-ESARSA-001/codex/claude_pre_review.md`).
 Scientific baseline `9d0994f03e4a659787c74df4660cdcab1d398c1c`; all
-inherited science files are byte-identical to the v1.0 baseline. No research
-run has occurred; results remain preliminary until GPT acceptance or user
-exemption. Design:
+inherited science files are byte-identical to the v1.0 baseline. Design:
 `docs/superpowers/specs/2026-09-09-fixed-policy-expected-sarsa-relative-softmax-design.md`.
+
+Claude's main route is sealed at `1cb59f0` on `claude/FP-ESARSA-001`
+(no push, no main merge). One frozen 480-record formal run into
+`results/FP-ESARSA-001/claude/`: 283/480 certificates per route, 0 oracle
+certificate/residual-event/value violations, generator identity 0/480
+mismatches against the frozen FP-TU-001 baseline, and no safe update emitted,
+so hypothesis 8 is a verified negative usefulness result with no retuning.
+Route evidence: `docs/research_branches/FP-ESARSA-001/claude/`
+(`theory.md`, `first_result.md`, `formal_result.md`, `report.md`,
+`failure_history.md`); main-route report
+`docs/research_branches/fixed_policy_expected_sarsa_report.md`. Verdict for
+acceptance criteria 1-19: PASS. Results remain **preliminary** until GPT
+post-seal acceptance (criterion 20), which is quota-blocked, or an explicit
+user exemption.
 
 ## Verified fixed-exploration task: FP-EXPL-001
 
@@ -212,6 +224,10 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
 - `verify_time_uniform_mixture_certificate.py`
 - `evaluate_time_uniform_certificates.py`
 - `analyze_time_uniform_certificates.py`
+- `fixed_policy_expected_sarsa.py`
+- `verify_fixed_policy_expected_sarsa.py`
+- `evaluate_fixed_policy_expected_sarsa.py`
+- `analyze_fixed_policy_expected_sarsa.py`
 
 ## Active evidence
 
@@ -243,6 +259,10 @@ remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84
 - `docs/research_branches/action_gap_certificate_report.md`
 - `results/FP-ADV-001/codex/`
 - `results/FP-ADV-001/claude/`
+- `docs/research_tasks/FP-ESARSA-001.md`
+- `docs/research_branches/fixed_policy_expected_sarsa_theory.md`
+- `docs/research_branches/fixed_policy_expected_sarsa_report.md`
+- `results/FP-ESARSA-001/claude/`
 
 Each independent formal route contains 480 same-seed comparisons, strict-JSON
 route certificates, zero-mismatch legacy regression, certificate/failure
