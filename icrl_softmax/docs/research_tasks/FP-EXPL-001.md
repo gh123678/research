@@ -2,15 +2,18 @@
 
 ## 1. 元数据与授权
 
-- 日期：2026-09-11。作者：GPT。版本：1.0。状态：DRAFT。
+- 日期：2026-09-11。作者：GPT。版本：1.1。状态：REVIEW。
 - 分支：codex/FP-EXPL-001 与 claude/FP-EXPL-001。
 - 基线：c710e32b24d77085adea134c3f470773037ffbb1。
 - 前序 FP-ITER-001 v1.1 已 VERIFIED；FP-ESARSA-001 保持 DRAFT。
 - 设计：docs/superpowers/specs/2026-09-11-fixed-exploration-grouped-iteration-design.md。
 - 用户已同意保留组内平均、只借鉴探索采样，且明确选择
   “先采样一批，固定数据做迭代”。两个策略均固定。
-- 具体书面协议待用户审阅；目前只允许起草和审查，不执行实验。
-- 本任务结论关键，需独立构造，适用 AGENTS.md 的长任务双路线规则。
+- 用户已确认书面方案，并指示“你主要交给claude就可以，你负责验收”。
+  本任务据此采用 Claude 主执行、GPT 独立验收；这是针对本任务对
+  AGENTS.md 默认双路线完整盲态执行的用户裁决例外，不修改仓库通则。
+- v1.1 只改变职责和相应产物，不改变 v1.0 的任何科学输入、公式、
+  数值容差、覆盖处理或验收强度。目前进入只读预审，不执行实验。
 
 ## 2. 研究问题与可证伪假设
 
@@ -94,8 +97,9 @@ N=64，x_t=(s_t,a_t)，u_t=s_next,t。只在覆盖通过的批次执行：
 
 指标函数描述固定 one-hot 点积，不能代替字面注意力构造。
 须声明 H、WQ/WK/WV/WO、scaled-dot-product softmax、残差连接和固定
-线性/ReLU scratch 清除。允许沿用前序结构，但每位作者独立实现
-自己的本任务网络及标量参考，不导入另一位作者的本任务代码。
+线性/ReLU scratch 清除。允许沿用前序结构。Claude 独立实现本任务
+网络及直接/标量参考；GPT 独立重建公式和输入进行验收，不导入 Claude
+实现的算子作为审核计算依据，也不需要重复撰写一套完整网络。
 
 允许静态角色/位置掩码、prompt 初始化和固定位置输出提取。
 动态 Q 的读取和写入必须经过字面矩阵；不允许外部索引 Q 代替网络、
@@ -162,17 +166,24 @@ rho(Gf) 只作数值诊断。c_f>=1 不代表发散；浮点特征值不能单�
 
 ## 6. 产物、复现和资源
 
-以下路径相对各自工作树的 icrl_softmax，actor 为 codex 或 claude：
+以下路径相对各自工作树的 icrl_softmax。Claude 主执行产物为：
 
-- docs/research_branches/FP-EXPL-001/<actor>/witness.py
-- docs/research_branches/FP-EXPL-001/<actor>/verify.py
-- docs/research_branches/FP-EXPL-001/<actor>/theory.md
-- docs/research_branches/FP-EXPL-001/<actor>/report.md
-- docs/research_branches/FP-EXPL-001/<actor>/verification_of_other.md
-- results/FP-EXPL-001/<actor>/execution_manifest.json
-- results/FP-EXPL-001/<actor>/results.json
-- results/FP-EXPL-001/<actor>/verification.json
-- results/FP-EXPL-001/<actor>/：失败输出、重放证据、CLI 日志及审查辅助文件。
+- docs/research_branches/FP-EXPL-001/claude/witness.py
+- docs/research_branches/FP-EXPL-001/claude/verify.py
+- docs/research_branches/FP-EXPL-001/claude/theory.md
+- docs/research_branches/FP-EXPL-001/claude/report.md
+- docs/research_branches/FP-EXPL-001/claude/verification_of_other.md
+- results/FP-EXPL-001/claude/execution_manifest.json
+- results/FP-EXPL-001/claude/results.json
+- results/FP-EXPL-001/claude/verification.json
+- results/FP-EXPL-001/claude/：失败输出、重放证据与审查辅助文件。
+
+GPT 验收产物为：
+
+- docs/research_branches/FP-EXPL-001/codex/verify_claude.py
+- docs/research_branches/FP-EXPL-001/codex/verification_of_other.md
+- results/FP-EXPL-001/codex/execution_manifest.json
+- results/FP-EXPL-001/codex/：CLI 日志、Claude 输出重放、独立核验结果与失败记录。
 
 GPT 另负责本任务、设计/计划、自身预审记录、handoff.md、synthesis.md
 和 ACTIVE_WORKSPACE.md。Claude 预审原文保存在
@@ -182,13 +193,24 @@ docs/research_branches/FP-EXPL-001/codex/claude_pre_review.md，保留原始日�
 Claude 工作树位置为根项目 icrl_softmax/results/FP-EXPL-001/claude_worktree。
 双方从同一 ACTIVE 发布提交开始，各自首次运行前记录提交、任务
 SHA-256 和环境到 execution_manifest.json。未发布 ACTIVE 前没有
-有效执行基线。前序已验证资料是共有背景；本任务首轮封存前互不读结果。
+有效执行基线。Claude 封存自己的首轮代码、理论、报告和原始结果后，
+GPT 才进行正式验收。GPT 可在等待期间基于冻结任务编写独立核验公式。
+本任务不声称存在两套完整盲态网络实现。
 
 在各自 icrl_softmax 目录执行并保存 stdout 和退出码：
 
-    C:\Users\Admin\anaconda3\python.exe -B docs/research_branches/FP-EXPL-001/<actor>/verify.py
-    C:\Users\Admin\anaconda3\python.exe -B docs/research_branches/FP-EXPL-001/<actor>/witness.py
-    C:\Users\Admin\anaconda3\python.exe -m ruff check docs/research_branches/FP-EXPL-001/<actor>/witness.py docs/research_branches/FP-EXPL-001/<actor>/verify.py
+    C:\Users\Admin\anaconda3\python.exe -B docs/research_branches/FP-EXPL-001/claude/verify.py
+    C:\Users\Admin\anaconda3\python.exe -B docs/research_branches/FP-EXPL-001/claude/witness.py
+    C:\Users\Admin\anaconda3\python.exe -m ruff check docs/research_branches/FP-EXPL-001/claude/witness.py docs/research_branches/FP-EXPL-001/claude/verify.py
+
+GPT 先重放上述三条命令，再从自己的工作树运行：
+
+    C:\Users\Admin\anaconda3\python.exe -B docs/research_branches/FP-EXPL-001/codex/verify_claude.py --results <Claude原始results.json绝对路径>
+
+该路径是执行参数，不是待选择的研究输入。审核程序独立重建冻结种子、
+全部轨迹、C0/S0/W0/C/S/W、仿射算子、全部 Q 迭代、误差/界和适用的
+固定点，并核对 Claude 保存的字面投影与原始结果。
+GPT 另行只读审查源代码与证明，确认没有外部动态 Q 查表或隐含 oracle。
 
 witness 的 strict JSON 包括全部抽样值/轨迹、计数、输入、算子、
 字面权重/第一步投影、全部 Q、阶段误差、界、固定点和不适用原因。
@@ -196,19 +218,21 @@ verify 输出 strict JSON 检查数、失败项和最大偏差。禁止 NaN/Infi
 全部实际失败须保留；不能按重放结果选择输出或更换种子。
 
 资源：CPU，一条 64 步数据轨迹，各数值路线 64 次更新，无扫描。
-预计每位研究员 30--60 分钟完成研究，数值执行各数分钟内。
+预计 Claude 主执行 30--60 分钟，GPT 验收 15--30 分钟，数值执行各数分钟内。
 各研究阶段超过 60 分钟则记录进度与交接，不自动扩充协议。
 不新增收费服务、提供方或收费类别。
 
 ## 7. 生命周期、验收和停止条件
 
-1. DRAFT：方向和固定批次选择已确认，具体书面协议待审阅。
+1. DRAFT：v1.0 已书面提交，用户确认并裁决由 Claude 主执行、GPT 验收。
 2. REVIEW：Claude 只读检查问题定义、数学目标、网络边界、公平输入、
    盲态、完整性、容差、资源和失败处理，返回 APPROVED 或 OBJECTION。
-3. ACTIVE：仅 APPROVED 后发布；双方独立推导、实现和运行，以
-   [codex]/[claude] 开头的各自分支提交封存首次结果。
-4. VERIFYING：双向重放并交叉检查全部输入、原始输出和结论。
-   verification_of_other.md 必须以 PASS、FAIL 或 OBJECTION 结束。
+3. ACTIVE：仅 APPROVED 后发布；Claude 主执行并以 [claude] 提交封存
+   源码/理论/报告，记录未跟踪原始结果的 SHA-256。GPT 在自身分支工作。
+4. VERIFYING：GPT 独立重建并重放全部输入、原始输出和结论，撰写
+   verification_of_other.md。Claude 在其结果封存后复核 GPT 的审核代码、
+   证据和结论，撰写自身 verification_of_other.md。
+   两份报告仍必须有可检查证据并以 PASS、FAIL 或 OBJECTION 结束。
 5. VERIFIED：无未裁决异议、覆盖通过、H2/H3 及适用的 H4 有证据、
    H5 如实评价、双向 PASS 和可复现产物齐全、差异已解释、
    ACTIVE_WORKSPACE.md 已更新。任何 main 合并另需用户批准。
@@ -238,3 +262,7 @@ Claude 登录/额度/权限/环境不可用时记录真实阻塞，不能用 Cod
 - 远端读取因 SSH known_hosts 权限失败，未同步或改 SSH 配置。
 - 三份未跟踪用户学习文档和既有 tmp 内容保留，不纳入新任务。
 - 尚无 Claude 预审、执行或交叉验证，不使用 VERIFIED 表述。
+- 用户随后确认书面方案并指示“可以你主要交给claude就可以，你负责验收”。
+  GPT 据此发布 v1.1，DRAFT -> REVIEW。豁免本任务双路线完整盲态执行，
+  保留 Claude 预审、原作者修复、GPT 独立验收及 Claude 对验收证据复核。
+  本次角色裁决不是数值协议变更，不授权合并、推送或新收费类别。
