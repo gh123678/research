@@ -338,6 +338,14 @@ evidence.
 - `E_Q` mean `0.2426` against the envelope control's `1.0744`; the control is
   worse in all 24 records by `3.448x`--`5.457x`, which is the `H5` attribution.
 - Same-actor derived verification: **PASS**.
+- Read-only robustness check after the seal
+  (`docs/research_branches/FP-SCALE-002/claude/robustness_check.md`): the
+  emission rate stays in `0.500`--`0.667` across seed variants, every emission
+  in every variant is non-degrading and strictly improving, and zero
+  certificate violations occur across all `96` route-records. The check also
+  found that the mixing setting dominates the seed (`0.08`: `19/24`; `0.5`:
+  `3/24`), recorded as an exploratory observation, not a pre-registered
+  hypothesis.
 - One expectation of the route journal was falsified and is reported as such:
   the selected `eta` values `{1.0, 0.1}` both lie inside the inherited grid, so
   the FP-SCALE-001 v1.1 grid extension was not the enabler in this run.
