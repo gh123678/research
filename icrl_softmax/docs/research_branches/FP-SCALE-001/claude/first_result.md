@@ -1,0 +1,184 @@
+# FP-SCALE-001 route journal
+
+Branch: `claude/FP-SCALE-001`. Task: `docs/research_tasks/FP-SCALE-001.md` v1.1
+(`ACTIVE`). Single actor: Claude holds both execution and verification under the
+user instruction of 2026-09-11.
+
+## 1. Gate A — H1 arithmetic re-derived
+
+Re-derived with the inherited verified inverter
+(`time_uniform_mixture_certificate`). See
+`docs/research_branches/FP-SCALE-001/claude/pre_review.md` sections 4--6.
+
+At `d = 12`, `delta = 0.05`, `components = 15`, `B = 5`:
+
+| `N_x` | `r_x` | `r_x/(1-gamma)` |
+|---|---|---|
+| 16384 | 0.3813 | 1.2709 |
+| 20000 | 0.3484 | 1.1613 |
+| 30000 | 0.2965 | 0.9882 |
+| 40000 | 0.2703 | 0.9009 |
+
+The `H1` target `r_x/(1-gamma) <= 1.2` needs `N_x >= 20000`, matching the
+frozen count rule. `H1` arithmetic confirmed.
+
+## 2. Blocker found and repaired during Gate A
+
+v1.0's single contiguously split trajectory cannot reach `N_x >= 20000`: the
+certificate radius is governed by the rarest pair, and the sticky chain caps
+the average pair count at `heldout/d`. Measured worst-pair counts were `248`
+(length 32768) and `1504` (length 131072).
+
+Repaired in v1.1 by separating the training trajectory from an independent
+certification batch. Full detail and measurements in `pre_review.md`.
+
+## 3. Second blocker found while implementing
+
+The inherited frozen inversion only brackets counts inside a narrow,
+**non-monotone** band. Its 15-component geometric grid has mesh points
+`2**0 .. 2**14 = 16384`, so the bracket condition
+`log_mixture(count, 0) < log(d/delta) <= log_mixture(count, stitch)` fails for
+counts that fall between usable mesh points.
+
+Measured at `d = 12`, `delta = 0.05`:
+
+| count | brackets |
+|---|---|
+| 19573 | yes |
+| 40000 | yes |
+| 48000 | yes |
+| 92185 | **no** (`mixture_inversion_unbracketed`) |
+| 207250 | **no** |
+| 234003 | **no** |
+| 131088 | yes |
+| 131089 | no |
+
+This is why an early plumbing run returned
+`status='not_certified'`, `failure_reasons=['mixture_inversion_unbracketed']`
+with four pairs unbracketed.
+
+Repaired **inside the protocol, not by editing the sealed inverter** (which is
+forbidden): the certification batch is sized so every pair exceeds a frozen
+per-pair count, and each pair is then uniformly subsampled to exactly
+`FROZEN_CERT_COUNT = 40000`, which sits mid-band. The subsample uses a
+dedicated RNG stream, so retained items remain independent draws of the same
+conditional law. The estimator is untouched.
+
+Fairness note: this is a protocol constant fixed before any smoke or formal
+output. It was chosen from the inverter's bracketing band, which is a
+property of the sealed verified component, not from any emission outcome.
+
+## 4. Batch sizing measurements
+
+Certification batch sizing at `mixing = 0.5`, three probes each:
+
+| chains | chain length | total | worst-pair count | s/task |
+|---|---|---|---|---|
+| 65536 | 16 | 1,048,576 | 19795 | 12.6 |
+| 131072 | 16 | 2,097,152 | 39580 | 25.1 |
+| 262144 | 8 | 2,097,152 | 39298 | 25.2 |
+| **262144** | **16** | **4,194,304** | **78491** | **50.3** |
+| 524288 | 4 | 2,097,152 | 39123 | 25.2 |
+
+Frozen: `CERT_CHAINS = 262144`, `CERT_CHAIN_LENGTH = 16`, so the worst pair
+exceeds `FROZEN_CERT_COUNT = 40000` with a factor-2 margin and no record is
+lost to subsampling.
+
+## 5. Compute measurements
+
+At `4x3`, `160` layers, `alpha = 0.65`:
+
+| operation | measured |
+|---|---|
+| exact grouped route, 65536 training transitions | 0.34 s |
+| certificate over 262144 certification items | 0.02 s |
+| certification rollout, 4194304 items | ~50 s |
+| full plumbing run (one task, three routes, certificate, H1, decision) | 53.0 s |
+
+Projected formal cost: about `53` s x `24` records = **about 21 minutes**,
+rollout-dominated. Within budget.
+
+## 6. First end-to-end reachable-scale measurement — the decisive result
+
+One task (`task_index = 0`, `mixing = 0.5`), frozen protocol, all three routes:
+
+```text
+expected_exact   cert=certificate_emitted  E_Q=0.9797  max|Ybar|=0.02362
+expected_finite  cert=certificate_emitted  E_Q=0.9789  max|Ybar|=0.02340
+sampled_exact    cert=certificate_emitted  E_Q=0.9927  max|Ybar|=0.02753
+H1 passed=True   min_cert_count=40000      radius_contrib=0.9009
+improvement: abstained, reasons=['improvement_lcb_nonpositive']
+```
+
+**The scale repair worked exactly as designed.** Against the `FP-ESARSA-001`
+baseline the certificate improved by more than an order of magnitude:
+
+| quantity | FP-ESARSA-001 | FP-SCALE-001 (1 record) |
+|---|---|---|
+| worst-pair certification count | 14 | 40000 |
+| `max_x r_x` | 37.7612 | 0.2703 |
+| `max_x |Ybar_x|` | 2.4125 | 0.0236 |
+| `E_Q` | 22.47 (minimum) | 0.98 |
+
+The bound is valid and `H1` passes. **But no update is emitted**, for a reason
+that is now measurable rather than conjectural.
+
+### Why no emission, quantitatively
+
+Emission needs `LB_s(eta) = Ihat_s(eta) - E_Q * TV_s(eta) > 0` at every state.
+At `E_Q = 0.98` the two terms are comparable:
+
+- `Ihat_s`, the policy-improvement signal, is the advantage the tilted policy
+  gains. It is **second order** in the tilt: `Ihat ~ eta^2 Var_pi(q) / 2`.
+- `TV_s`, the total-variation distance moved, is **first order**:
+  `TV ~ eta * sqrt(Var_pi(q))`.
+- So `LB > 0` requires `E_Q < sqrt(Var_pi(q)) = sigma_s`, O(1) in `E_Q` and
+  independent of `eta` in the small-tilt regime.
+
+For this record the within-state Q spreads `sigma_s` are `1.5353, 0.7820,
+1.3606, 0.7712`, while `E_Q = 0.9797`. The smallest spread, `0.7712`, is
+**below** `E_Q`, so that state cannot emit at any `eta`, and the strict
+all-states rule therefore blocks the record.
+
+The sharper constraint is that the achievable margin, not the theoretical
+`sigma_s`, is what must exceed `E_Q * TV`. Measured for the actual `q_hat`:
+
+| `eta` | `max_s Ihat_s` | `max_s TV_s` | margin at `TV=0.01` | needed `E_Q` |
+|---|---|---|---|---|
+| 0.05 | 0.004595 | 0.076458 | 0.000601 | 0.0786 |
+| 0.02 | 0.000812 | 0.031638 | 0.000257 | 0.0257 |
+| 0.01 | 0.000214 | 0.015974 | 0.000134 | 0.0134 |
+
+So an emission in this record would need a certifiable per-state-action error
+of order `0.01`, whereas the certified radius is `0.2703`.
+
+### Structural reading
+
+Combining the two constraints: the certificate must resolve a signal of order
+`eta^2 sigma^2` while carrying an error `eta sigma E_Q`, so the condition is
+
+```text
+E_Q  <  sigma        (the within-state, action-relevant value spread)
+```
+
+and the *usable* margin is only a few percent of `sigma` because the softmax
+tilt is nearly diffusive at the admissible `eta`.
+
+`E_Q = 0.98` against spreads `0.77`--`1.54` is worse than a factor of `10` from
+the usable condition in every state. Closing that gap requires either a much
+larger action-relevant value spread or a certifiable error below `0.01`, and
+the second option needs roughly a `700`-fold larger certification count at this
+record's radius scaling, which is not affordable.
+
+This is the first time the obstruction has been located at the level of the
+value spectrum rather than the certificate's arithmetic, and it is a stronger
+statement than either `FP-ADV-001` or `FP-ESARSA-001` could make, because those
+results were confounded by a certificate that was three orders of magnitude too
+loose.
+
+## 7. Status
+
+Stopped at the smoke gate before any formal run, to report a contract-level
+finding rather than a tuning result. No formal run has occurred. The scale
+revision is exhausted: the protocol now delivers `H1` with a valid certificate
+and still cannot emit, so the remaining obstruction is not the scale.
