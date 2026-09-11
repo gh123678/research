@@ -317,10 +317,28 @@ recompute every reported metric through an independent code path.
 
 ## Definition of done
 
-- [ ] Pre-review recorded with no unresolved objection.
-- [ ] Smoke passes and the compute budget is measured.
-- [ ] One frozen formal run executed exactly once.
-- [ ] Every acceptance criterion has evidence.
-- [ ] Same-actor derived verification recorded, with the limitation stated.
+- [x] Pre-review recorded with no unresolved objection.
+- [x] Smoke passes and the compute budget is measured.
+- [x] One frozen formal run executed exactly once.
+- [x] Every acceptance criterion has evidence.
+- [x] Same-actor derived verification recorded, with the limitation stated.
 - [ ] `ACTIVE_WORKSPACE.md` is current.
 - [ ] The user approves any merge to `main`.
+
+## Formal outcome (2026-09-11)
+
+Recorded here for the task index; the route journal at
+`docs/research_branches/FP-SCALE-002/claude/first_result.md` holds the full
+evidence.
+
+- 24 records, 48 primary route-records, **22 emissions (45.8%)**.
+- Every emission componentwise non-degrading and strictly improving in total
+  value; **0 certificate violations**.
+- `H2`, `H3`, `H4`, `H5`, `H6` all **PASS**.
+- `E_Q` mean `0.2426` against the envelope control's `1.0744`; the control is
+  worse in all 24 records by `3.448x`--`5.457x`, which is the `H5` attribution.
+- Same-actor derived verification: **PASS**.
+- One expectation of the route journal was falsified and is reported as such:
+  the selected `eta` values `{1.0, 0.1}` both lie inside the inherited grid, so
+  the FP-SCALE-001 v1.1 grid extension was not the enabler in this run.
+- `main` unchanged; no merge requested.
