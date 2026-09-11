@@ -2,7 +2,7 @@
 
 ## Metadata and scope
 
-- Date: 2026-09-10. Author: GPT. Version: 1.1. Status: `VERIFYING`.
+- Date: 2026-09-10. Author: GPT. Version: 1.1. Status: `VERIFIED`.
 - Scientific baseline: `c579047950dfabb2600020cd2e53dd24b3e39c84`.
 - Inherited code baseline: `fd0b99826026af6868779f1c27fec4e43325df09`.
 - Preserved v1.0 draft/review commit: `3b9d7b0`.
@@ -329,5 +329,34 @@ the approved CLI log), with an authored review summary and report in Claude's
 authorized directories. Existing sealed raw results remain available. No
 denied capture is re-created, and no global security/provider setting,
 scientific method, tolerance, fixture or acceptance criterion changes.
-This narrower continuation passed automatic approval and is running;
-log: results/FP-ITER-001/codex/claude_readonly_reciprocal.raw.jsonl.
+This narrower continuation passed automatic approval and completed;
+log: results/FP-ITER-001/codex/claude_readonly_reciprocal.raw.jsonl. Its
+authored PASS report is sealed at 5c7aea1 and recorded below.
+
+## Final acceptance
+
+Claude's reciprocal report is sealed in commit
+5c7aea164ce14095c6e697454d4ea1baf71a86f4 and ends PASS. It changed only its
+own verification_of_other.md; its worktree is clean. It independently replayed
+the Codex verifier and witness using read-only console evidence: 6,332 checks
+and 0 failures, 59 verifier fields with 0 mismatches, and 84,697 witness
+leaves with 0 mismatches after excluding only runtime environment.git_commit.
+Its cross-route comparison covered frozen inputs, operators, all 24 traces,
+stage errors, E recurrences, fixed-point fields and decompositions: 17,779
+comparisons, 0 mismatches. The largest absolute difference was 9.346e-05 in
+M/Z/8 E_k at scale 1.11e10, relative about 8.4e-15 and within the frozen
+scaled tolerance. Scoped Ruff passed.
+
+GPT's reciprocal report is codex/verification_of_other.md and its repaired
+final section is PASS. The repaired Claude route is sealed at f6feef6; GPT
+independently replayed it at 1,665 checks, 0 failures, and completed 6,040
+raw comparisons with 0 failures. The two repaired defects were ordinary
+evidence/report defects, fixed by their original author without changing any
+frozen input, formula, operator or Q trace.
+
+All acceptance criteria are met and the lifecycle is ACTIVE -> VERIFYING ->
+VERIFIED. This certifies the small fixed-policy evaluation construction and
+its conditional error/stability statements only. It does not certify policy
+improvement, online control, a general benchmark or a useful statistical
+guarantee. The complete fixture has zero population/data discrepancy, and
+missing-pair finite writing remains a known construction boundary.

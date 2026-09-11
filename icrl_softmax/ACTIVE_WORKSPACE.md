@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Current construction gate: `docs/research_tasks/FP-ITER-001.md` (v1.1, `VERIFYING`). It narrows the
+Current construction gate: `docs/research_tasks/FP-ITER-001.md` (v1.1, `VERIFIED`). It narrows the
 next step to a two-state/two-action fixed-policy Expected SARSA iteration
 witness: direct reference, exact grouped attention, finite-logit attention,
 and a per-iteration error/stability decomposition. The v1.0 review missed
@@ -18,11 +18,12 @@ GPT's follow-up audit found unsupported M-sharp convergence claims and a
 mislabeled scratch snapshot. Claude repaired both at f6feef6; GPT's replay
 of the repair passes 1,665 checks plus 6,040 raw cross-checks and the scientific
 review now returns PASS. All 24 aligned traces differ by at most 3.109e-15;
-the repair changes none of their values. The task has resumed VERIFYING.
-Claude's reciprocal review is running with read-only console evidence and
-authored review records, omitting denied replay-file redirection. Existing
-transfer authorization and global settings are unchanged. The task is not
-VERIFIED until the reciprocal report is complete and passes.
+the repair changes none of their values. Claude's reciprocal review is sealed
+at 5c7aea1 and ends PASS. It independently replayed the Codex verifier and
+witness, matched 84,697 witness leaves and 17,779 cross-route comparisons,
+and found no scientific mismatch. Both reciprocal reports now PASS; the task
+is VERIFIED. Operational deviations and the retained global-memory cleanup
+blocker remain disclosed in the handoff and reports.
 See docs/research_branches/FP-ITER-001/codex/synthesis.md, verification_of_other.md
 and handoff.md.
 It does not activate the broader FP-ESARSA certificate
