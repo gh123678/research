@@ -2,8 +2,60 @@
 
 ## Current objective
 
-No task is active. `docs/research_tasks/FP-ATTN-001.md` (v1.0) closed at Gate D
+No task is active. `docs/research_tasks/FP-ITER2-001.md` (v1.0) closed at Gate D
 on 2026-09-11.
+
+### FP-ITER2-001 — the certificate supports a second certified step (2026-09-11)
+
+`FP-SCALE-002` showed the certified mechanism **exists**; nothing said it could
+be applied more than once. The starting point made that a real test: of the
+`22` certified first steps, `18` had `min_s LB_s < 0.05` and the smallest was
+`0.000001`.
+
+`FP-ITER2-001` applied the **same frozen** certificate and decision code a
+second time, with `pi_1` as the target and the **identical** training and
+certification batches — no resampling, nothing retuned.
+
+| quantity | result |
+|---|---|
+| step-1 reproduction of the sealed result | **48/48 exact**, `0` failures |
+| step-1 emissions | `22` (equals the sealed count) |
+| **emitted two steps** | **`20`** |
+| emitted one / zero steps | `2` / `26` |
+| **step-2 survival of step-1** | **`20/22 = 91%`** |
+| certificate violations | **`0`** |
+| componentwise non-degrading violations | **`0`** |
+| only stopping reason | `improvement_lcb_nonpositive` |
+| mean gain, step 1 → step 2 | `2.717707` → `2.277997` |
+| **minimum gain, step 1 → step 2** | **`0.104197` → `0.779902`** |
+
+`H1`--`H6` all **PASS**. This is the project's first evidence of **usability**
+rather than mere existence: the certificate is not a one-shot phenomenon, and
+value rises monotonically without ever falling back.
+
+**Exploratory, not pre-registered:** the minimum gain rises while the mean
+falls, consistent with step 2 being **selection-filtered** — the two records
+that failed were those whose first step was certified most thinly, so survivors
+carry more uniform improvement even as the average shrinks. A third step is the
+natural next question.
+
+Two bugs found and fixed during smoke are recorded in the journal, the first of
+which is worth naming: the per-route value chain was not reset, so the finite
+route compared against the *exact* route's final value, making the first smoke
+run appear to show the certified guarantee **failing** for a step whose true
+deltas were `+1.0125, +0.4620, +0.4851, +0.5140`. It was a bookkeeping error,
+identified by a debug trace.
+
+Evidence: `docs/research_branches/FP-ITER2-001/claude/` (`first_result.md`,
+`verification_same_actor.md`); bundle `results/FP-ITER2-001/claude/formal/`.
+
+**Verification strength, stated plainly:** same-actor derived verification
+only. `FP-ATTN-001`'s literal-versus-numpy agreement and this result both rest
+on implementations by one author, so a shared conceptual error would not be
+caught. Independent verification remains outstanding for the project's headline
+result.
+
+## Previous task state (closed)
 
 ### FP-ATTN-001 — the literal attention network reproduces the certified improvement (2026-09-11)
 
@@ -66,7 +118,7 @@ only. Both paths are by the same author, so a shared conceptual error would not
 be caught by their agreement. Independent verification by a second actor
 remains the outstanding step for the project's headline result.
 
-## Previous task state (closed)
+## Earlier closed tasks (continued)
 
 ### FP-SCALE-002 — first certified policy improvement (2026-09-11)
 
