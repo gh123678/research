@@ -107,6 +107,35 @@ Design:
 `docs/superpowers/specs/2026-09-11-reachable-certificate-scale-design.md`;
 plan: `docs/superpowers/plans/2026-09-11-reachable-certificate-scale-plan.md`.
 
+### FP-ESARSA-001 corpus partially reconstructed (2026-09-11)
+
+The project's foundation was its weakest-verified link: `FP-ESARSA-001` closed
+`VERIFIED` by user exemption of the independent acceptance, its task sheet
+discloses single-route evidence only, and `FP-SCALE-001` / `FP-SCALE-002` then
+inherited its certificate, routes, and decision rule. With the sealed corpus
+now readable from `main`, it has been reconstructed for the first time by
+something other than its author's own verifier.
+
+`verify_fp_esarsa_001_reconstruction.py` — **21 checks passed, 0 failed** — with
+the report at
+`docs/research_branches/FP-ESARSA-001/claude/reconstruction_posthoc.md`.
+
+Reproduced from source: the frozen seed schedule and **every** record's
+generator identity including the truth-based occupancy and action-gap
+statistics to `1e-12`; the certificate formula with `n_groups = 24`; all
+`31200` non-zero radii against the frozen inversion by inverting to the implied
+held-out count; the contraction diagonal and premise flag via the sealed kernel
+and predicate; and every claimed total, including zero emissions and zero
+oracle violations.
+
+**Disclosed gap:** the held-out trajectories were not serialized, so residual
+means and therefore `E_Q` could not be recomputed from first principles; `E_Q`
+is verified only for internal consistency with the radii and means it reports.
+
+**Status change: none.** This is same-actor and post-hoc. It is not the
+independent second-route acceptance `FP-ESARSA-001` never received, and it does
+not make that task reciprocally verified.
+
 ## Previous task state (closed)
 
 The most recent closed task,
