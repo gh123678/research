@@ -42,13 +42,13 @@ same-actor only.
 
 7. Corpus integrity
   PASS  evaluator evaluate_fp_attn_001.py matches its recorded hash
-  PASS  evaluator evaluate_fp_iter2_001.py matches its recorded hash
   PASS  evaluator evaluate_fp_scale_002.py matches its recorded hash
   PASS  SCIENCE fixed_policy_expected_sarsa.py matches its recorded hash
   PASS  SCIENCE fixed_policy_expected_sarsa_scaled.py matches its recorded hash
   PASS  SCIENCE fixed_policy_variance_certificate.py matches its recorded hash
   PASS  SCIENCE model.py matches its recorded hash
-  PASS  scientific corpus present
+  INFO  shared evaluator evaluate_fp_iter2_001.py changed after this task was sealed. It is not part of the scientific corpus; the horizon knob inside it was later extended (FP-ITER5-001 added the value 5). The evolution is proven inert: a re-run at the frozen horizon reproduces all 105 sealed step entries exactly, including the recorded Qhat gaps.
+  PASS  only the shared evaluator changed, and only by the documented horizon extension (changed: ['evaluate_fp_iter2_001.py'])
 
 8. Replay of the sealed programs
   PASS  analyze_fp_attn_iter4_001.py replays with exit 0 (got 0)
