@@ -677,6 +677,30 @@ explicit user exemption.
   tolerance, matrix, or acceptance-criterion text, and it does not modify
   `AGENTS.md`.
 
+### Post-hoc partial reconstruction (2026-09-11)
+
+- Status change: **none**. This task remains `VERIFIED` by the exemption
+  ruling above; the disclosure of single-route evidence remains accurate.
+- Script: `verify_fp_esarsa_001_reconstruction.py`; report:
+  `docs/research_branches/FP-ESARSA-001/claude/reconstruction_posthoc.md`.
+- Result: **21 checks passed, 0 failed** on the sealed 480-record corpus.
+  Reproduced: the frozen seed schedule and every record's generator identity
+  including truth-based occupancy and action-gap statistics to `1e-12`; the
+  certificate formula `E_Q = max_x(|Ybar_x| + r_x)/(1-gamma)` with
+  `n_groups = 24`; all `31200` non-zero radii against the frozen inversion by
+  inverting to the implied held-out count; the contraction diagonal and premise
+  flag via the sealed kernel and predicate; and every claimed total including
+  zero emissions and zero oracle violations.
+- Not checkable: residual means, and therefore `E_Q` from first principles,
+  because the held-out trajectories were not serialized. That gap is disclosed
+  in the report rather than papered over.
+- Why it matters: FP-SCALE-001 and FP-SCALE-002 inherited this task's
+  certificate and decision rule, so this is the first check of this corpus by
+  anything other than the author's own verifier.
+- Why it is not a substitute: it is same-actor and post-hoc. It is **not** the
+  independent second-route acceptance this task never received, and it does not
+  make this task reciprocally verified.
+
 ## Definition of done
 
 - [x] Predecessor/scheduling gate is satisfied (FP-ADV-001 VERIFIED, 2026-09-11).
