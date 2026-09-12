@@ -310,6 +310,123 @@ def counterfactual_no_envelope(
     return _finish(reasons, means, radii, scales, n_groups, delta_each)
 
 
+def data_range_certificate(
+    q_hat: Any,
+    policy: Any,
+    batch: dict[str, Any],
+    *,
+    reward_bound: float = R_STAR,
+    gamma: float = GAMMA,
+    delta: float = DELTA,
+    n_states: int = N_STATES,
+    n_actions: int = N_ACTIONS,
+    min_half_count: int = MIN_HALF_COUNT,
+) -> dict[str, Any]:
+    """A SOUND data-driven range, by truncation with its bias accounted for.
+
+    The frozen envelope is ``2B = 10`` and the observed ``max|Y|`` is around `2.5`,
+    so the range term ``(4/3) R t`` is carrying roughly four times more than the data
+    supports. FP-TIGHT-001 priced deleting it at ``-45%`` and marked the deletion
+    unsound, because with the range gone nothing bounds the tails. This does it
+    soundly instead.
+
+    Three pieces, per pair:
+
+    1. **Threshold from the other half.** ``tau = max|Y|`` over half A. Because half
+       A is independent of half B, everything below holds *conditionally on tau*
+       with no union bound over a grid of thresholds -- which is why the threshold is
+       taken from A rather than optimised on B.
+    2. **Tail bound.** On half B, ``p = P(|Y| > tau)`` is bounded by Hoeffding on the
+       indicator at risk ``delta_tau``:
+       ``p <= p_hat + sqrt(log(1/delta_tau) / (2 N_B))``.
+    3. **Truncated variable.** With ``Y' = Y 1{|Y| <= tau}``, Bernstein applies to
+       ``Y'`` with range ``2 tau``, and the truncation costs exactly two terms:
+
+       .. code-block:: text
+
+           |E[Y]| <= |mean_B(Y)|                  observed
+                   + (1/N) sum_{|Y_i|>tau} |Y_i|  the empirical tail mass, exact
+                   + sqrt(V_x * p)                 the tail's contribution to E[Y]
+                   + bernstein(Var_B(Y'), 2 tau)   concentration of the truncation
+
+       The cross term uses Cauchy-Schwarz,
+       ``E|Y|1{|Y|>tau} <= sqrt(E[Y^2] P(|Y|>tau)) <= sqrt(V_x p)``.
+
+    Risk: three bounds per pair (the second moment from ``bernstein``'s first step,
+    the tail indicator, and the truncated mean), so ``delta/(3d)`` each.
+
+    This is sound, and it is *looser* than the unsound deletion by construction: the
+    empirical tail mass and the ``sqrt(V_x p)`` term are exactly the price of
+    honesty. Whether the price leaves anything worth having is the empirical
+    question.
+    """
+    del reward_bound, gamma
+    reasons, residuals, split, n_groups = _prepare(
+        q_hat, policy, batch, n_states, n_actions, min_half_count
+    )
+    d = int(n_states) * int(n_actions)
+    delta_each = float(delta) / (3.0 * d)
+    log_term = math.log(2.0 / delta_each)
+    log_tail = math.log(1.0 / delta_each)
+    scales = np.zeros(d, dtype=np.float64)
+    radii = np.zeros(d, dtype=np.float64)
+    means = np.zeros(d, dtype=np.float64)
+    taus = np.zeros(d, dtype=np.float64)
+    tail_terms = np.zeros(d, dtype=np.float64)
+    bias_terms = np.zeros(d, dtype=np.float64)
+    if not reasons:
+        for pair in range(d):
+            first, second = split[pair]
+            n_a, n_b = int(first.size), int(second.size)
+            y_a = residuals[first]
+            y_b = residuals[second]
+
+            # Second moment from half A, exactly as the frozen construction does.
+            m2 = float(np.mean(y_a**2))
+            slack = (ENVELOPE**2 / 2.0) * math.sqrt(log_tail / n_a)
+            v_x = m2 + slack
+            scales[pair] = math.sqrt(max(v_x, 0.0))
+
+            # Threshold from half A only: independent of half B, so no grid union.
+            tau = max(float(np.max(np.abs(y_a))), 1e-12)
+            taus[pair] = tau
+
+            beyond = np.abs(y_b) > tau
+            p_hat = float(np.mean(beyond))
+            # The tail probability must be bounded as TIGHTLY as possible, because
+            # it enters the bias below under a square root. Hoeffding on the
+            # indicator costs sqrt(log(1/delta)/(2N)) ~ 0.014 at N = 16369, which
+            # alone makes the bias 0.15 -- three times the whole frozen radius. The
+            # Maurer-Pontil form, whose range term is (7/3) log(2/delta)/(N-1) ~
+            # 9.4e-4, is far tighter here precisely because the indicator's observed
+            # variance is essentially zero. Using the weaker bound would make this
+            # certificate look worse than it is, so the tighter one is used and the
+            # negative result below is not an artifact of that choice.
+            var_p = float(np.var(beyond.astype(np.float64), ddof=1)) if n_b > 1 else 0.0
+            p_ub = min(
+                1.0,
+                p_hat
+                + math.sqrt(2.0 * max(var_p, 0.0) * log_term / n_b)
+                + EMPIRICAL_BERNSTEIN_CONSTANT * log_term / max(n_b - 1, 1),
+            )
+            tail_mass = float(np.sum(np.abs(y_b[beyond])) / n_b) if n_b else 0.0
+            bias = math.sqrt(max(v_x, 0.0) * p_ub)
+
+            truncated = np.where(beyond, 0.0, y_b)
+            var_t = float(np.var(truncated, ddof=1)) if n_b > 1 else 0.0
+            conc = _equilibrium(var_t, 2.0 * tau, log_term, n_b)
+
+            means[pair] = float(np.mean(y_b))
+            tail_terms[pair] = tail_mass
+            bias_terms[pair] = bias
+            radii[pair] = tail_mass + bias + conc
+    out = _finish(reasons, means, radii, scales, n_groups, delta_each)
+    out["taus"] = taus
+    out["tail_mass"] = tail_terms
+    out["bias_terms"] = bias_terms
+    return out
+
+
 def empirical_bernstein_certificate(
     q_hat: Any,
     policy: Any,
