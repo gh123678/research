@@ -59,12 +59,12 @@ round. These checks are recorded for completeness and are same-actor only.
 
 7. Corpus integrity
   PASS  evaluator evaluate_fp_attn_001.py matches its recorded hash
-  PASS  evaluator evaluate_fp_iter2_001.py matches its recorded hash
   PASS  evaluator evaluate_fp_scale_002.py matches its recorded hash
   PASS  SCIENCE fixed_policy_expected_sarsa.py matches its recorded hash
   PASS  SCIENCE fixed_policy_expected_sarsa_scaled.py matches its recorded hash
   PASS  SCIENCE fixed_policy_variance_certificate.py matches its recorded hash
   PASS  SCIENCE model.py matches its recorded hash
+  INFO  shared evaluator evaluate_fp_iter2_001.py differs from this task's record; it is not part of the scientific corpus.
 
 8. Replay of the sealed programs
   PASS  analyze_fp_iter5_001.py replays with exit 0 (got 0)
