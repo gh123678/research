@@ -292,13 +292,21 @@ def main() -> None:
     analyzer_determinism()
 
     REPORT.append("\n8. Replay of the affected sealed programs")
+    # Only the verifiers whose subject this task's change can move. FP-ITER6-001
+    # extended the horizon inside evaluate_fp_iter2_001.py, so the network-side
+    # horizon verifiers and the certificate checker are the affected set. The
+    # census verifier reads the census bundle and re-runs the census analyzer; it
+    # does not depend on this evaluator's horizon, and it is a deep replay tree in
+    # its own right, so including it here multiplied the runtime for no coverage.
     for script, extra in (
         ("verify_variance_adaptive_certificate.py", []),
+        # The foundation check for the whole line: Q^pi, v^pi and mu_state checked
+        # by methods that share no code with policy_quantities. Exercised here so it
+        # cannot rot. Different METHOD, still the same actor.
+        ("verify_policy_quantities_by_solve.py", []),
         ("verify_fp_attn_iter_001_same_actor.py", []),
         ("verify_fp_attn_iter4_001_same_actor.py", []),
-        ("verify_fp_iter4_001_same_actor.py", []),
         ("verify_fp_iter5_001_same_actor.py", []),
-        ("verify_fp_census_001_same_actor.py", []),
     ):
         completed = subprocess.run(
             [sys.executable, "-B", str(PROJECT / script), *extra],
@@ -349,8 +357,9 @@ def main() -> None:
     REPORT.append("RESULT: " + ("PASS" if FAILURES == 0 else f"FAIL ({FAILURES} failed)"))
     REPORT.append(
         "LIMITATION: same-actor derived verification only, and per the user's\n"
-        "instruction not the focus of this round. The sixth step was run on the\n"
-        "numpy path only, so the network path is now one step behind."
+        "instruction not the focus of this round. The six-step result itself is now\n"
+        "on both paths: FP-ATTN-ITER6-001 brought the network level with numpy, with\n"
+        "the same step-6 emitting set and zero decision flips."
     )
 
     text = "\n".join(REPORT)

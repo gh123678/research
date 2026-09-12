@@ -554,6 +554,73 @@ def main() -> None:
                 f"[{a_dist['min']:.4f}, {a_dist['max']:.4f}]"
             )
 
+    # ------------------------------------- 11. yardstick robustness (post hoc)
+    # NOT a pre-registered hypothesis. The census CHOSE the within-state spread
+    # sigma_min as its yardstick; that choice deserves a check against the obvious
+    # alternative, and the bundle already records it per step as
+    # oracle_audit.min_state_action_gap_true (the smallest top-1-minus-top-2 gap).
+    # Reported post hoc so it can never be mistaken for a registered result, and it
+    # does not revise H1--H6.
+    REPORT.append("\n11. Yardstick robustness (POST-HOC, not pre-registered)")
+    alt_scan = threshold_scan(
+        [
+            r["steps"][0]["oracle_audit"]["min_state_action_gap_true"]
+            / float(r["steps"][0]["e_q"])
+            for r in rows
+        ],
+        labels,
+    )
+    alt_raw = threshold_scan(
+        [r["steps"][0]["oracle_audit"]["min_state_action_gap_true"] for r in rows],
+        labels,
+    )
+    majority = min(sum(1 for lab in labels if lab), sum(1 for lab in labels if not lab))
+    REPORT.append(
+        f"  sigma_min / E_Q        : {scan['best_misclassifications']}/{scan['population']}"
+    )
+    REPORT.append(
+        f"  top-2 gap / E_Q        : "
+        f"{alt_scan['best_misclassifications']}/{alt_scan['population']}"
+    )
+    REPORT.append(
+        f"  top-2 gap (raw)        : "
+        f"{alt_raw['best_misclassifications']}/{alt_raw['population']}"
+    )
+    REPORT.append(
+        f"  E_Q alone              : "
+        f"{e_q_scan['best_misclassifications']}/{e_q_scan['population']}"
+    )
+    REPORT.append(
+        f"  constant predictor     : {majority}/{len(labels)} "
+        f"(always predict the majority class)"
+    )
+    REPORT.append(
+        "  direction matters: the E_Q line is the best threshold for predicting "
+        "ABSTENTION (the direction section 8 uses). Scanning E_Q in the opposite "
+        "direction gives a strictly worse rule, and an earlier scratch version of "
+        "this check quoted that worse number -- hence the explicit direction here."
+    )
+    if e_q_scan["best_misclassifications"] >= majority:
+        REPORT.append(
+            "  NOTE  even in its better direction, the best threshold on E_Q alone "
+            "is no better than predicting the majority class. E_Q carries no "
+            "information about WHO emits at step 1; the separation comes from the "
+            "spread."
+        )
+    else:
+        REPORT.append(
+            f"  NOTE  E_Q alone is informative but weak: "
+            f"{e_q_scan['best_misclassifications']}/{e_q_scan['population']} against "
+            f"a constant-predictor baseline of {majority}/{len(labels)}, versus "
+            f"{scan['best_misclassifications']}/{scan['population']} for the ratio. "
+            "It is far from useless, and it is far from sufficient; the census's "
+            "H5 passes on means without E_Q being the discriminating quantity."
+        )
+    REPORT.append(
+        "  NOTE  this section changes no hypothesis; it is recorded because the "
+        "yardstick was a choice and a worse choice would have changed the story."
+    )
+
     # ------------------------------------------------------- H0 verdict line
     REPORT.append("\n" + "=" * 74)
     REPORT.append("SUMMARY")
@@ -644,6 +711,21 @@ def main() -> None:
         },
         "H6": {"verdict": "PASS" if h6 else "FALSIFIED"},
         "by_step_level": level_info,
+        "yardstick_robustness_posthoc": {
+            "note": (
+                "POST-HOC robustness check on a choice the census made; not a "
+                "pre-registered hypothesis and it revises nothing"
+            ),
+            "sigma_min_over_e_q": scan["best_misclassifications"],
+            "top2_gap_over_e_q": alt_scan["best_misclassifications"],
+            "top2_gap_raw": alt_raw["best_misclassifications"],
+            "e_q_alone": e_q_scan["best_misclassifications"],
+            "constant_predictor": majority,
+            "population": len(labels),
+            "e_q_is_uninformative": bool(
+                e_q_scan["best_misclassifications"] >= majority
+            ),
+        },
         "decay_detail": decay_rows,
     }
     if cv_rows:

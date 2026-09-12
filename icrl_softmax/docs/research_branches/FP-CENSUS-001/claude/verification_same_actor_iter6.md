@@ -51,11 +51,10 @@ round. These checks are recorded for completeness and are same-actor only.
 
 8. Replay of the affected sealed programs
   PASS  verify_variance_adaptive_certificate.py replays with exit 0 (got 0)
+  PASS  verify_policy_quantities_by_solve.py replays with exit 0 (got 0)
   PASS  verify_fp_attn_iter_001_same_actor.py replays with exit 0 (got 0)
   PASS  verify_fp_attn_iter4_001_same_actor.py replays with exit 0 (got 0)
-  PASS  verify_fp_iter4_001_same_actor.py replays with exit 0 (got 0)
   PASS  verify_fp_iter5_001_same_actor.py replays with exit 0 (got 0)
-  PASS  verify_fp_census_001_same_actor.py replays with exit 0 (got 0)
 
 ==========================================================================
 SUMMARY
@@ -76,5 +75,6 @@ SUMMARY
 ==========================================================================
 RESULT: PASS
 LIMITATION: same-actor derived verification only, and per the user's
-instruction not the focus of this round. The sixth step was run on the
-numpy path only, so the network path is now one step behind.
+instruction not the focus of this round. The six-step result itself is now
+on both paths: FP-ATTN-ITER6-001 brought the network level with numpy, with
+the same step-6 emitting set and zero decision flips.

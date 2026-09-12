@@ -94,7 +94,7 @@
 |---|---|---|
 | 固定策略迭代构造 | 检查明确条件下的网络/公式对应关系 | [FP-ITER-001](docs/research_tasks/FP-ITER-001.md)、[FP-EXPL-001](docs/research_tasks/FP-EXPL-001.md) |
 | 误差保证与安全更新 | 早期冻结协议出现零更新，推动对误差界尺度的诊断 | [动作差值报告](docs/research_branches/action_gap_certificate_report.md)、[固定策略报告](docs/research_branches/fixed_policy_expected_sarsa_report.md) |
-| 改善误差保证尺度 | FP-SCALE-001 留下诊断；FP-SCALE-002 在其新协议下记录首次非零更新 | [尺度诊断](docs/research_branches/FP-SCALE-001/claude/first_result.md)、[FP-SCALE-002](docs/research_branches/FP-SCALE-002/claude/first_result.md) |
+| 改善误差保证尺度 | FP-SCALE-001 留下诊断；FP-SCALE-002 在其新协议下记录首次非零更新。清理前的索引页曾记录该瓶颈的量化刻度，已在 [索引清理审计](docs/research_branches/2026-09-12-index-cleanup-audit.md) 中恢复并给出精确出处 | [尺度诊断](docs/research_branches/FP-SCALE-001/claude/first_result.md)、[FP-SCALE-002](docs/research_branches/FP-SCALE-002/claude/first_result.md)、[清理审计](docs/research_branches/2026-09-12-index-cleanup-audit.md) |
 | 接入实际注意力网络 | 比较网络产生的估计与数组公式实现 | [FP-ATTN-001](docs/research_branches/FP-ATTN-001/claude/first_result.md) |
 | 连续策略改进 | 从两步逐步检查到五步，最近结果见上表 | [FP-ITER5-001](docs/research_branches/FP-ITER5-001/claude/first_result.md) |
 | 跨状态借用数据的另一条探索 | 两个冻结任务未得到支持其规定方法的证据，不能据此否定一切泛化方法 | [FP-KERN-001](docs/research_tasks/FP-KERN-001.md)、[FP-KERN-002 综合报告](docs/research_branches/FP-KERN-002/codex/final_synthesis.md) |
@@ -104,10 +104,18 @@
 ## 当前需要分清的科学问题
 
 - 能发出若干步更新，是否足以支持更一般的策略改进结论？当前小环境实验不能独自回答。
-- 停止更新时，是可获得的改进变小，还是现有误差保证不足以确认改进？需按具体记录区分。
-- 继续增加更新步数，会排除什么解释或检验什么新假设？不能仅凭已跑到第五步就确定下一个研究任务。
+- 停止更新时，是可获得的改进变小，还是现有误差保证不足以确认改进？需按具体记录区分：普查显示每一次弃权都是同一条 `improvement_lcb_nonpositive`，且区分主要来自价值跨度而不是误差。
+- 继续增加更新步数，会排除什么解释或检验什么新假设？第六步已经把"平台期是否稳定"回答了：不稳定，降到 9 条。
 
 以上是理解现有证据的阅读问题，不是本次新建的正式研究计划。
+
+## 当前最大的未决项：独立验证
+
+整条 `FP-*` 线至今只有**同一执行者的导出式验证**。29 个检查程序会独立重算头条数字、回放封存程序、核对哈希，但两条计算路线共享证书、判决规则与作为"真值"的 `policy_quantities`，所以它们的一致性只排除实现分歧，**排除不了共有的概念错误**。
+
+- 缺什么、为什么现有检查抓不到：[独立验证交接说明](docs/2026-09-12-independent-verification-handoff.md)。
+- 其中一项已用**不同方法**补上：`verify_policy_quantities_by_solve.py` 用直接线性求解、值迭代与平稳分布方程三条不共享代码的路径核对 `policy_quantities`，六条记录吻合到 `2.3e-14` 以内。这是不同方法，但**仍是同一执行者**，不升级任何结果的验证等级。
+- 该文档同时记录了一个比验证缺口更要紧的**耐久性风险**：`results/` 被 Git 忽略，55 个封存结果包只存在于本机。
 
 ## 代码与证据位置
 
@@ -118,6 +126,8 @@
 - 误差保证：`fixed_policy_variance_certificate.py`。
 - 最近迭代评估：`evaluate_fp_iter2_001.py`、`evaluate_fp_attn_iter_001.py`。
 - 第五步分析与同执行者检查：`analyze_fp_iter5_001.py`、`verify_fp_iter5_001_same_actor.py`。
+- 全line基础核对：`verify_policy_quantities_by_solve.py`。
+- 文档：索引清理审计 `docs/research_branches/2026-09-12-index-cleanup-audit.md`；独立验证交接 `docs/2026-09-12-independent-verification-handoff.md`。
 - 资格普查与第六步：`evaluate_fp_census_001.py`、`analyze_fp_census_001.py`、`analyze_fp_iter6_001.py`、`verify_census_batch_frozen.py`、`verify_fp_census_001_same_actor.py`、`verify_fp_iter6_001_same_actor.py`。
 - 网络第六步：`analyze_fp_attn_iter6_001.py`、`verify_fp_attn_iter6_001_same_actor.py`（评估沿用 `evaluate_fp_attn_iter_001.py`）。
 

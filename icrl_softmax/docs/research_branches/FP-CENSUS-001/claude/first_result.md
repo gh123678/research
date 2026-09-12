@@ -194,6 +194,37 @@ So the step-1 ratio predicts **whether a record starts** far better than it
 predicts **how long it lasts** — `H3` passes on means while its own best
 threshold still misses more than a quarter of the plateau/drop-out split.
 
+### Was the yardstick the right choice? (post-hoc robustness)
+
+`sigma_min` — the full within-state spread `ptp_a Q(s,a)` — was a **choice**. The
+bundle also records the obvious alternative per step, the smallest
+top-1-minus-top-2 gap, so the choice is checkable on the same sealed data. The scan
+below is post-hoc and revises nothing; it is reported because a worse choice would
+have changed the story:
+
+| feature (step 1) | best threshold misclassifies |
+|---|---:|
+| `sigma_min / E_Q` | **`1/48`** |
+| top-2 gap `/ E_Q` | `14/48` |
+| top-2 gap, raw | `12/48` |
+| `E_Q` alone (predict abstention) | `16/48` |
+| constant predictor (majority class) | `22/48` |
+
+The full spread wins by a wide margin, so the census's choice is supported rather
+than merely assumed.
+
+This also sharpens `H5`, in a direction that corrects an earlier overstatement of
+mine. `E_Q` alone is **informative but weak** — `16/48` against a
+constant-predictor baseline of `22/48`, versus `1/48` for the ratio. So "the spread
+is the discriminator and the error is not" stands, but "`E_Q` is uninformative"
+would have been false.
+
+The check nearly produced that false claim: an early scratch version scanned `E_Q`
+in the *emit* direction, got `22/48`, which is exactly the constant baseline, and
+would have licensed the stronger statement. Direction matters. The analyzer now
+states the direction explicitly and prints the baseline beside the number so the
+comparison cannot be misread.
+
 ---
 
 ## 10. The frozen prediction for the sixth step
