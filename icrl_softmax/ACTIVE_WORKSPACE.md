@@ -2,8 +2,53 @@
 
 ## Current objective
 
-No task is active. `docs/research_tasks/FP-ITER2-001.md` (v1.0) closed at Gate D
+No task is active. `docs/research_tasks/FP-ITER3-001.md` (v1.0) closed at Gate D
 on 2026-09-11.
+
+### FP-ITER3-001 — three certified steps, and a falsified prediction (2026-09-11)
+
+`FP-ITER2-001` showed the mechanism is iterable and suggested an *exploratory*
+reading: between steps 1 and 2 the mean gain fell while the minimum gain rose,
+which looked like selection filtering. `FP-ITER3-001` extended the horizon to
+`MAX_STEPS = 3` and **pre-registered** two predictions so that reading could be
+falsified rather than narrated.
+
+| level | emissions | mean gain | minimum gain |
+|---|---|---|---|
+| step 1 | `22` (sealed `22`) | `2.717707` (sealed) | `0.104197` (sealed) |
+| step 2 | `20` (sealed `20`) | `2.277997` (sealed) | `0.779902` (sealed) |
+| **step 3** | **`15`** | **`1.286906`** | **`0.378197`** |
+
+- The horizon change is **inert**: steps 1 and 2 are bit-identical to the sealed
+  `FP-ITER2-001` run across all `70` comparable entries, so the third step is a
+  genuine continuation and not a different method.
+- `15` route-records emitted **all three** certified steps, every emitted step
+  componentwise non-degrading and strictly improving.
+- **`0` certificate violations and `0` non-degrading violations** across all
+  three levels; the only stopping reason remains `improvement_lcb_nonpositive`.
+- `H1`--`H6` and `H8` **PASS**. **`H7` FALSIFIED**: the minimum gain fell
+  (`0.780` → `0.378`).
+
+**What the falsification means.** The selection-filtering reading was only half
+right. Attrition is real and monotone (`22 → 20 → 15`), but the margin profile
+does not improve monotonically, because the policy move itself creates new
+tight states — a record can emit at step 2 with a small margin and then present
+a new binding state at step 3. So iteration here is **both filtering and
+churn**, and the mean gain decays (`2.718 → 2.278 → 1.287`) while the emitting
+population shrinks. The falsification is reported as such, not reinterpreted.
+
+Sealed-file integrity was re-checked across `FP-SCALE-002`, `FP-ITER2-001` and
+`FP-ATTN-001`: **total DRIFT `0`**.
+
+Evidence: `docs/research_branches/FP-ITER3-001/claude/` (`first_result.md`,
+`verification_same_actor.md`); bundle `results/FP-ITER3-001/claude/formal/`.
+
+**Verification strength, stated plainly:** same-actor derived verification
+only. `FP-ATTN-001`, `FP-ITER2-001` and this task all rest on implementations by
+one author, so a shared conceptual error would not be caught. Independent
+verification remains outstanding for the project's headline result.
+
+## Previous task state (closed)
 
 ### FP-ITER2-001 — the certificate supports a second certified step (2026-09-11)
 
@@ -55,7 +100,7 @@ on implementations by one author, so a shared conceptual error would not be
 caught. Independent verification remains outstanding for the project's headline
 result.
 
-## Previous task state (closed)
+## Earlier closed tasks (continued)
 
 ### FP-ATTN-001 — the literal attention network reproduces the certified improvement (2026-09-11)
 
@@ -118,7 +163,7 @@ only. Both paths are by the same author, so a shared conceptual error would not
 be caught by their agreement. Independent verification by a second actor
 remains the outstanding step for the project's headline result.
 
-## Earlier closed tasks (continued)
+## Closed scale tasks (evidence)
 
 ### FP-SCALE-002 — first certified policy improvement (2026-09-11)
 
@@ -251,7 +296,7 @@ is verified only for internal consistency with the radii and means it reports.
 independent second-route acceptance `FP-ESARSA-001` never received, and it does
 not make that task reciprocally verified.
 
-## Previous task state (closed)
+## Verified precedents and evidence
 
 The most recent closed task,
 `docs/research_tasks/FP-ESARSA-001.md` (v1.1), closed `VERIFIED` on

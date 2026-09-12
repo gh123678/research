@@ -41,6 +41,10 @@ SEALED_LABEL = {
     "expected_finite": "variance_adaptive_finite",
 }
 MAX_STEPS = 2
+# FP-ITER3-001 extends the horizon to 3. The code path is otherwise unchanged,
+# and FP-ITER3-001 requires proving that raising the ceiling leaves steps 1 and 2
+# bit-identical, so that the horizon change is inert rather than a new method.
+ALLOWED_MAX_STEPS = (2, 3)
 MIXINGS = (0.08, 0.5)
 TASKS = 12
 # FP-SCALE-002 certification constants. ``fs`` carries the FP-SCALE-001 values
@@ -129,7 +133,15 @@ def main() -> None:
     parser.add_argument("--mixings", type=str, default="0.08,0.5")
     parser.add_argument("--label", type=str, default="second-certified-step")
     parser.add_argument("--debug", action="store_true")
+    parser.add_argument(
+        "--max-steps",
+        type=int,
+        default=MAX_STEPS,
+        choices=ALLOWED_MAX_STEPS,
+        help="iteration horizon; FP-ITER2-001 froze 2, FP-ITER3-001 freezes 3",
+    )
     args = parser.parse_args()
+    max_steps = int(args.max_steps)
 
     mixings = tuple(float(v) for v in args.mixings.split(","))
     debug = bool(args.debug)
@@ -171,7 +183,7 @@ def main() -> None:
                 # bounds ||Q_k - Q^{pi_{k-1}}||, not ||Q_k - Q^{pi_0}||, so the
                 # audit must use the matching fixed point at every step.
                 q_ref = np.asarray(exact["q_pi"], dtype=np.float64).copy()
-                for step_index in range(1, MAX_STEPS + 1):
+                for step_index in range(1, max_steps + 1):
                     result = fs.run_route(route, current_policy, train)
                     q_hat = np.asarray(result["q_hat"], dtype=np.float64).reshape(
                         fs.N_STATES, fs.N_ACTIONS
@@ -305,7 +317,7 @@ def main() -> None:
         "task_id": TASK_ID,
         "label": args.label,
         "record_count": len(records),
-        "max_steps": MAX_STEPS,
+        "max_steps": max_steps,
         "cert_chains": CERT_CHAINS,
         "cert_chain_length": CERT_CHAIN_LENGTH,
         "records": records,
@@ -322,7 +334,7 @@ def main() -> None:
                 "label": args.label,
                 "mixings": list(mixings),
                 "tasks": args.tasks,
-                "max_steps": MAX_STEPS,
+                "max_steps": max_steps,
                 "cert_chains": CERT_CHAINS,
                 "cert_chain_length": CERT_CHAIN_LENGTH,
                 "routes": list(PRIMARY),
@@ -372,4 +384,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
 
