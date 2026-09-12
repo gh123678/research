@@ -41,10 +41,11 @@ SEALED_LABEL = {
     "expected_finite": "variance_adaptive_finite",
 }
 MAX_STEPS = 2
-# FP-ITER3-001 extends the horizon to 3. The code path is otherwise unchanged,
-# and FP-ITER3-001 requires proving that raising the ceiling leaves steps 1 and 2
-# bit-identical, so that the horizon change is inert rather than a new method.
-ALLOWED_MAX_STEPS = (2, 3)
+# FP-ITER3-001 extended the horizon to 3 and FP-ITER4-001 to 4. The code path is
+# otherwise unchanged, and both tasks require proving that raising the ceiling
+# leaves the earlier steps bit-identical, so that the horizon change is inert
+# rather than a new method.
+ALLOWED_MAX_STEPS = (2, 3, 4)
 MIXINGS = (0.08, 0.5)
 TASKS = 12
 # FP-SCALE-002 certification constants. ``fs`` carries the FP-SCALE-001 values
