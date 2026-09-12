@@ -1,1042 +1,145 @@
-# Active research workspace
+# 当前研究状态
 
-## Current objective
+更新日期：2026-09-12。本页是当前研究的阅读入口；历史任务中的“当前”“下一步”等表述属于该任务创建时的语境。
 
-No task is active. `docs/research_tasks/FP-ITER5-001.md` (v1.0) closed at Gate D
-on 2026-09-11.
+## 研究问题
 
-### FP-ITER5-001 — a fifth step on both paths: the population plateaus (2026-09-11)
+在明确限定的环境与结构条件下，固定权重的 softmax 注意力网络能否从经验数据估计动作价值，并支持有误差保证的策略改进？
 
-Runs a fifth certified step on **both** the numpy and network paths, so they
-remain aligned.
+当前实现链条是：
 
-| step | numpy emissions | network emissions | mean gain | minimum gain | network `max\|dQ\|` |
-|---|---|---|---|---|---|
-| 1 | `22` | `22` | `2.717707` | `0.104197` | `1.076e-05` |
-| 2 | `20` | `20` | `2.277997` | `0.779902` | `4.585e-06` |
-| 3 | `15` | `15` | `1.286906` | `0.378197` | `7.176e-06` |
-| 4 | `12` | `12` | `0.807500` | `0.184902` | `1.044e-05` |
-| **5** | **`12`** | **`12`** | **`0.361474`** | **`0.082395`** | **`4.567e-06`** |
+**经验数据 → 固定策略下的动作价值估计 → 误差保证 → 策略更新判断 → 再次评估与更新。**
 
-**The substantive finding: the emitting population plateaus.** Emission deltas
-are `−2, −5, −3, **0**` — after four steps of decline the fifth step emits
-**exactly the same `12` route-records**, verified by set equality rather than
-inference. Meanwhile the mean gain keeps decaying (`0.8075 → 0.3615`). The
-iteration is in a **regime, not a cliff**: a stable set of records keeps being
-certified, each step delivering less.
+注意力网络负责产生估计值 `Qhat`；误差证书、是否更新的判断与环境审计由相应程序执行。网络构造、策略更新规则和整个实验系统各自的范围，需按任务协议区分。
 
-Both horizon changes are **inert** (`105` entries compared per path, `0`
-mismatches). Both paths agree at **every** level and on **all `105`** decision
-comparisons. `12` five-step routes on each path, `0` certificate and `0`
-non-degrading violations. **No accumulated `float32` drift**: the gap is flat
-across five compositions.
+## 最近任务与状态
 
-**`H7` FALSIFIED** (`n5 = 12`, not fewer), reported as such and not
-reinterpreted. It was a legitimate extrapolation of a monotone decline across
-three intervals; the fourth interval broke it, and its failure is what produced
-the plateau finding. `H8`, `H9`, `H10`, `H11` all **PASS**.
+最近任务：[FP-ITER6-001](docs/research_tasks/FP-ITER6-001.md)；上一任务 [FP-ITER5-001](docs/research_tasks/FP-ITER5-001.md)。
 
-**Two shared-code integrity items, both handled.** The horizon change affected
-**two** sealed records (`FP-ATTN-ITER-001`, `FP-ATTN-ITER4-001`); both verifiers
-were updated to keep the scientific-corpus hash checks **strict** while
-reporting evaluator evolution explicitly, and both re-run and re-sealed as
-**PASS**. While doing so a **vacuous check** was found and fixed in the four-step
-network verifier: its corpus-integrity section ended by comparing each file's
-hash to itself, so it could never fail. It now performs the strict per-file
-check plus a bounded evaluator-change check.
+- 已有第五步的两条计算实现运行记录：数组公式实现（numpy）与注意力网络实现。
+- 已有 [结果报告](docs/research_branches/FP-ITER5-001/claude/first_result.md) 和 [同执行者检查记录](docs/research_branches/FP-ITER5-001/claude/verification_same_actor.md)。
+- 任务单元数据仍标记 `ACTIVE`。本次仅清理材料，不修改任务定义、验收状态或升级验证等级。
+- 本次清理没有发起新的实验任务。
 
-Evidence: `docs/research_branches/FP-ITER5-001/claude/`; bundles
-`results/FP-ITER5-001/claude/numpy/` and `results/FP-ITER5-001/claude/network/`.
+## 最近记录显示什么
 
-**Verification strength:** same-actor, and per the user's instruction of
-2026-09-11 ("验证先不管") not the focus of this round.
+下表摘自第五步结果报告，表示每一步通过更新判断的路线记录数。两个计算实现的记录数一致；收益列使用报告中的 numpy 路线数据。
 
-## Closed network-iteration tasks (evidence)
+| 更新步数 | 发出更新的记录数 | 发出更新记录的平均总价值增量 |
+|---|---:|---:|
+| 1 | 22 | 2.717707 |
+| 2 | 20 | 2.277997 |
+| 3 | 15 | 1.286906 |
+| 4 | 12 | 0.807500 |
+| 5 | 12 | 0.361474 |
 
-### FP-ATTN-ITER4-001 — the network reaches four steps, and the gap stays flat (2026-09-11)
+原始协议为 24 个环境记录，每个环境使用两种估计路线；每种计算实现因此有 48 条起始路线记录。上述记录数不是对任意环境的成功率保证。
 
-Two verified results did not align in horizon: `FP-ITER4-001` certified **four**
-steps on the **numpy** path, while `FP-ATTN-ITER-001` certified **three** on the
-literal network. So the deepest result rested on numpy. This task runs the
-network at `MAX_STEPS = 4`, with the comparison baseline switched to the sealed
-`FP-ITER4-001` four-step numpy bundle so step 4 is matched against the matching
-horizon.
+第五步的直接观察：
 
-| step | network emissions | numpy emissions | network mean gain | network min gain | max `\|dQ\|` |
-|---|---|---|---|---|---|
-| 1 | `22` | `22` | `2.7177070297828965` | `0.10419714014227195` | `1.076e-05` |
-| 2 | `20` | `20` | `2.2779971698013703` | `0.7799017280406759` | `4.585e-06` |
-| 3 | `15` | `15` | `1.286905361647572` | `0.37819650415353206` | `7.176e-06` |
-| **4** | **`12`** | **`12`** | **`0.8074994690824351`** | **`0.18490214293638285`** | **`1.044e-05`** |
+- 第四步和第五步继续更新的集合都是同样的 12 条记录。
+- 预先提出的“第五步记录数继续减少”预测被否定。
+- 第五步平均收益低于第四步，报告中的最小总价值增量为 0.082395。
+- 报告未记录两个计算实现之间的更新决策分歧，或在所检查更新中的证书/价值退化违规。
+- 第五步网络与 numpy 的最大估计差约为 `4.567e-06`，仍在该实验的冻结容差内。
 
-- Horizon inertness: **all `90` network step-1..3 entries identical** to the
-  sealed `FP-ATTN-ITER-001` run, including the recorded `Qhat` gaps.
-- **Decision agreement `105/105`; `0` flips; `0` `eta` flips; `0` certificate
-  violations; `0` non-degrading violations.** Producer set exactly
-  `{literal_attention_network}`; `12` four-step routes.
+这些是受限小环境、指定数据和协议下的**初步结果**。最近这一系列主要由同一执行者实现和检查；两种计算实现的一致性不能排除共有的概念错误，也不能说明任意网络、任意环境或任意多步都会改善。
 
-**The `float32` gap does not accumulate at four steps either.** The per-step
-maximum gap is `1.076e-05`, `4.585e-06`, `7.176e-06`, **`1.044e-05`** — flat
-across four compositions and an order of magnitude inside `ATOL`. The flatness
-is now observed across four rather than three, strengthening the reading that
-the network-versus-numpy difference acts as per-step rounding noise. Only the
-measurement is claimed, not the mechanism.
+## 第六步与资格普查（2026-09-12 新增）
 
-**The network and numpy horizons are now aligned at four steps**, so the deepest
-certified result no longer depends on which code path is trusted.
+本次把两项工作合并执行：资格普查 [FP-CENSUS-001](docs/research_tasks/FP-CENSUS-001.md)
+与第六个认证步 [FP-ITER6-001](docs/research_tasks/FP-ITER6-001.md)。记录见
+[结果报告](docs/research_branches/FP-CENSUS-001/claude/first_result.md)、
+[普查同执行者检查](docs/research_branches/FP-CENSUS-001/claude/verification_same_actor.md)、
+[第六步同执行者检查](docs/research_branches/FP-CENSUS-001/claude/verification_same_actor_iter6.md)。
 
-One small numerical difference is recorded rather than glossed: the network's
-mean and minimum gains differ from numpy's in the fifth decimal (e.g. step 1
-`2.7177070297828965` vs `2.71770715611645`). That is not a discrepancy — the two
-routes produce slightly different policies and `total_value_gain` is the
-**oracle** value change of the policy each actually produced; decisions, `eta`
-and emission counts are identical.
+第六步（本轮仅 numpy 路线）：
 
-Shared-evaluator audit: **no sealed bundle recorded the changed file**, so no
-earlier report was affected, and all prior verifiers still exit `0`.
+| 更新步数 | 发出更新的记录数 | 平均总价值增量 | 最小总价值增量 |
+|---|---:|---:|---:|
+| 1 | 22 | 2.717707 | 0.104197 |
+| 2 | 20 | 2.277997 | 0.779902 |
+| 3 | 15 | 1.286906 | 0.378197 |
+| 4 | 12 | 0.807500 | 0.184902 |
+| 5 | 12 | 0.361474 | 0.082395 |
+| 6 | 9 | 0.167057 | 0.019347 |
 
-Evidence: `docs/research_branches/FP-ATTN-ITER4-001/claude/` (`first_result.md`,
-`verification_same_actor.md`); bundle
-`results/FP-ATTN-ITER4-001/claude/formal/`.
+- 第四、五步“都是同样的 12 条”只是一个区间，不是不动点：第六步降到 9 条，失去 3 条，没有新增。
+- 第六步最小总价值增量 `0.019347` 低于第四、五步通过的非平凡下限 `0.05`；该项预先登记的预测被否定。
+- 第六步全部 9 条更新分量不退化且总值严格上升；六步之内没有证书违规。
+- 第六步 horizon 变更已验证为惰性：第五步及以前共 `117` 条记录逐步完全一致。
+- 网络路线本轮未运行，因此比 numpy 路线落后一步。
 
-**Verification strength:** same-actor, and per the user's instruction of
-2026-09-11 ("验证先不管") not the focus of this round. No second actor
-reconstructed this route; agreement between the network and numpy paths rules
-out implementation drift between them, not a shared conceptual error.
+资格普查（48 条路线记录 × 至多 5 步；先复现第五步的判定，`48/48` 完全一致）：
 
-## Closed numpy-iteration tasks (evidence)
+- `sigma_min / E_Q` 在第一步区分度很高，但**不是分类器**：最优阈值仍有 `1/48` 误分类，两组区间重叠。
+- 区分主要来自状态内的动作价值跨度（两组相差 `2.6` 倍），而不是认证误差（`1.2` 倍）；单用 `E_Q` 预测弃权会误分类 `16/48`。
+- 普查中每一次弃权的原因都是同一条 `improvement_lcb_nonpositive`：证书从未失败，失败的是改进预算。
+- 该判据能描述前五步，却预测不了第六步：停下的 3 条中有 2 条的第五步比值高于仍在继续的最低记录，没有任何阈值能把它们分开。
+- 第六步预测在运行前冻结（`2026-09-12T11:23:59Z`，sha256 `70b79f03…`）；两条登记规则给出了完全相同的预测，故该比较无法区分优劣，这一点作为设计缺陷记录在报告中。
+- 普查批次与第五步所用批次一致，已由 `verify_census_batch_frozen.py` 逐对计数核对。
 
-### FP-ITER4-001 — a fourth certified step, all three predictions held (2026-09-11)
+以上同样是受限小环境与冻结协议下的**初步结果**，且仍为同一执行者自检。
 
-Extends the certified iteration to `MAX_STEPS = 4` with three **pre-registered**
-step-4 predictions, so the decay reading could be falsified rather than
-narrated.
+## 研究走到这里的关键环节
 
-| step | emissions | mean gain | minimum gain |
-|---|---|---|---|
-| 1 | `22` (sealed) | `2.717707` (sealed) | `0.104197` (sealed) |
-| 2 | `20` (sealed) | `2.277997` (sealed) | `0.779902` (sealed) |
-| 3 | `15` (sealed) | `1.286906` (sealed) | `0.378197` (sealed) |
-| **4** | **`12`** | **`0.807500`** | **`0.184902`** |
+历史材料保留用于追溯证据，以下链接不代表新任务授权。
 
-- Horizon inertness: **all `90` step-1..3 entries bit-identical** to the sealed
-  `FP-ITER3-001` run; `0` reproduction failures.
-- `12` route-records emitted **all four** steps; `105` step executions.
-- **`0` certificate violations and `0` non-degrading violations**; the only
-  stopping reason remains `improvement_lcb_nonpositive`.
-- **All three pre-registered predictions PASS**: `H7` (`12 < 15`), `H8`
-  (`0.8075 < 1.2869`), `H9` (`min4 = 0.1849 > 0.05`, so the fourth step is a
-  real improvement rather than a vacuous move).
-
-**Decay shape, with its limits.** Emission ratios `0.9091, 0.7500, 0.8000`;
-mean-gain ratios `0.8382, 0.5649, 0.6266`. Both **dip at 2 → 3 and recover at
-3 → 4**, so neither sequence is monotone or cleanly geometric. Four points
-identify no functional form and none is claimed. What the data support is the
-**churn** reading from `FP-ITER3-001` — each policy move creates new tight
-states, so the population and margin profile are re-drawn every step rather than
-filtered monotonically — not a smooth decay law.
-
-The fourth step has so far run on the **numpy** route only; the network is
-verified through three steps.
-
-Evidence: `docs/research_branches/FP-ITER4-001/claude/` (`first_result.md`,
-`verification_same_actor.md`); bundle `results/FP-ITER4-001/claude/formal/`.
-
-**A shared-code integrity note, recorded rather than hidden.** The horizon knob
-lives in the shared task evaluator `evaluate_fp_iter2_001.py`, so extending it
-changed that file's hash and correctly tripped `FP-ATTN-ITER-001`'s sealed-file
-check. The scientific corpus (certificate, routes, model, certificate verifier)
-is byte-identical everywhere; the evaluator is not part of it. The change is
-paired with an **inertness proof** — a re-run at the frozen horizon reproduces
-all `90` sealed step entries exactly — and `FP-ATTN-ITER-001`'s verifier was
-updated to keep the science checks strict while reporting evaluator evolution
-explicitly, then re-run to PASS.
-
-**Verification strength, stated plainly:** same-actor derived verification
-only. Every result in this line of work rests on implementations by one author,
-so a shared conceptual error would not be caught. Independent verification
-remains the one outstanding item for the project's headline result.
-
-## Closed network tasks (evidence)
-
-### FP-ATTN-ITER-001 — the literal network carries the three-step iteration (2026-09-11)
-
-This closed the last unexecuted inference step in the project's central claim.
-The certified iteration had only ever run in numpy: `FP-ATTN-001` verified
-**one** certified step in the literal network, while `FP-ITER2-001` and
-`FP-ITER3-001` verified the second and third steps **only in numpy**. Here the
-network produces the `Qhat` at **every** step, with the frozen certificate and
-decision rule applied to that network output.
-
-`24` records, `48` route-records, `90` network step executions:
-
-| quantity | network | FP-ITER3-001 numpy |
+| 环节 | 已有记录及范围 | 入口 |
 |---|---|---|
-| emissions at step 1 / 2 / 3 | **`22` / `20` / `15`** | `22` / `20` / `15` |
-| three-step route-records | **`15`** | `15` |
-| decision agreement | **`90/90`** | — |
-| decision flips | **`0`** | — |
-| selected-`eta` flips | **`0`** | — |
-| certificate violations | **`0`** | — |
-| non-degrading violations | **`0`** | — |
-| max `\|Q_network − Q_numpy\|_inf` | **`1.076e-05`** (`ATOL` `1e-04`) | — |
+| 固定策略迭代构造 | 检查明确条件下的网络/公式对应关系 | [FP-ITER-001](docs/research_tasks/FP-ITER-001.md)、[FP-EXPL-001](docs/research_tasks/FP-EXPL-001.md) |
+| 误差保证与安全更新 | 早期冻结协议出现零更新，推动对误差界尺度的诊断 | [动作差值报告](docs/research_branches/action_gap_certificate_report.md)、[固定策略报告](docs/research_branches/fixed_policy_expected_sarsa_report.md) |
+| 改善误差保证尺度 | FP-SCALE-001 留下诊断；FP-SCALE-002 在其新协议下记录首次非零更新 | [尺度诊断](docs/research_branches/FP-SCALE-001/claude/first_result.md)、[FP-SCALE-002](docs/research_branches/FP-SCALE-002/claude/first_result.md) |
+| 接入实际注意力网络 | 比较网络产生的估计与数组公式实现 | [FP-ATTN-001](docs/research_branches/FP-ATTN-001/claude/first_result.md) |
+| 连续策略改进 | 从两步逐步检查到五步，最近结果见上表 | [FP-ITER5-001](docs/research_branches/FP-ITER5-001/claude/first_result.md) |
+| 跨状态借用数据的另一条探索 | 两个冻结任务未得到支持其规定方法的证据，不能据此否定一切泛化方法 | [FP-KERN-001](docs/research_tasks/FP-KERN-001.md)、[FP-KERN-002 综合报告](docs/research_branches/FP-KERN-002/codex/final_synthesis.md) |
 
-`H1`--`H7` all **PASS**. Every step records which producer generated its
-`Qhat`, and the verifier confirms the set of producers is exactly
-`{literal_attention_network}` — no numpy substitution anywhere.
+早期“尚无网络实现”“所有协议都无法发出更新”“FP-SCALE-001 是当前待启动任务”等总览表述已移除。具体旧实验的零结果仍保存在原报告中，不因后续实验进展而被改写。
 
-**The accumulation question, which was the real risk, is answered.** Iteration
-feeds each step's output into the next, so the `float32`-versus-`float64`
-difference could compound until it crossed a decision boundary, and third-step
-margins are of order `0.378`. It does **not** compound:
+## 当前需要分清的科学问题
 
-| step | max `\|Q_network − Q_numpy\|_inf` |
-|---|---|
-| 1 | `1.076e-05` |
-| 2 | `4.585e-06` |
-| 3 | `7.176e-06` |
+- 能发出若干步更新，是否足以支持更一般的策略改进结论？当前小环境实验不能独自回答。
+- 停止更新时，是可获得的改进变小，还是现有误差保证不足以确认改进？需按具体记录区分。
+- 继续增加更新步数，会排除什么解释或检验什么新假设？不能仅凭已跑到第五步就确定下一个研究任务。
 
-The gap is essentially flat rather than growing, which is why there is not one
-flip to report. The journal offers the contraction structure as a consistent
-explanation but claims only the measurement, not the mechanism.
+以上是理解现有证据的阅读问题，不是本次新建的正式研究计划。
 
-**The central claim now holds end to end:**
+## 代码与证据位置
 
-| question | answer | evidence |
-|---|---|---|
-| can the network produce a certified improvement | yes, `22/48` | `FP-SCALE-002` + `FP-ATTN-001` |
-| is it one-shot | no, `20/22` continue | `FP-ITER2-001` |
-| how far does it go | three steps, `15/48` | `FP-ITER3-001` |
-| does the **network** carry the iteration | yes, identically | this task |
+最近路线的主要代码：
 
-`60` of the `90` step executions continued past the first step, so this is
-genuine multi-step network execution, not a single step repeated.
+- 网络构造：`model.py`。
+- 固定策略估计及更新规则：`fixed_policy_expected_sarsa.py`、`fixed_policy_expected_sarsa_scaled.py`。
+- 误差保证：`fixed_policy_variance_certificate.py`。
+- 最近迭代评估：`evaluate_fp_iter2_001.py`、`evaluate_fp_attn_iter_001.py`。
+- 第五步分析与同执行者检查：`analyze_fp_iter5_001.py`、`verify_fp_iter5_001_same_actor.py`。
+- 资格普查与第六步：`evaluate_fp_census_001.py`、`analyze_fp_census_001.py`、`analyze_fp_iter6_001.py`、`verify_census_batch_frozen.py`、`verify_fp_census_001_same_actor.py`、`verify_fp_iter6_001_same_actor.py`。
 
-Evidence: `docs/research_branches/FP-ATTN-ITER-001/claude/` (`first_result.md`,
-`verification_same_actor.md`); bundle
-`results/FP-ATTN-ITER-001/claude/formal/`.
+第五步输出：
 
-**Verification strength, stated plainly:** same-actor derived verification
-only. The network-versus-numpy agreement is a **within-author** cross-check: it
-rules out implementation drift between the two paths, but it cannot catch a
-conceptual error shared by both. Independent verification remains the one
-outstanding item for the project's headline result.
+- `results/FP-ITER5-001/claude/numpy/`
+- `results/FP-ITER5-001/claude/network/`
 
-## Closed iteration tasks (evidence)
+第六步与普查输出：
 
-### FP-ITER3-001 — three certified steps, and a falsified prediction (2026-09-11)
+- `results/FP-ITER6-001/claude/numpy/`
+- `results/FP-CENSUS-001/claude/smoke/`
+- `results/FP-CENSUS-001/claude/formal/`（含冻结的 `prediction_step6.json`）
 
-`FP-ITER2-001` showed the mechanism is iterable and suggested an *exploratory*
-reading: between steps 1 and 2 the mean gain fell while the minimum gain rose,
-which looked like selection filtering. `FP-ITER3-001` extended the horizon to
-`MAX_STEPS = 3` and **pre-registered** two predictions so that reading could be
-falsified rather than narrated.
+各次实验的准确版本、环境、命令及失败记录，以对应 [任务单](docs/research_tasks/) 和 [结果报告](docs/research_branches/) 为准。旧实验依赖的程序与结果目录保持原位置。
 
-| level | emissions | mean gain | minimum gain |
-|---|---|---|---|
-| step 1 | `22` (sealed `22`) | `2.717707` (sealed) | `0.104197` (sealed) |
-| step 2 | `20` (sealed `20`) | `2.277997` (sealed) | `0.779902` (sealed) |
-| **step 3** | **`15`** | **`1.286906`** | **`0.378197`** |
+### FP-KERN 历史结果的实际位置
 
-- The horizon change is **inert**: steps 1 and 2 are bit-identical to the sealed
-  `FP-ITER2-001` run across all `70` comparable entries, so the third step is a
-  genuine continuation and not a different method.
-- `15` route-records emitted **all three** certified steps, every emitted step
-  componentwise non-degrading and strictly improving.
-- **`0` certificate violations and `0` non-degrading violations** across all
-  three levels; the only stopping reason remains `improvement_lcb_nonpositive`.
-- `H1`--`H6` and `H8` **PASS**. **`H7` FALSIFIED**: the minimum gain fell
-  (`0.780` → `0.378`).
+这两次任务的结果位于其独立工作区内部；不要误用宿主目录下不存在的简写位置：
 
-**What the falsification means.** The selection-filtering reading was only half
-right. Attrition is real and monotone (`22 → 20 → 15`), but the margin profile
-does not improve monotonically, because the policy move itself creates new
-tight states — a record can emit at step 2 with a small margin and then present
-a new binding state at step 3. So iteration here is **both filtering and
-churn**, and the mean gain decays (`2.718 → 2.278 → 1.287`) while the emitting
-population shrinks. The falsification is reported as such, not reinterpreted.
+- `results/FP-KERN-001/codex_worktree/icrl_softmax/results/FP-KERN-001/codex/`
+- `results/FP-KERN-001/claude_worktree/icrl_softmax/results/FP-KERN-001/claude/`
+- `results/FP-KERN-002/input/`：共同冻结输入。
+- `results/FP-KERN-002/codex_worktree/icrl_softmax/results/FP-KERN-002/codex/`
+- `results/FP-KERN-002/claude_worktree/icrl_softmax/results/FP-KERN-002/claude/`
 
-Sealed-file integrity was re-checked across `FP-SCALE-002`, `FP-ITER2-001` and
-`FP-ATTN-001`: **total DRIFT `0`**.
+## 历史材料与协作规则
 
-Evidence: `docs/research_branches/FP-ITER3-001/claude/` (`first_result.md`,
-`verification_same_actor.md`); bundle `results/FP-ITER3-001/claude/formal/`.
+正式任务、设计、推导、原始实验与验证记录继续保留；它们是研究依据，不能按文件日期判断是否失效。旧实验代码与结果另有历史归档：`../_archive/icrl_softmax_history_20260831/`。
 
-**Verification strength, stated plainly:** same-actor derived verification
-only. `FP-ATTN-001`, `FP-ITER2-001` and this task all rest on implementations by
-one author, so a shared conceptual error would not be caught. Independent
-verification remains outstanding for the project's headline result.
-
-## Earlier iteration tasks (evidence)
-
-### FP-ITER2-001 — the certificate supports a second certified step (2026-09-11)
-
-`FP-SCALE-002` showed the certified mechanism **exists**; nothing said it could
-be applied more than once. The starting point made that a real test: of the
-`22` certified first steps, `18` had `min_s LB_s < 0.05` and the smallest was
-`0.000001`.
-
-`FP-ITER2-001` applied the **same frozen** certificate and decision code a
-second time, with `pi_1` as the target and the **identical** training and
-certification batches — no resampling, nothing retuned.
-
-| quantity | result |
-|---|---|
-| step-1 reproduction of the sealed result | **48/48 exact**, `0` failures |
-| step-1 emissions | `22` (equals the sealed count) |
-| **emitted two steps** | **`20`** |
-| emitted one / zero steps | `2` / `26` |
-| **step-2 survival of step-1** | **`20/22 = 91%`** |
-| certificate violations | **`0`** |
-| componentwise non-degrading violations | **`0`** |
-| only stopping reason | `improvement_lcb_nonpositive` |
-| mean gain, step 1 → step 2 | `2.717707` → `2.277997` |
-| **minimum gain, step 1 → step 2** | **`0.104197` → `0.779902`** |
-
-`H1`--`H6` all **PASS**. This is the project's first evidence of **usability**
-rather than mere existence: the certificate is not a one-shot phenomenon, and
-value rises monotonically without ever falling back.
-
-**Exploratory, not pre-registered:** the minimum gain rises while the mean
-falls, consistent with step 2 being **selection-filtered** — the two records
-that failed were those whose first step was certified most thinly, so survivors
-carry more uniform improvement even as the average shrinks. A third step is the
-natural next question.
-
-Two bugs found and fixed during smoke are recorded in the journal, the first of
-which is worth naming: the per-route value chain was not reset, so the finite
-route compared against the *exact* route's final value, making the first smoke
-run appear to show the certified guarantee **failing** for a step whose true
-deltas were `+1.0125, +0.4620, +0.4851, +0.5140`. It was a bookkeeping error,
-identified by a debug trace.
-
-Evidence: `docs/research_branches/FP-ITER2-001/claude/` (`first_result.md`,
-`verification_same_actor.md`); bundle `results/FP-ITER2-001/claude/formal/`.
-
-**Verification strength, stated plainly:** same-actor derived verification
-only. `FP-ATTN-001`'s literal-versus-numpy agreement and this result both rest
-on implementations by one author, so a shared conceptual error would not be
-caught. Independent verification remains outstanding for the project's headline
-result.
-
-## Earlier closed tasks (continued)
-
-### FP-ATTN-001 — the literal attention network reproduces the certified improvement (2026-09-11)
-
-The project's claim is about a fixed-weight softmax **attention network**, but
-every formal emission so far was computed by numpy code: neither
-`evaluate_fixed_policy_expected_sarsa.py`, `evaluate_fp_scale_002.py` nor
-`fixed_policy_expected_sarsa_scaled.py` imports `torch` or `model`. The literal
-networks in `model.py` had only ever been checked on small fixtures, so the
-step that mattered had never been executed:
-
-```text
-literal network == numpy formula      (fixtures only)
-numpy formula   -> 22/48 certified improvements
-therefore literal network -> 22/48    (never executed until now)
-```
-
-`FP-ATTN-001` executed it on the frozen `FP-SCALE-002` matrix: `24` records,
-`48` route-records, literal networks in `float32` versus numpy routes in
-`float64`, both scored with the same frozen certificate and decision rule.
-
-| quantity | result |
-|---|---|
-| route-records compared | `48` |
-| max `\|literal Q - numpy Q\|_inf` | **1.076e-05** (frozen `ATOL` 1e-04) |
-| numpy emissions | **22 / 48** |
-| **literal emissions** | **22 / 48** |
-| decision flips | **0** |
-| selected-eta flips | **0** |
-| layer-0 diagnostic gap | **0.0** on every field |
-| sealed regeneration failures | `0` (max sealed `E_Q` gap `0.0`) |
-
-`H1`--`H6` all **PASS**. The layer-0 gaps of exactly `0.0` show the literal
-networks compute the same successor expectation, retrieved current value and
-signed residuals as the numpy route, so this is not two recursions landing
-nearby; the `1.076e-05` terminal gap is accumulated `160`-layer `float32`
-rounding and never reaches the decision boundary.
-
-`H5` is checked executably: the finite route exposes no visited gate, every
-write weight is strictly positive (full support, no `-inf` mask) and the write
-attention is row-normalised, while the masked exact route does carry a visited
-gate and produces exact zeros. The asymmetry is documented, not blurred.
-
-Two findings recorded alongside:
-
-- a defect found during smoke and fixed: the evaluator first read
-  `fs.CERT_CHAINS`/`fs.CERT_CHAIN_LENGTH`, which carry the **FP-SCALE-001**
-  protocol (`262144 x 16`); FP-SCALE-002 froze `16384 x 64`, so the regenerated
-  batches were `4x` too large and the regeneration check failed by about
-  `0.13`;
-- diagnosing that established, by replaying the sealed code path verbatim, that
-  the **FP-SCALE-002 formal result is bit-exactly reproducible**
-  (`|dE_Q| = 0`, `max|dLB| = 0`, identical `eta` and decisions), which had not
-  been demonstrated before.
-
-Evidence: `docs/research_branches/FP-ATTN-001/claude/` (`first_result.md`,
-`verification_same_actor.md`); bundle `results/FP-ATTN-001/claude/formal/`.
-
-**Verification strength, stated plainly:** same-actor derived verification
-only. Both paths are by the same author, so a shared conceptual error would not
-be caught by their agreement. Independent verification by a second actor
-remains the outstanding step for the project's headline result.
-
-## Closed scale tasks (evidence)
-
-### FP-SCALE-002 — first certified policy improvement (2026-09-11)
-
-`docs/research_tasks/FP-SCALE-002.md` (v1.0) executed on `claude/FP-SCALE-001`,
-closed at Gate D, and **merged to `main` and pushed by user approval on
-2026-09-11** (`d4df7bc..6717707`). It replaced exactly one ingredient of the
-inherited verified certificate — the worst-case residual envelope `2B` that
-supplies its sub-Gaussian parameter — with a two-half estimate whose every
-constant is a named Hoeffding inequality and which contains no fitted or
-asserted scaling factor.
-
-| quantity | result |
-|---|---|
-| records / primary route-records | 24 / 48 |
-| **primary emissions** | **22 / 48 (45.8%)** |
-| componentwise non-degrading | 22 / 22 |
-| strict improvements in total value | 22 / 22 |
-| **certificate violations** | **0** |
-| `E_Q` adaptive / envelope control, mean | 0.2426 / 1.0744 |
-| control/adaptive `E_Q` ratio | 3.448--5.457 in **all 24** records |
-| selected eta | `1.0` x 21, `0.1` x 1 |
-| mean value gain among emitted | 2.7177 |
-
-`H2`--`H6` all **PASS**. `H5` is the attribution: on identical tasks, batches,
-split sizes and risk allocation, the only difference is the concentration
-argument, and the variance-adaptive radius is smaller in every record.
-
-This is the first time the project has produced a policy update that is
-certifiably non-degrading *and* strictly improving. The three predecessors all
-returned zero: `FP-ADV-001` `0/480`, `FP-ESARSA-001` `0/480`, and
-`FP-SCALE-001` v1.1 `0/1` probed at a certificate scale an order of magnitude
-tighter than either.
-
-Evidence: `docs/research_branches/FP-SCALE-002/claude/` (`pre_review.md`,
-`first_result.md`, `verification_same_actor.md`); sealed bundle
-`results/FP-SCALE-002/claude/formal/`.
-
-**Verification strength, stated plainly:** same-actor derived verification
-only. The user assigned both execution and verification to Claude for these
-tasks, waiving the reciprocal verification of `AGENTS.md` section 7. The
-verification recomputes every reported quantity from the sealed records through
-a separate code path, replays the sealed programs, and checks sealed-module
-hashes — but no second actor reconstructed the route, and none of this is
-reciprocal verification.
-
-**Two falsified expectations are reported rather than dropped:** the selected
-eta values both lie inside the inherited grid, so the FP-SCALE-001 v1.1
-downward extension was not the enabler here; and the derived verification
-caught an error in its own first version.
-
-### The mixing effect is explained, not an open question (2026-09-11)
-
-The sealed bundle emits `19/24` at mixing `0.08` but only `3/24` at mixing
-`0.5`. A read-only re-analysis
-(`docs/research_branches/FP-SCALE-002/claude/mixing_mechanism.md`) shows this is
-the already-established mechanism, not a new phenomenon. The controlling ratio
-is `sigma_min / E_Q`, where `sigma_min` is the smallest within-state action
-value spread:
-
-| mixing | mean `E_Q` | mean `sigma_min` | mean ratio |
-|---|---|---|---|
-| `0.08` | 0.2159 | 0.7402 | 3.687 |
-| `0.5` | 0.2693 | 0.3985 | 1.544 |
-
-The effect is carried by the numerator: the spread nearly halves while `E_Q`
-moves only `1.25x`. Low mixing keeps the process in place through the sticky
-self-loop, so the action choice survives into the value differences inside a
-state; high mixing washes it out.
-
-Stated precisely: **the ratio is directionally and substantially predictive,
-not a sharp classifier.** The emitted range `[2.1721, 12.2644]` and the blocked
-range `[0.5715, 2.2080]` overlap, and no single threshold classifies all `48`
-records. Because the mechanism is already supported and no genuinely new
-falsifiable prediction is at hand, **no follow-on task was opened** for it.
-
-### FP-SCALE-001 — closed at the smoke gate with its finding recorded
-
-`docs/research_tasks/FP-SCALE-001.md` (v1.1) is `ACTIVE` but stopped before any
-formal run, deliberately: it established the diagnosis that made FP-SCALE-002
-possible and would only have reconfirmed at higher cost a result already known.
-Full journal: `docs/research_branches/FP-SCALE-001/claude/first_result.md`.
-
-Its sequence of findings, all measured:
-
-1. The certificate slack is the concentration radius, not the empirical
-   residual (worst-pair `|Ybar|` 2.4125 versus radius 37.7612).
-2. The radius is set by the rarest held-out pair (count 14 in the sealed
-   matrix), and the inherited frozen inversion is only about `1.35x` looser
-   than a calibrated bound, so the inversion is not the culprit.
-3. Separating the training trajectory from a dedicated certification batch
-   tightened `E_Q` from a `22.47` floor to `0.98`, worst-pair count from `14` to
-   `40000` — and still emitted nothing.
-4. Emission needs `E_Q < sigma`, the within-state value spread, and `E_Q` and
-   `sigma` both scale with the reward bound, so widening the value spectrum is
-   invariant (spreads `6x` up, `E_Q` `170x` up).
-5. The obstruction is therefore the `2B` envelope, which the verified
-   cosh-mixture argument cannot avoid because it requires a *known*
-   sub-Gaussian parameter.
-
-Design:
-`docs/superpowers/specs/2026-09-11-reachable-certificate-scale-design.md`;
-plan: `docs/superpowers/plans/2026-09-11-reachable-certificate-scale-plan.md`.
-
-### FP-ESARSA-001 corpus partially reconstructed (2026-09-11)
-
-The project's foundation was its weakest-verified link: `FP-ESARSA-001` closed
-`VERIFIED` by user exemption of the independent acceptance, its task sheet
-discloses single-route evidence only, and `FP-SCALE-001` / `FP-SCALE-002` then
-inherited its certificate, routes, and decision rule. With the sealed corpus
-now readable from `main`, it has been reconstructed for the first time by
-something other than its author's own verifier.
-
-`verify_fp_esarsa_001_reconstruction.py` — **21 checks passed, 0 failed** — with
-the report at
-`docs/research_branches/FP-ESARSA-001/claude/reconstruction_posthoc.md`.
-
-Reproduced from source: the frozen seed schedule and **every** record's
-generator identity including the truth-based occupancy and action-gap
-statistics to `1e-12`; the certificate formula with `n_groups = 24`; all
-`31200` non-zero radii against the frozen inversion by inverting to the implied
-held-out count; the contraction diagonal and premise flag via the sealed kernel
-and predicate; and every claimed total, including zero emissions and zero
-oracle violations.
-
-**Disclosed gap:** the held-out trajectories were not serialized, so residual
-means and therefore `E_Q` could not be recomputed from first principles; `E_Q`
-is verified only for internal consistency with the radii and means it reports.
-
-**Status change: none.** This is same-actor and post-hoc. It is not the
-independent second-route acceptance `FP-ESARSA-001` never received, and it does
-not make that task reciprocally verified.
-
-## Verified precedents and evidence
-
-The most recent closed task,
-`docs/research_tasks/FP-ESARSA-001.md` (v1.1), closed `VERIFIED` on
-2026-09-11 by an explicit user exemption of the independent GPT acceptance
-(see the acceptance-exemption ruling in the task sheet); no GPT acceptance
-artifact exists and this route was never independently reconstructed, so the
-task's verification rests on single-route evidence only.
-
-Task summary: fixed-policy Expected SARSA with a cross-fitted Bellman-residual
-certificate and one certified relative-softmax improvement step on the frozen
-480-record protocol inherited from FP-ADV-001. Activation prerequisite
-satisfied (FP-ADV-001 VERIFIED). By the direct user ruling of 2026-09-11
-(Codex quota exhausted), this task used the FP-EXPL-001 v1.1 responsibility
-pattern: Claude main execution on `claude/FP-ESARSA-001` with author seal.
-Claude's itemized pre-review returned APPROVED
-(`docs/research_branches/FP-ESARSA-001/codex/claude_pre_review.md`).
-Scientific baseline `9d0994f03e4a659787c74df4660cdcab1d398c1c`; all
-inherited science files are byte-identical to the v1.0 baseline. Design:
-`docs/superpowers/specs/2026-09-09-fixed-policy-expected-sarsa-relative-softmax-design.md`.
-
-Claude's main route is sealed at `1cb59f0` on `claude/FP-ESARSA-001`; it was
-pushed to `origin` and fast-forwarded into `main` by explicit user
-authorization on 2026-09-11 (`main` and `origin/main` both at `0ac8eb6`).
-One frozen 480-record formal run into `results/FP-ESARSA-001/claude/`:
-283/480 certificates per route, 0 oracle certificate/residual-event/value
-violations, generator identity 0/480 mismatches against the frozen FP-TU-001
-baseline, and no safe update emitted, so hypothesis 8 is a verified negative
-usefulness result with no retuning. Route evidence:
-`docs/research_branches/FP-ESARSA-001/claude/` (`theory.md`, `first_result.md`,
-`formal_result.md`, `report.md`, `failure_history.md`); main-route report
-`docs/research_branches/fixed_policy_expected_sarsa_report.md`. Verdict for
-acceptance criteria 1-19: PASS; criterion 20 closed by the
-acceptance-exemption user ruling.
-
-### Measured scale of the current bottleneck (2026-09-11)
-
-The two policy-improvement tasks both emitted zero updates. Reading their
-numbers together localizes the obstruction to certificate scale rather than to
-the construction:
-
-- `results/FP-ESARSA-001/claude/summary.json`: among emitted certificates
-  `E_Q` has minimum `22.474` and mean `57.686`; the minimum oracle bound slack
-  is `22.302`; the largest realized oracle Q sup-error is `3.771`;
-- non-emission reasons are exactly `heldout_pair_support_missing` (0.410) and
-  `improvement_lcb_nonpositive` (0.590); no other reason fires;
-- `FP-ADV-001` independently emitted `0/480` on all six routes.
-
-So the certificate is roughly one order of magnitude looser than the realized
-error, and the relative-softmax one-step improvement is far smaller than that
-slack. This is the same obstruction `CTRL-PREFLIGHT-001` predicted
-analytically (error lower bound `6.343 > B = 5`). Any next task must choose a
-reachable guarantee or a tighter certificate scale deliberately, and record the
-choice before execution; no frozen parameter of a closed task may be retuned.
-
-## Verified kernel tasks: FP-KERN-001 and FP-KERN-002
-
-Both tasks are `VERIFIED` with both reciprocal verification directions `PASS`.
-They were executed on branches forked from `c579047` and, through a scheduling
-gap, were never merged to `main`; they were merged under explicit user
-approval on 2026-09-11. Their results are independent of, and convergent with,
-the action-gap and Expected SARSA negative results above: they close the
-cross-state-generalization direction rather than the certificate direction.
-
-### FP-KERN-001: data-derived cross-state kernel feasibility
-
-Status: `VERIFIED`. Both independent 480-record routes and the
-user-authorized corrective GPT rerun classify the frozen kernel route as
-`NOT_SUPPORTED`: both families pass zero-count coverage and false-improvement
-control but fail the zero-count RMSE, `1-4`-count RMSE, and sparse-state
-top-action requirements.
-
-The frozen design compares `oracle_q_nearest2`,
-`oracle_generator_cluster`, and `observable_balanced_cluster` against the
-reconstructed predecessor controls. It reuses the predecessor's five-item
-sparse-estimation screen and assigns one ordered scoped conclusion. Only a
-passing observable route may be described as promising; oracle results remain
-diagnostic.
-
-`FP-KERN-001` is the verified predecessor at
-`403884ae6bde46c7c3578ae01d77422ed03faf05`. Its corrected Gaussian-kernel
-classification remains `NOT_SUPPORTED` and is not modified by this task.
-
-### FP-KERN-002: reused-record oracle and learnability diagnostic
-
-Status: `VERIFIED`, classification `NO_BORROWING_EVIDENCE`. Holding all 480
-verified `FP-KERN-001` trajectories and results fixed, three diagnostic
-constructions were compared against the reconstructed predecessor controls:
-`oracle_q_nearest2`, `oracle_generator_cluster`, and
-`observable_balanced_cluster`. All four ordered decision inputs are false, so
-no route passed the unchanged five-item screen.
-
-Both routes sealed independently and reached the same classification: GPT
-implementation/smoke `f37b9730aea4ba692b854dcfb89f8f3d17faa34e`, formal
-`0815d0dbef3a8f7784438ac89e2df195d3cab00b`; Claude implementation/smoke
-`a39323c8011acebfb651c8431d8598e1d1aee244`, formal
-`718d77053801c6f9e3dd958513b7a06918a5e274`. GPT verification of Claude and
-Claude verification of GPT both `PASS` (248,566 cross-route checks, zero
-failures); synthesis at
-`docs/research_branches/FP-KERN-002/codex/final_synthesis.md`.
-
-The scientifically important part is the diagnosis, not the null: coverage was
-high everywhere (true-Q nearest-two `100%`; observable balanced cluster
-`99.45%` current / `96.60%` hidden), so simple action inaccessibility is not
-the failure mode. Even the favorable true-Q nearest-two route worsened the
-`1-4`-count RMSE by `33.42%` (hidden) and `49.45%` (current) while improving
-zero-count RMSE, and the observable partition recovered little latent
-structure (mean adjusted Rand index `0.1516`, peer precision `0.4910`).
-Unconditional count-weighted same-action borrowing across states therefore
-fails on this corpus under the frozen peer and partition rules.
-
-Boundary recorded by the task: this does not reject every form of cross-state
-generalization. Count-aware gating or shrinkage, borrowing only for zero-count
-actions, learned state representations, cross-fitting, and estimators that
-retain local evidence are untested and require a new frozen hypothesis.
-
-### FP-KERN evidence location correction
-
-Both task sheets advertise `results/FP-KERN-001/codex/` and
-`results/FP-KERN-001/claude/` as the canonical result directories. Those
-host-level paths do not exist: because `results/` is Git-ignored and route
-worktrees were created under it, the sealed 480-record corpora live inside the
-registered worktrees at
-
-```text
-results/FP-KERN-001/codex_worktree/icrl_softmax/results/FP-KERN-001/codex/
-results/FP-KERN-001/claude_worktree/icrl_softmax/results/FP-KERN-001/claude/
-results/FP-KERN-002/input/            (common immutable 480-record corpus)
-results/FP-KERN-002/codex_worktree/icrl_softmax/results/FP-KERN-002/codex/
-results/FP-KERN-002/claude_worktree/icrl_softmax/results/FP-KERN-002/claude/
-```
-
-The corpora were verified present on 2026-09-11 (`task_results.json`
-33,805,703 bytes, plus `summary.json`, `checks.log`, `commands.log`,
-`environment.json`, `analysis.json`, `config.json`, and the preserved
-`original_formal/`, `correction_smoke/`, `original_smoke/` archives under the
-GPT route). No artifact was moved or regenerated by this index correction; the
-recorded task-sheet paths were left as authored and this section is the
-authoritative locator.
-
-## Verified fixed-exploration task: FP-EXPL-001
-
-`docs/research_tasks/FP-EXPL-001.md` (v1.1) is `VERIFIED` (2026-09-11).
-Claude executed the frozen protocol as main author (user ruling), GPT
-performed independent post-seal acceptance, and Claude performed the renewed
-executable reciprocal review.
-
-- Frozen protocol: one 64-transition Markov batch (seed 20260911), fixed
-  behavior and target policies, grouped-mean Q iteration, 64 updates from
-  Q0=0, sharpness xi=zeta=tau=8, reward of pair (1,1) changed to 0.25 before
-  sampling. No resampling or scans.
-- Coverage passed with counts [19,16,12,17]. Direct reference, exact grouped
-  attention, literal finite network and independent scalar finite formula
-  agree (max cross-route deviation <= 1.34e-15). Exact and finite operators
-  both contract; a rational-arithmetic certificate proves Gf strictly
-  positive with exact row sums 17/20, hence c_f = 0.85 exactly for this
-  batch. Final error decomposition at k=64: iteration 4.894e-05, finite
-  softmax 1.79092e-03, data bias 0.03806150093295335; the two true state
-  values differ. Bounds are reported, not sample-complexity claims.
-- Author seal: `6512252934614807916953a65eb5e6ba7ee4a5a5` on
-  `claude/FP-EXPL-001`. GPT post-seal replay (verify/witness/Ruff all exit
-  0) and independent acceptance: 2589 checks, 0 failures, PASS at
-  `results/FP-EXPL-001/codex/verification.json`; replay manifest under
-  `results/FP-EXPL-001/codex/postseal_replay/6512252934614807916953a65eb5e6ba7ee4a5a5/`.
-- Claude reciprocal review: executable rerun of the GPT acceptance (exit 0,
-  identical 2589-check record), all snapshot SHA-256 values match the replay
-  manifest, mutation guards 13/13, no q_pi network input, no hidden Q lookup
-  or visitation-frequency multiplier. Report ends PASS at
-  `docs/research_branches/FP-EXPL-001/claude/verification_of_other.md`,
-  commit `5025cdf535b8f1c9d1460930ccc5ffdd92d3bd87`.
-- The earlier 20-check GPT PASS and the text-only reciprocal PASS were
-  superseded and archived; the resumed-audit repairs (probe boundary,
-  data-bias proof) were sealed by the author and are covered by the final
-  acceptance. The GPT/Claude execution-provenance deviation (session-env
-  EPERM) remains disclosed in both reports.
-- Codex exhausted its execution quota during closure; the user explicitly
-  authorized Claude on 2026-09-11 to take over all closure work, including
-  this update, the synthesis/codex report final texts, the merge to main and
-  the remote push. GPT's acceptance verdict stands on its own executable
-  artifact cited above.
-- Synthesis: `docs/research_branches/FP-EXPL-001/codex/synthesis.md`.
-  This task's closure led directly to the activation of FP-ESARSA-001
-  (see "Previous task state (closed)"); it does not itself authorize policy improvement
-  or online control claims beyond that task's frozen scope.
-  The question it leaves open is the one the next task should answer: under a
-  fixed policy, how do the coverage event of a real trajectory and the
-  sampling error enter a provable bound, and how do those differ from the
-  audit-only bound that depends on the true `q_pi`?
-
-## Verified predecessor: FP-ITER-001
-
-Current construction gate: `docs/research_tasks/FP-ITER-001.md` (v1.1, `VERIFIED`). It narrows the
-next step to a two-state/two-action fixed-policy Expected SARSA iteration
-witness: direct reference, exact grouped attention, finite-logit attention,
-and a per-iteration error/stability decomposition. The v1.0 review missed
-unfrozen details. V1.1 freezes complete/missing batches, initial Q, 64 updates,
-two sharpness triples and dual independent routes. The dedicated branch now
-exists; v1.1 pre-review returned APPROVED. Both actors start independently from
-the common activation commit, with reciprocal verification after blind seals.
-Codex preliminary construction is now implemented at cb26a339, with 6,332
-self-checks passing. Complete coverage at sharpness 8 contracts; missing-pair
-write leakage remains. The complete fixture has zero population/data bias,
-which limits that diagnostic. Claude's blind route is sealed at 4034498.
-GPT's follow-up audit found unsupported M-sharp convergence claims and a
-mislabeled scratch snapshot. Claude repaired both at f6feef6; GPT's replay
-of the repair passes 1,665 checks plus 6,040 raw cross-checks and the scientific
-review now returns PASS. All 24 aligned traces differ by at most 3.109e-15;
-the repair changes none of their values. Claude's reciprocal review is sealed
-at 5c7aea1 and ends PASS. It independently replayed the Codex verifier and
-witness, matched 84,697 witness leaves and 17,779 cross-route comparisons,
-and found no scientific mismatch. Both reciprocal reports now PASS; the task
-is VERIFIED. Operational deviations and the retained global-memory cleanup
-blocker remain disclosed in the handoff and reports.
-See docs/research_branches/FP-ITER-001/codex/synthesis.md, verification_of_other.md
-and handoff.md.
-It does not activate the broader FP-ESARSA certificate
-matrix, policy improvement, or online control.
-
-## Prior verified diagnostic (CTRL-PREFLIGHT-001)
-
-Prior diagnostic: `docs/research_tasks/CTRL-PREFLIGHT-001.md` (`VERIFIED`), an
-economical source comparison and minimal finite-head diagnostic authorized on
-2026-09-10. GPT branch: `codex/CTRL-PREFLIGHT-001`. Source comparison is recorded
-in `docs/research_branches/CTRL-PREFLIGHT-001/codex/report.md`. User authorized
-scoped external transfer and delegated execution: GPT defines requirements,
-Claude pre-reviews and executes the diagnostic, GPT independently verifies.
-Task pre-review returned APPROVED. After user-authorized continuation, Claude
-repaired the missing /k and its report's analytic proof. Both reciprocal
-verdicts are PASS; accepted Claude commit da6a727. The 36 head cases and
-inherited checks pass, and the old certificate's no-emission obstruction is
-confirmed analytically. See codex/report.md for preserved failures and final
-acceptance. No current blocker. User requests conserving GPT quota: delegate
-execution/report work to Claude, retain targeted independent GPT verification.
-Provisional next gate: literal fixed-policy Expected SARSA construction with
-explicit finite-error conditions; no overall control-route winner is claimed.
-FP-ESARSA remains DRAFT; no new formal matrix or control algorithm was run.
-
-## Verified action-gap task (FP-ADV-001)
-
-Status: `FP-ADV-001` is `VERIFIED` as a negative usefulness result.  Claude's
-task-scoped pre-review returned `APPROVED`; Codex and Claude then independently
-sealed matching 480-record formal results, and both reciprocal verification
-directions returned `PASS`.  All six routes emitted zero updates, so the safe
-one-step theorem is retained while empirical usefulness hypothesis 8 is
-falsified without retuning.
-
-That task asked whether the verified `FP-TU-001` event can certify only
-the action differences used by one policy update. V-first local exact and
-finite-softmax bounds are primary; complete-Q V-first and Direct-Q bounds are
-controls. The update moves half of each certified donor's mass above `pi_min`
-and must guarantee `V^{pi_plus} >= V^pi` componentwise.
-
-That task reused the frozen 480-record protocol and spends no new risk budget.
-It excludes repeated control, new Direct-Q local theory, variance adaptation,
-oracle inputs, outcome tuning, and conditional-on-emission claims.
-
-`FP-TU-001` remains the verified certificate baseline. Its local merge and
-remote synchronization are complete at `c579047950dfabb2600020cd2e53dd24b3e39c84`.
-
-## Research governance
-
-- Mode: GPT principal researcher; Claude Code auxiliary executor and independent verifier; user final arbiter.
-- Canonical rules: `../AGENTS.md`.
-- Active governance task: `docs/research_tasks/GOV-001.md` (`VERIFIED`).
-- GPT branch: `codex/gpt-led-research-governance`.
-- Claude role for GOV-001: read-only pre-review and final verification.
-- Current blocker: none; GPT verification and Claude content/Git verification returned `PASS`.
-- Next action: apply the verified governance rules to the next GPT-authored research task.
-- Approved design: `docs/superpowers/specs/2026-08-31-gpt-led-claude-verified-research-governance-design.md`.
-
-## Verified action-gap execution evidence
-
-- Task: `docs/research_tasks/FP-ADV-001.md` (`VERIFIED`).
-- Git and scientific baseline:
-  `c579047950dfabb2600020cd2e53dd24b3e39c84`.
-- Frozen DRAFT task-definition baseline:
-  `919c26f8f2dc90b093cc1f40c9b36d2be2b45b03`.
-- Common execution-start commit:
-  `10a9a94e24ec92a59e7c756f9af6ce07b2f30e59`.
-- Common route execution-start commit:
-  `4078f6911cbfb4654205772685f49896e4e8cad2`.
-- GPT branch: `codex/FP-ADV-001`.
-- Claude role: read-only pre-review completed with `APPROVED`; isolated
-  independent execution is explicitly authorized.
-- GPT blind first-result seal:
-  `996641d9ce2088e95c0bf2a0661e3b24b6e0d6fe`; all proof, verifier, Ruff,
-  eight-record smoke, reconstruction, preservation, policy, separation, and
-  dominance checks passed before the seal.
-- GPT formal-evidence seal:
-  `5f190ebb78697acd3cd877c1d64898929bb88024`; the sole 480-record formal
-  evaluator run passed, and all six routes emitted zero updates. A bounded
-  no-donor serialization defect was fixed at
-  `440710c8c9c77ee8128d4abfd96919ffafe7991c` and mechanically repaired from
-  saved observable inputs without rerunning the matrix.
-- Claude isolated route: formal result sealed at
-  `191821b26b16e13de323fb31651343ffe1eb9656` after blind seal
-  `191e13ba5472ce4c183643008169236979c000ff`; GPT independently replayed all
-  480 records and 17,280 route-state entries with zero failures.
-- Claude executable reciprocal verification: `PASS` on 2026-09-10.  The
-  verifier, strict read-only 480-record analyzer, and task-scoped Ruff all
-  passed; no formal evaluator rerun or repository mutation occurred.  Claude
-  recorded its own report on `claude/FP-ADV-001` at commit `42fb0cc`.
-- Current blocker: none.
-- Shared conclusion:
-  `docs/research_branches/action_gap_certificate_report.md`.
-- Next task: `docs/research_tasks/FP-ESARSA-001.md` v1.1 became `ACTIVE` after
-  this verification and later closed `VERIFIED` on 2026-09-11 by an explicit
-  user exemption of the independent GPT acceptance (see "Previous task state
-  (closed)"). Its
-  activation prerequisite (this task being VERIFIED) was satisfied.
-- Design:
-  `docs/superpowers/specs/2026-09-08-action-gap-safe-update-design.md`.
-- Plan:
-  `docs/superpowers/plans/2026-09-08-action-gap-safe-update-plan.md`.
-- Prior verified task: `docs/research_tasks/FP-TU-001.md` (`VERIFIED`).
-
-## FP-KERN-001 execution evidence
-
-- Task: `docs/research_tasks/FP-KERN-002.md` (`ACTIVE`).
-- Predecessor baseline:
-  `403884ae6bde46c7c3578ae01d77422ed03faf05`.
-- Approved design commit:
-  `be6b7213eeba08d3b9750a850ac2de99ff17be89`.
-- DRAFT task-definition baseline:
-  `b7ef163f11eb5ee41499344c296587efd3516651`.
-- Activation commit:
-  `2308c372eb47ce7c181f98caee952121f4e47644`.
-- Common route execution-start commit:
-  `28c4ae0f68ca51c7c9a0fd981159e85b7742dd4c`.
-- GPT branch and isolated worktree: `codex/FP-KERN-001` in
-  `results/FP-KERN-001/codex_worktree/`.
-- Claude route: formal seal `1a820467683d137e6527edbd99bb486000b2fc58`;
-  classification `NOT_SUPPORTED`; GPT verification `PASS`.
-- GPT route: original formal seal
-  `640a3f8fb2d0f41b96eef8d9bb76fc5ef2e9b93b`; corrective implementation and
-  smoke seal `5af3dc6134a13779908e87558941fa82ed0829eb`; corrected formal seal
-  `1001d23273bdf29b92d9b84a3f3956e83819da4a`; classification
-  `NOT_SUPPORTED`.
-- Reciprocal verification: GPT verification of Claude is `PASS` at
-  `5e538ad06e1167c8c644db9db7f7f25573b470cb`; Claude verification of the
-  corrected GPT route is `PASS` at
-  `c17561620d02a08210b1702f4ff576e7bde17366`.
-- Current blocker: none; all acceptance evidence is recorded. The merge to
-  `main` was authorized by the user on 2026-09-11 and performed with the
-  FP-KERN-002 closure.
-- Design:
-  `docs/superpowers/specs/2026-09-09-kernel-state-generalization-feasibility-design.md`.
-- Plan:
-  `docs/superpowers/plans/2026-09-09-kernel-state-generalization-feasibility-plan.md`.
-
-## FP-KERN-002 execution evidence
-
-- Task: `docs/research_tasks/FP-KERN-002.md` (`VERIFIED`); classification
-  `NO_BORROWING_EVIDENCE`.
-- Predecessor and branch baseline:
-  `403884ae6bde46c7c3578ae01d77422ed03faf05` (`FP-KERN-001` verified).
-- Frozen DRAFT task-definition baseline:
-  `e04db4c17c7648bc751bef1620ab0d01fe1cb3a3`.
-- REVIEW clarification closure:
-  `04584e44e788b7cb50289c6dd447c356bd4081b6`.
-- Activation commit:
-  `698ebdc62859ec26ae6b623099ab499fc6b410fa`.
-- Common execution-start commit:
-  `ffdf26b029efde08ea794454a7b5da890108c355`.
-- GPT branch and isolated worktree: `codex/FP-KERN-002` in
-  `results/FP-KERN-002/codex_worktree/`.
-- User decision: reuse the exact verified 480-record predecessor corpus; no
-  new trajectories.
-- Claude read-only pre-review: `APPROVED` on
-  `f72d4fec81bf43f2efe39a770afad68f63d559d9`, with 12 passed checks and seven
-  nonblocking wording/secondary-metric clarifications now closed.
-- Common input: created once and frozen at host path
-  `results/FP-KERN-002/input/`; both source hashes match the task and manifest
-  SHA-256 is
-  `670648f7a2761d919f58b25881db45dc6d9d49d4fec25e307c6fe72bf8b31966`.
-- Claude branch and isolated worktree: `claude/FP-KERN-002` in
-  `results/FP-KERN-002/claude_worktree/`, created from the common start before
-  implementation.
-- Current blocker: none; task verification is complete.
-- GPT blind route: verifier-first implementation/smoke sealed at
-  `f37b9730aea4ba692b854dcfb89f8f3d17faa34e`; the sole 480-record formal run
-  and all post-run checks passed with initial classification
-  `NO_BORROWING_EVIDENCE`.
-- GPT blind formal seal: `0815d0dbef3a8f7784438ac89e2df195d3cab00b`.
-- Claude blind route: implementation/smoke seal
-  `a39323c8011acebfb651c8431d8598e1d1aee244`, formal seal
-  `718d77053801c6f9e3dd958513b7a06918a5e274`, independently reaching the same
-  `NO_BORROWING_EVIDENCE` classification.
-- GPT verification of Claude: `PASS`; every gate and metric agrees, 506
-  independent reconstruction groups and all inherited checks passed.
-- Claude verification of GPT: `PASS`, sealed at
-  `1567603d5d8f8fd99c266c17a3741ae8fa30c7d3`; 248,566 cross-route checks
-  passed with zero failures.
-- Final task status: `VERIFIED`; final classification:
-  `NO_BORROWING_EVIDENCE`. The merge to `main` was authorized by the user on
-  2026-09-11.
-- Next action: user decides whether to open a new task for zero-only borrowing,
-  count-aware gating/shrinkage, or learned state representations. The
-  certificate-scale direction recorded under "Measured scale of the current
-  bottleneck" is the separate, currently unopened alternative.
-- Design:
-  `docs/superpowers/specs/2026-09-09-kernel-reuse-oracle-learnability-design.md`.
-- Plan:
-  `docs/superpowers/plans/2026-09-09-kernel-reuse-oracle-learnability-plan.md`.
-- Prior verified task: `docs/research_tasks/FP-KERN-001.md` (`VERIFIED`).
-
-## Active implementation
-
-No FP-SCALE-001 code exists yet; the task is in `DRAFT` and nothing may be
-implemented before it becomes `ACTIVE`. The inherited and verified programs
-below remain the active code base.
-
-- `action_gap_certificate.py`
-- `verify_action_gap_certificate.py`
-- `evaluate_action_gap_certificates.py`
-- `analyze_action_gap_certificates.py`
-- `evaluate_fixed_policy_q_routes.py`
-- `fixed_policy_finite_sample_certificate.py`
-- `verify_finite_sample_theorems.py`
-- `analyze_fixed_policy_finite_sample_certificates.py`
-- `verify_fixed_policy_q_routes.py`
-- `crossfit_vfirst.py`
-- `markov_coverage_certificate.py`
-- `verify_crossfit_markov_certificate.py`
-- `evaluate_blockwise_q_routes.py`
-- `mdps.py`
-- `visit_indexed_martingale_certificate.py`
-- `evaluate_visit_indexed_certificates.py`
-- `analyze_visit_indexed_certificates.py`
-- `verify_visit_indexed_martingale_certificate.py`
-- `time_uniform_mixture_certificate.py`
-- `verify_time_uniform_mixture_certificate.py`
-- `evaluate_time_uniform_certificates.py`
-- `analyze_time_uniform_certificates.py`
-- `fixed_policy_expected_sarsa.py`
-- `verify_fixed_policy_expected_sarsa.py`
-- `evaluate_fixed_policy_expected_sarsa.py`
-- `analyze_fixed_policy_expected_sarsa.py`
-- FP-KERN-001 implementation: `kernel_state_generalization.py`,
-  `kernel_generalization_mdps.py`, `verify_kernel_state_generalization.py`,
-  `evaluate_kernel_state_generalization.py`, and
-  `analyze_kernel_state_generalization.py` (Codex corrected route at these
-  canonical paths; the Claude route's byte-identical copies live under
-  `docs/research_branches/FP-KERN-001/claude/route/`).
-- FP-KERN-002 implementation: `analyze_kernel_reuse_diagnostics.py` and
-  `verify_kernel_reuse_diagnostics.py`.
-- Planned FP-KERN-002 implementation: `analyze_kernel_reuse_diagnostics.py`
-  and `verify_kernel_reuse_diagnostics.py` (not yet created at activation).
-
-## Active evidence
-
-- `docs/research_branches/`
-- `docs/superpowers/specs/2026-08-29-direct-q-v-first-balanced-exploration-design.md`
-- `docs/superpowers/specs/2026-08-29-crossfit-markov-certificate-design.md`
-- `docs/superpowers/specs/2026-08-31-shared-fixed-policy-finite-sample-theorem-design.md`
-- `docs/superpowers/plans/2026-08-31-shared-fixed-policy-finite-sample-theorem-plan.md`
-- `docs/research_branches/shared_fixed_policy_finite_sample_theory.md`
-- `docs/superpowers/plans/2026-08-29-direct-q-v-first-balanced-exploration-plan.md`
-- `docs/superpowers/plans/2026-08-29-crossfit-markov-certificate-plan.md`
-- `results/fixed_policy_q_routes/`
-- `results/fixed_policy_q_routes_crossfit/`
-- `results/fixed_policy_finite_sample_certificates/`
-- `results/blockwise_q_routes/`
-- `docs/research_branches/visit_indexed_martingale_certificate_theory.md`
-- `docs/research_branches/visit_indexed_martingale_certificate_report.md`
-- `results/FP-MART-001/codex/`
-- `results/FP-MART-001/claude/`
-- `docs/superpowers/specs/2026-09-04-time-uniform-mixture-certificate-design.md`
-- `docs/superpowers/plans/2026-09-04-time-uniform-mixture-certificate-plan.md`
-- `docs/research_tasks/FP-TU-001.md`
-- `docs/research_branches/time_uniform_mixture_certificate_theory.md`
-- `docs/research_branches/time_uniform_mixture_certificate_report.md`
-- `results/FP-TU-001/codex/`
-- `results/FP-TU-001/claude/`
-- `docs/research_tasks/FP-ADV-001.md`
-- `docs/research_branches/action_gap_certificate_theory.md`
-- `docs/research_branches/action_gap_certificate_report.md`
-- `results/FP-ADV-001/codex/`
-- `results/FP-ADV-001/claude/`
-- `docs/research_tasks/FP-ESARSA-001.md`
-- `docs/research_branches/fixed_policy_expected_sarsa_theory.md`
-- `docs/research_branches/fixed_policy_expected_sarsa_report.md`
-- `results/FP-ESARSA-001/claude/`
-- `docs/superpowers/specs/2026-09-09-kernel-state-generalization-feasibility-design.md`
-- `docs/superpowers/plans/2026-09-09-kernel-state-generalization-feasibility-plan.md`
-- `docs/research_tasks/FP-KERN-001.md`
-- `docs/research_branches/FP-KERN-001/codex/formal_result.md`
-- `docs/research_branches/FP-KERN-001/codex/corrected_formal_result.md`
-- `docs/research_branches/FP-KERN-001/codex/correction_first_result.md`
-- `docs/research_branches/FP-KERN-001/codex/verify_claude.md`
-- `docs/research_branches/FP-KERN-001/claude/formal_result.md`
-- `docs/research_branches/FP-KERN-001/claude/verify_codex.md`
-- `docs/research_branches/FP-KERN-001/claude/verify_codex_corrected.md`
-- Kernel-route result corpora: see "FP-KERN evidence location correction"
-  above; the task-sheet `results/FP-KERN-001/...` paths resolve to the
-  registered route worktrees, not to host-level directories.
-- `docs/research_branches/FP-KERN-001/claude/route/` (relocated Claude route
-  code, byte-identical blobs, plus the path-remapping README)
-- `docs/superpowers/specs/2026-09-09-kernel-reuse-oracle-learnability-design.md`
-- `docs/superpowers/plans/2026-09-09-kernel-reuse-oracle-learnability-plan.md`
-- `docs/research_tasks/FP-KERN-002.md`
-- `docs/research_branches/FP-KERN-002/codex/claude_pre_review.md`
-- `docs/research_branches/FP-KERN-002/codex/first_result.md`
-- `docs/research_branches/FP-KERN-002/codex/formal_result.md`
-- `docs/research_branches/FP-KERN-002/codex/claude_verification.md`
-- `docs/research_branches/FP-KERN-002/codex/final_synthesis.md`
-- `docs/research_branches/FP-KERN-002/claude/route/` (relocated Claude route
-  code, byte-identical blobs, plus the path-remapping README)
-- `docs/research_tasks/FP-SCALE-001.md` (DRAFT, current objective)
-- `docs/superpowers/specs/2026-09-11-reachable-certificate-scale-design.md`
-- `docs/superpowers/plans/2026-09-11-reachable-certificate-scale-plan.md`
-
-Each independent formal route contains 480 same-seed comparisons, strict-JSON
-route certificates, zero-mismatch legacy regression, certificate/failure
-summaries, exact/softmax analysis, and complete execution evidence. Exact
-emission is 2.5%/85%/100%/100%; primary usefulness (`total_bound < B`) appears
-only at length 16384 for V-first exact (40%) and V-first softmax (3.33%).
-
-## Historical archive
-
-Earlier diagnostics, generated outputs, smoke runs, superseded specs/plans, and temporary build trees were moved intact to:
-
-`C:\Users\Admin\Desktop\research\_archive\icrl_softmax_history_20260831`
-
-The archive is recoverable and remains outside the active project directory. Python and Ruff caches were deleted because they are reproducible.
+当前协作规则仅以仓库根目录 [AGENTS.md](../AGENTS.md) 为完整依据。本页不修改双方的任务分工、异议流程或合并要求。

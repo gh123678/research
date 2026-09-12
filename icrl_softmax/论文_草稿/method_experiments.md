@@ -1,5 +1,7 @@
 # Method and Experiments
 
+> 历史研究依据：保留原推导或复核记录，供已有代码及旧任务引用。本文不表示当前研究主线；最新状态见 [项目入口](../ACTIVE_WORKSPACE.md)。
+
 ## 3. Softmax Policy-Improvement Operators
 
 ### 3.1 End-to-end construction and compact experimental operator

@@ -1,5 +1,7 @@
 # End-to-End Construction and Guarantees
 
+> 历史研究依据：保留原推导或复核记录，供已有代码及旧任务引用。本文不表示当前研究主线；最新状态见 [项目入口](../ACTIVE_WORKSPACE.md)。
+
 ### 3.1 Exact model class and complete prompt
 
 Let $\mathcal X=\mathcal S\times\mathcal A$, let $m=|\mathcal X|$, and fix an enumeration of $\mathcal X$. Pair $x$ has one-hot identifier $e_x\in\mathbb R^m$. One update receives a frozen table $Q_l$, fixed scalars $\gamma\in[0,1)$ and $\alpha>0$, and $N$ sampled transitions
