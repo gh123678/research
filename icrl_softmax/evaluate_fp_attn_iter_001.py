@@ -47,17 +47,29 @@ ITER3_BUNDLE = (
 ITER4_BUNDLE = (
     PROJECT / "results" / "FP-ITER4-001" / "claude" / "formal" / "task_results.json"
 )
+# FP-ITER5-001 sealed the numpy five-step route; FP-ITER6-001 sealed the six-step
+# one. Each network horizon compares against the numpy horizon of the same length,
+# which is the only apples-to-apples path comparison.
+ITER5_BUNDLE = (
+    PROJECT / "results" / "FP-ITER5-001" / "claude" / "numpy" / "task_results.json"
+)
+ITER6_BUNDLE = (
+    PROJECT / "results" / "FP-ITER6-001" / "claude" / "numpy" / "task_results.json"
+)
 REFERENCE_BUNDLES = {
     "iter3": ITER3_BUNDLE,
     "iter4": ITER4_BUNDLE,
+    "iter5": ITER5_BUNDLE,
+    "iter6": ITER6_BUNDLE,
 }
 PRIMARY = ("expected_exact", "expected_finite")
 MAX_STEPS = 3
-# FP-ATTN-ITER-001 (3), FP-ATTN-ITER4-001 (4) and FP-ITER5-001 (5) freeze the horizon here.
-# The code path is otherwise unchanged, and each task must prove that raising the
-# ceiling leaves the earlier steps bit-identical, so that the horizon change is
-# inert rather than a new method.
-ALLOWED_MAX_STEPS = (3, 4, 5)
+# FP-ATTN-ITER-001 (3), FP-ATTN-ITER4-001 (4), FP-ITER5-001 (5) and
+# FP-ATTN-ITER6-001 (6) freeze the horizon here. The code path is otherwise
+# unchanged, and each task must prove that raising the ceiling leaves the earlier
+# steps bit-identical, so that the horizon change is inert rather than a new
+# method.
+ALLOWED_MAX_STEPS = (3, 4, 5, 6)
 ATOL = 1e-4
 MIXINGS = (0.08, 0.5)
 TASKS = 12
@@ -176,14 +188,16 @@ def main() -> None:
         default=MAX_STEPS,
         choices=ALLOWED_MAX_STEPS,
         help="network iteration horizon; FP-ATTN-ITER-001 froze 3, "
-        "FP-ATTN-ITER4-001 freezes 4",
+        "FP-ATTN-ITER4-001 froze 4, FP-ITER5-001 froze 5, FP-ATTN-ITER6-001 "
+        "freezes 6",
     )
     parser.add_argument(
         "--reference",
         type=str,
         default="iter3",
         choices=sorted(REFERENCE_BUNDLES),
-        help="numpy comparison baseline: iter3 (FP-ITER3-001) or iter4 (FP-ITER4-001)",
+        help="numpy comparison baseline: iter3 (FP-ITER3-001), iter4 "
+        "(FP-ITER4-001), iter5 (FP-ITER5-001) or iter6 (FP-ITER6-001)",
     )
     args = parser.parse_args()
     max_steps = int(args.max_steps)

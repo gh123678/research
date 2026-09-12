@@ -48,27 +48,32 @@
 ## 第六步与资格普查（2026-09-12 新增）
 
 本次把两项工作合并执行：资格普查 [FP-CENSUS-001](docs/research_tasks/FP-CENSUS-001.md)
-与第六个认证步 [FP-ITER6-001](docs/research_tasks/FP-ITER6-001.md)。记录见
+与第六个认证步 [FP-ITER6-001](docs/research_tasks/FP-ITER6-001.md)，随后补齐网络路线
+[FP-ATTN-ITER6-001](docs/research_tasks/FP-ATTN-ITER6-001.md)。记录见
 [结果报告](docs/research_branches/FP-CENSUS-001/claude/first_result.md)、
 [普查同执行者检查](docs/research_branches/FP-CENSUS-001/claude/verification_same_actor.md)、
-[第六步同执行者检查](docs/research_branches/FP-CENSUS-001/claude/verification_same_actor_iter6.md)。
+[第六步同执行者检查](docs/research_branches/FP-CENSUS-001/claude/verification_same_actor_iter6.md)、
+[网络第六步结果](docs/research_branches/FP-ATTN-ITER6-001/claude/first_result.md)、
+[网络第六步检查](docs/research_branches/FP-ATTN-ITER6-001/claude/verification_same_actor.md)。
 
-第六步（本轮仅 numpy 路线）：
+第六步（两条计算实现现已都跑到六步）：
 
-| 更新步数 | 发出更新的记录数 | 平均总价值增量 | 最小总价值增量 |
-|---|---:|---:|---:|
-| 1 | 22 | 2.717707 | 0.104197 |
-| 2 | 20 | 2.277997 | 0.779902 |
-| 3 | 15 | 1.286906 | 0.378197 |
-| 4 | 12 | 0.807500 | 0.184902 |
-| 5 | 12 | 0.361474 | 0.082395 |
-| 6 | 9 | 0.167057 | 0.019347 |
+| 更新步数 | 发出更新的记录数 | 平均总价值增量 | 最小总价值增量 | 网络与 numpy 的最大估计差 |
+|---|---:|---:|---:|---:|
+| 1 | 22 | 2.717707 | 0.104197 | 1.076e-05 |
+| 2 | 20 | 2.277997 | 0.779902 | 4.585e-06 |
+| 3 | 15 | 1.286906 | 0.378197 | 7.176e-06 |
+| 4 | 12 | 0.807500 | 0.184902 | 1.044e-05 |
+| 5 | 12 | 0.361474 | 0.082395 | 4.567e-06 |
+| 6 | 9 | 0.167057 | 0.019347 | 6.814e-06 |
 
 - 第四、五步“都是同样的 12 条”只是一个区间，不是不动点：第六步降到 9 条，失去 3 条，没有新增。
 - 第六步最小总价值增量 `0.019347` 低于第四、五步通过的非平凡下限 `0.05`；该项预先登记的预测被否定。
 - 第六步全部 9 条更新分量不退化且总值严格上升；六步之内没有证书违规。
-- 第六步 horizon 变更已验证为惰性：第五步及以前共 `117` 条记录逐步完全一致。
-- 网络路线本轮未运行，因此比 numpy 路线落后一步。
+- 两条计算实现在第六步给出**同一组 9 条记录**，没有任何一方多出或缺少；`129` 条逐步记录中更新判断与 `eta` 选择的分歧均为 0。
+- 网络路线第六步的 horizon 变更同样验证为惰性：第五步及以前共 `117` 条记录完全一致，**包括每一步记录的估计差**。
+- 六步的估计差为 `1.076e-05, 4.585e-06, 7.176e-06, 1.044e-05, 4.567e-06, 6.814e-06`，均在冻结容差内，且不随步数增长。
+- 注意：每步的“总价值增量”由 `Qhat` 决定的策略算出，两条路线可能在第六位小数上不同；判断路线是否一致应看更新决策与发出集合，而不是增益数字。
 
 资格普查（48 条路线记录 × 至多 5 步；先复现第五步的判定，`48/48` 完全一致）：
 
@@ -114,6 +119,7 @@
 - 最近迭代评估：`evaluate_fp_iter2_001.py`、`evaluate_fp_attn_iter_001.py`。
 - 第五步分析与同执行者检查：`analyze_fp_iter5_001.py`、`verify_fp_iter5_001_same_actor.py`。
 - 资格普查与第六步：`evaluate_fp_census_001.py`、`analyze_fp_census_001.py`、`analyze_fp_iter6_001.py`、`verify_census_batch_frozen.py`、`verify_fp_census_001_same_actor.py`、`verify_fp_iter6_001_same_actor.py`。
+- 网络第六步：`analyze_fp_attn_iter6_001.py`、`verify_fp_attn_iter6_001_same_actor.py`（评估沿用 `evaluate_fp_attn_iter_001.py`）。
 
 第五步输出：
 
@@ -123,6 +129,7 @@
 第六步与普查输出：
 
 - `results/FP-ITER6-001/claude/numpy/`
+- `results/FP-ATTN-ITER6-001/claude/network/`
 - `results/FP-CENSUS-001/claude/smoke/`
 - `results/FP-CENSUS-001/claude/formal/`（含冻结的 `prediction_step6.json`）
 
