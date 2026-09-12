@@ -2,8 +2,73 @@
 
 ## Current objective
 
-No task is active. `docs/research_tasks/FP-ITER3-001.md` (v1.0) closed at Gate D
-on 2026-09-11.
+No task is active. `docs/research_tasks/FP-ATTN-ITER-001.md` (v1.0) closed at
+Gate D on 2026-09-11.
+
+### FP-ATTN-ITER-001 — the literal network carries the three-step iteration (2026-09-11)
+
+This closed the last unexecuted inference step in the project's central claim.
+The certified iteration had only ever run in numpy: `FP-ATTN-001` verified
+**one** certified step in the literal network, while `FP-ITER2-001` and
+`FP-ITER3-001` verified the second and third steps **only in numpy**. Here the
+network produces the `Qhat` at **every** step, with the frozen certificate and
+decision rule applied to that network output.
+
+`24` records, `48` route-records, `90` network step executions:
+
+| quantity | network | FP-ITER3-001 numpy |
+|---|---|---|
+| emissions at step 1 / 2 / 3 | **`22` / `20` / `15`** | `22` / `20` / `15` |
+| three-step route-records | **`15`** | `15` |
+| decision agreement | **`90/90`** | — |
+| decision flips | **`0`** | — |
+| selected-`eta` flips | **`0`** | — |
+| certificate violations | **`0`** | — |
+| non-degrading violations | **`0`** | — |
+| max `\|Q_network − Q_numpy\|_inf` | **`1.076e-05`** (`ATOL` `1e-04`) | — |
+
+`H1`--`H7` all **PASS**. Every step records which producer generated its
+`Qhat`, and the verifier confirms the set of producers is exactly
+`{literal_attention_network}` — no numpy substitution anywhere.
+
+**The accumulation question, which was the real risk, is answered.** Iteration
+feeds each step's output into the next, so the `float32`-versus-`float64`
+difference could compound until it crossed a decision boundary, and third-step
+margins are of order `0.378`. It does **not** compound:
+
+| step | max `\|Q_network − Q_numpy\|_inf` |
+|---|---|
+| 1 | `1.076e-05` |
+| 2 | `4.585e-06` |
+| 3 | `7.176e-06` |
+
+The gap is essentially flat rather than growing, which is why there is not one
+flip to report. The journal offers the contraction structure as a consistent
+explanation but claims only the measurement, not the mechanism.
+
+**The central claim now holds end to end:**
+
+| question | answer | evidence |
+|---|---|---|
+| can the network produce a certified improvement | yes, `22/48` | `FP-SCALE-002` + `FP-ATTN-001` |
+| is it one-shot | no, `20/22` continue | `FP-ITER2-001` |
+| how far does it go | three steps, `15/48` | `FP-ITER3-001` |
+| does the **network** carry the iteration | yes, identically | this task |
+
+`60` of the `90` step executions continued past the first step, so this is
+genuine multi-step network execution, not a single step repeated.
+
+Evidence: `docs/research_branches/FP-ATTN-ITER-001/claude/` (`first_result.md`,
+`verification_same_actor.md`); bundle
+`results/FP-ATTN-ITER-001/claude/formal/`.
+
+**Verification strength, stated plainly:** same-actor derived verification
+only. The network-versus-numpy agreement is a **within-author** cross-check: it
+rules out implementation drift between the two paths, but it cannot catch a
+conceptual error shared by both. Independent verification remains the one
+outstanding item for the project's headline result.
+
+## Previous task state (closed)
 
 ### FP-ITER3-001 — three certified steps, and a falsified prediction (2026-09-11)
 
@@ -48,7 +113,7 @@ only. `FP-ATTN-001`, `FP-ITER2-001` and this task all rest on implementations by
 one author, so a shared conceptual error would not be caught. Independent
 verification remains outstanding for the project's headline result.
 
-## Previous task state (closed)
+## Closed iteration tasks (evidence)
 
 ### FP-ITER2-001 — the certificate supports a second certified step (2026-09-11)
 
