@@ -237,10 +237,10 @@ def main() -> None:
     for name in changed_evaluators:
         REPORT.append(
             f"  INFO  shared evaluator {name} changed after this task was sealed. "
-            "It is not part of the scientific corpus; FP-ITER4-001 added a horizon "
-            "value to its --max-steps choices. The evolution is proven inert: a "
-            "re-run at the frozen horizon reproduces all 90 sealed step entries "
-            "exactly."
+            "It is not part of the scientific corpus; the horizon knob inside it "
+            "was later extended (FP-ITER4-001 added the value 4, FP-ITER5-001 "
+            "added 5). The evolution is proven inert: a re-run at the frozen "
+            "horizon reproduces all 90 sealed step entries exactly."
         )
     check(
         len(changed_evaluators) <= 1

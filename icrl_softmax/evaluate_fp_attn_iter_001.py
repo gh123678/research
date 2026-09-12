@@ -53,11 +53,11 @@ REFERENCE_BUNDLES = {
 }
 PRIMARY = ("expected_exact", "expected_finite")
 MAX_STEPS = 3
-# Both FP-ATTN-ITER-001 (3) and FP-ATTN-ITER4-001 (4) freeze the horizon here.
+# FP-ATTN-ITER-001 (3), FP-ATTN-ITER4-001 (4) and FP-ITER5-001 (5) freeze the horizon here.
 # The code path is otherwise unchanged, and each task must prove that raising the
 # ceiling leaves the earlier steps bit-identical, so that the horizon change is
 # inert rather than a new method.
-ALLOWED_MAX_STEPS = (3, 4)
+ALLOWED_MAX_STEPS = (3, 4, 5)
 ATOL = 1e-4
 MIXINGS = (0.08, 0.5)
 TASKS = 12
@@ -451,4 +451,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
 

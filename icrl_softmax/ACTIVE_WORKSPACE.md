@@ -2,8 +2,56 @@
 
 ## Current objective
 
-No task is active. `docs/research_tasks/FP-ATTN-ITER4-001.md` (v1.0) closed at
-Gate D on 2026-09-11.
+No task is active. `docs/research_tasks/FP-ITER5-001.md` (v1.0) closed at Gate D
+on 2026-09-11.
+
+### FP-ITER5-001 — a fifth step on both paths: the population plateaus (2026-09-11)
+
+Runs a fifth certified step on **both** the numpy and network paths, so they
+remain aligned.
+
+| step | numpy emissions | network emissions | mean gain | minimum gain | network `max\|dQ\|` |
+|---|---|---|---|---|---|
+| 1 | `22` | `22` | `2.717707` | `0.104197` | `1.076e-05` |
+| 2 | `20` | `20` | `2.277997` | `0.779902` | `4.585e-06` |
+| 3 | `15` | `15` | `1.286906` | `0.378197` | `7.176e-06` |
+| 4 | `12` | `12` | `0.807500` | `0.184902` | `1.044e-05` |
+| **5** | **`12`** | **`12`** | **`0.361474`** | **`0.082395`** | **`4.567e-06`** |
+
+**The substantive finding: the emitting population plateaus.** Emission deltas
+are `−2, −5, −3, **0**` — after four steps of decline the fifth step emits
+**exactly the same `12` route-records**, verified by set equality rather than
+inference. Meanwhile the mean gain keeps decaying (`0.8075 → 0.3615`). The
+iteration is in a **regime, not a cliff**: a stable set of records keeps being
+certified, each step delivering less.
+
+Both horizon changes are **inert** (`105` entries compared per path, `0`
+mismatches). Both paths agree at **every** level and on **all `105`** decision
+comparisons. `12` five-step routes on each path, `0` certificate and `0`
+non-degrading violations. **No accumulated `float32` drift**: the gap is flat
+across five compositions.
+
+**`H7` FALSIFIED** (`n5 = 12`, not fewer), reported as such and not
+reinterpreted. It was a legitimate extrapolation of a monotone decline across
+three intervals; the fourth interval broke it, and its failure is what produced
+the plateau finding. `H8`, `H9`, `H10`, `H11` all **PASS**.
+
+**Two shared-code integrity items, both handled.** The horizon change affected
+**two** sealed records (`FP-ATTN-ITER-001`, `FP-ATTN-ITER4-001`); both verifiers
+were updated to keep the scientific-corpus hash checks **strict** while
+reporting evaluator evolution explicitly, and both re-run and re-sealed as
+**PASS**. While doing so a **vacuous check** was found and fixed in the four-step
+network verifier: its corpus-integrity section ended by comparing each file's
+hash to itself, so it could never fail. It now performs the strict per-file
+check plus a bounded evaluator-change check.
+
+Evidence: `docs/research_branches/FP-ITER5-001/claude/`; bundles
+`results/FP-ITER5-001/claude/numpy/` and `results/FP-ITER5-001/claude/network/`.
+
+**Verification strength:** same-actor, and per the user's instruction of
+2026-09-11 ("验证先不管") not the focus of this round.
+
+## Closed network-iteration tasks (evidence)
 
 ### FP-ATTN-ITER4-001 — the network reaches four steps, and the gap stays flat (2026-09-11)
 
@@ -56,7 +104,9 @@ Evidence: `docs/research_branches/FP-ATTN-ITER4-001/claude/` (`first_result.md`,
 reconstructed this route; agreement between the network and numpy paths rules
 out implementation drift between them, not a shared conceptual error.
 
-## Previous task state (closed)
+## Closed numpy-iteration tasks (evidence)
+
+### FP-ITER4-001 — a fourth certified step, all three predictions held (2026-09-11)
 
 Extends the certified iteration to `MAX_STEPS = 4` with three **pre-registered**
 step-4 predictions, so the decay reading could be falsified rather than
