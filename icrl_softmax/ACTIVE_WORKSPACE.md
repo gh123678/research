@@ -2,8 +2,71 @@
 
 ## Current objective
 
-Both scale tasks are closed at their gates; **no task is active**. The core
-research question has its first positive answer.
+No task is active. `docs/research_tasks/FP-ATTN-001.md` (v1.0) closed at Gate D
+on 2026-09-11.
+
+### FP-ATTN-001 — the literal attention network reproduces the certified improvement (2026-09-11)
+
+The project's claim is about a fixed-weight softmax **attention network**, but
+every formal emission so far was computed by numpy code: neither
+`evaluate_fixed_policy_expected_sarsa.py`, `evaluate_fp_scale_002.py` nor
+`fixed_policy_expected_sarsa_scaled.py` imports `torch` or `model`. The literal
+networks in `model.py` had only ever been checked on small fixtures, so the
+step that mattered had never been executed:
+
+```text
+literal network == numpy formula      (fixtures only)
+numpy formula   -> 22/48 certified improvements
+therefore literal network -> 22/48    (never executed until now)
+```
+
+`FP-ATTN-001` executed it on the frozen `FP-SCALE-002` matrix: `24` records,
+`48` route-records, literal networks in `float32` versus numpy routes in
+`float64`, both scored with the same frozen certificate and decision rule.
+
+| quantity | result |
+|---|---|
+| route-records compared | `48` |
+| max `\|literal Q - numpy Q\|_inf` | **1.076e-05** (frozen `ATOL` 1e-04) |
+| numpy emissions | **22 / 48** |
+| **literal emissions** | **22 / 48** |
+| decision flips | **0** |
+| selected-eta flips | **0** |
+| layer-0 diagnostic gap | **0.0** on every field |
+| sealed regeneration failures | `0` (max sealed `E_Q` gap `0.0`) |
+
+`H1`--`H6` all **PASS**. The layer-0 gaps of exactly `0.0` show the literal
+networks compute the same successor expectation, retrieved current value and
+signed residuals as the numpy route, so this is not two recursions landing
+nearby; the `1.076e-05` terminal gap is accumulated `160`-layer `float32`
+rounding and never reaches the decision boundary.
+
+`H5` is checked executably: the finite route exposes no visited gate, every
+write weight is strictly positive (full support, no `-inf` mask) and the write
+attention is row-normalised, while the masked exact route does carry a visited
+gate and produces exact zeros. The asymmetry is documented, not blurred.
+
+Two findings recorded alongside:
+
+- a defect found during smoke and fixed: the evaluator first read
+  `fs.CERT_CHAINS`/`fs.CERT_CHAIN_LENGTH`, which carry the **FP-SCALE-001**
+  protocol (`262144 x 16`); FP-SCALE-002 froze `16384 x 64`, so the regenerated
+  batches were `4x` too large and the regeneration check failed by about
+  `0.13`;
+- diagnosing that established, by replaying the sealed code path verbatim, that
+  the **FP-SCALE-002 formal result is bit-exactly reproducible**
+  (`|dE_Q| = 0`, `max|dLB| = 0`, identical `eta` and decisions), which had not
+  been demonstrated before.
+
+Evidence: `docs/research_branches/FP-ATTN-001/claude/` (`first_result.md`,
+`verification_same_actor.md`); bundle `results/FP-ATTN-001/claude/formal/`.
+
+**Verification strength, stated plainly:** same-actor derived verification
+only. Both paths are by the same author, so a shared conceptual error would not
+be caught by their agreement. Independent verification by a second actor
+remains the outstanding step for the project's headline result.
+
+## Previous task state (closed)
 
 ### FP-SCALE-002 — first certified policy improvement (2026-09-11)
 
