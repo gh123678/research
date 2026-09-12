@@ -42,8 +42,22 @@ TASK_ID = "FP-ATTN-ITER-001"
 ITER3_BUNDLE = (
     PROJECT / "results" / "FP-ITER3-001" / "claude" / "formal" / "task_results.json"
 )
+# FP-ITER4-001 sealed the numpy four-step route; FP-ATTN-ITER4-001 compares
+# against it so that step 4 is matched against the matching numpy horizon.
+ITER4_BUNDLE = (
+    PROJECT / "results" / "FP-ITER4-001" / "claude" / "formal" / "task_results.json"
+)
+REFERENCE_BUNDLES = {
+    "iter3": ITER3_BUNDLE,
+    "iter4": ITER4_BUNDLE,
+}
 PRIMARY = ("expected_exact", "expected_finite")
 MAX_STEPS = 3
+# Both FP-ATTN-ITER-001 (3) and FP-ATTN-ITER4-001 (4) freeze the horizon here.
+# The code path is otherwise unchanged, and each task must prove that raising the
+# ceiling leaves the earlier steps bit-identical, so that the horizon change is
+# inert rather than a new method.
+ALLOWED_MAX_STEPS = (3, 4)
 ATOL = 1e-4
 MIXINGS = (0.08, 0.5)
 TASKS = 12
@@ -156,10 +170,27 @@ def main() -> None:
     parser.add_argument("--tasks", type=int, default=TASKS)
     parser.add_argument("--mixings", type=str, default="0.08,0.5")
     parser.add_argument("--label", type=str, default="literal-iteration")
+    parser.add_argument(
+        "--max-steps",
+        type=int,
+        default=MAX_STEPS,
+        choices=ALLOWED_MAX_STEPS,
+        help="network iteration horizon; FP-ATTN-ITER-001 froze 3, "
+        "FP-ATTN-ITER4-001 freezes 4",
+    )
+    parser.add_argument(
+        "--reference",
+        type=str,
+        default="iter3",
+        choices=sorted(REFERENCE_BUNDLES),
+        help="numpy comparison baseline: iter3 (FP-ITER3-001) or iter4 (FP-ITER4-001)",
+    )
     args = parser.parse_args()
+    max_steps = int(args.max_steps)
 
     mixings = tuple(float(v) for v in args.mixings.split(","))
-    reference = json.loads(ITER3_BUNDLE.read_text(encoding="utf-8"))
+    reference_path = REFERENCE_BUNDLES[args.reference]
+    reference = json.loads(reference_path.read_text(encoding="utf-8"))
     ref_by_key = {
         (float(r["mixing"]), int(r["task_index"])): r for r in reference["records"]
     }
@@ -192,7 +223,7 @@ def main() -> None:
                 q_ref = np.asarray(exact["q_pi"], dtype=np.float64).copy()
                 network = networks[route]
                 steps: list[dict[str, Any]] = []
-                for step_index in range(1, MAX_STEPS + 1):
+                for step_index in range(1, max_steps + 1):
                     q_hat_literal, first_layer = network_qhat(
                         network, current_policy, train
                     )
@@ -346,7 +377,7 @@ def main() -> None:
         "task_id": TASK_ID,
         "label": args.label,
         "record_count": len(records),
-        "max_steps": MAX_STEPS,
+        "max_steps": max_steps,
         "atol": ATOL,
         "torch": torch.__version__,
         "records": records,
@@ -363,7 +394,7 @@ def main() -> None:
                 "label": args.label,
                 "mixings": list(mixings),
                 "tasks": args.tasks,
-                "max_steps": MAX_STEPS,
+                "max_steps": max_steps,
                 "atol": ATOL,
                 "cert_chains": CERT_CHAINS,
                 "cert_chain_length": CERT_CHAIN_LENGTH,
@@ -420,3 +451,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

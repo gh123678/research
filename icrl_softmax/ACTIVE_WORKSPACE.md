@@ -2,10 +2,61 @@
 
 ## Current objective
 
-No task is active. `docs/research_tasks/FP-ITER4-001.md` (v1.0) closed at Gate D
-on 2026-09-11.
+No task is active. `docs/research_tasks/FP-ATTN-ITER4-001.md` (v1.0) closed at
+Gate D on 2026-09-11.
 
-### FP-ITER4-001 — a fourth certified step, all three predictions held (2026-09-11)
+### FP-ATTN-ITER4-001 — the network reaches four steps, and the gap stays flat (2026-09-11)
+
+Two verified results did not align in horizon: `FP-ITER4-001` certified **four**
+steps on the **numpy** path, while `FP-ATTN-ITER-001` certified **three** on the
+literal network. So the deepest result rested on numpy. This task runs the
+network at `MAX_STEPS = 4`, with the comparison baseline switched to the sealed
+`FP-ITER4-001` four-step numpy bundle so step 4 is matched against the matching
+horizon.
+
+| step | network emissions | numpy emissions | network mean gain | network min gain | max `\|dQ\|` |
+|---|---|---|---|---|---|
+| 1 | `22` | `22` | `2.7177070297828965` | `0.10419714014227195` | `1.076e-05` |
+| 2 | `20` | `20` | `2.2779971698013703` | `0.7799017280406759` | `4.585e-06` |
+| 3 | `15` | `15` | `1.286905361647572` | `0.37819650415353206` | `7.176e-06` |
+| **4** | **`12`** | **`12`** | **`0.8074994690824351`** | **`0.18490214293638285`** | **`1.044e-05`** |
+
+- Horizon inertness: **all `90` network step-1..3 entries identical** to the
+  sealed `FP-ATTN-ITER-001` run, including the recorded `Qhat` gaps.
+- **Decision agreement `105/105`; `0` flips; `0` `eta` flips; `0` certificate
+  violations; `0` non-degrading violations.** Producer set exactly
+  `{literal_attention_network}`; `12` four-step routes.
+
+**The `float32` gap does not accumulate at four steps either.** The per-step
+maximum gap is `1.076e-05`, `4.585e-06`, `7.176e-06`, **`1.044e-05`** — flat
+across four compositions and an order of magnitude inside `ATOL`. The flatness
+is now observed across four rather than three, strengthening the reading that
+the network-versus-numpy difference acts as per-step rounding noise. Only the
+measurement is claimed, not the mechanism.
+
+**The network and numpy horizons are now aligned at four steps**, so the deepest
+certified result no longer depends on which code path is trusted.
+
+One small numerical difference is recorded rather than glossed: the network's
+mean and minimum gains differ from numpy's in the fifth decimal (e.g. step 1
+`2.7177070297828965` vs `2.71770715611645`). That is not a discrepancy — the two
+routes produce slightly different policies and `total_value_gain` is the
+**oracle** value change of the policy each actually produced; decisions, `eta`
+and emission counts are identical.
+
+Shared-evaluator audit: **no sealed bundle recorded the changed file**, so no
+earlier report was affected, and all prior verifiers still exit `0`.
+
+Evidence: `docs/research_branches/FP-ATTN-ITER4-001/claude/` (`first_result.md`,
+`verification_same_actor.md`); bundle
+`results/FP-ATTN-ITER4-001/claude/formal/`.
+
+**Verification strength:** same-actor, and per the user's instruction of
+2026-09-11 ("验证先不管") not the focus of this round. No second actor
+reconstructed this route; agreement between the network and numpy paths rules
+out implementation drift between them, not a shared conceptual error.
+
+## Previous task state (closed)
 
 Extends the certified iteration to `MAX_STEPS = 4` with three **pre-registered**
 step-4 predictions, so the decay reading could be falsified rather than
@@ -56,7 +107,9 @@ only. Every result in this line of work rests on implementations by one author,
 so a shared conceptual error would not be caught. Independent verification
 remains the one outstanding item for the project's headline result.
 
-## Previous task state (closed)
+## Closed network tasks (evidence)
+
+### FP-ATTN-ITER-001 — the literal network carries the three-step iteration (2026-09-11)
 
 This closed the last unexecuted inference step in the project's central claim.
 The certified iteration had only ever run in numpy: `FP-ATTN-001` verified
