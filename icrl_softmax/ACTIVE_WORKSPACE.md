@@ -84,7 +84,16 @@
 - 第六步预测在运行前冻结（`2026-09-12T11:23:59Z`，sha256 `70b79f03…`）；两条登记规则给出了完全相同的预测，故该比较无法区分优劣，这一点作为设计缺陷记录在报告中。
 - 普查批次与第五步所用批次一致，已由 `verify_census_batch_frozen.py` 逐对计数核对。
 
-以上同样是受限小环境与冻结协议下的**初步结果**，且仍为同一执行者自检。
+收紧证书 [FP-TIGHT-001](docs/research_tasks/FP-TIGHT-001.md)（第一步、全部 48 条路线记录；记录见 [结果报告](docs/research_branches/FP-TIGHT-001/claude/first_result.md)）：
+
+- 冻结证书的**均值步没有被它自己引用的不等式支持**：文档写的是霍夫丁引理，但霍夫丁引理要的是 `Y` 的**值域**（`20`），代码代进去的是数据估出的尺度 `s_x ≈ 1.2`。第二矩那一步是正当的霍夫丁用法，问题只在均值步。
+- 改用 **Bernstein**（同样的两个已知量，只是换对不等式）后：平均 `E_Q` 从 `0.2426` 降到 `0.2061`（`−15.0%`）；再上经验 Bernstein 到 `0.1940`（`−20.0%`）。两个臂在全部 48 条记录上**都没有覆盖违规**，单调性也成立。
+- 这足以**复活 26 条从未发出记录中的 8 条**，第一步发出数从 `22/48` 升到 `30/48`。
+- 预登记的两条我不该错：`H5`（预测 0 条翻转）被否定——我用的是弃权组的**平均**跨度 `0.3273` 推出一个全称判断，而翻转的恰恰是高跨度尾部；`H6`（预测换不等式比删包络更有效）也被否定——删包络值 `−45%`，换不等式只值 `−20%`，所以普查“84% 来自最坏情况假设”的读法才是对的。
+- **一个值得记住的推论**：那个被明确标注为不可靠的“删包络”臂，在 48 条记录上同样 **0 覆盖违规**。所以“0 违规”并不能证明界是成立的——这些界松到连不成立的都能通过。
+- 事后补充（非预登记）：把普查的阈值 `2.168689` 原封不动用到**新证书**的比值上，误分类 `0/48`（在冻结证书上是 `1/48`）。弃权组在新证书下两组比值**完全分离**（翻转组 `[2.56, 3.02]`，未翻转组 `[0.65, 1.74]`）。这解释了普查的表面失败：该判据不是"时间预测器"，而是**与证书无关的资格门槛**——记录在 `sigma_min / E_Q` 越过约 `2.17` 时发出，`E_Q` 用哪张证书就用哪个值。
+
+以上同样是受限小环境与冻结协议下的**初步结果**，且仍为同一执行者自检。收紧后的证书**只测了第一步**；它是否让迭代走得更远，尚未检验。
 
 ## 研究走到这里的关键环节
 
@@ -127,6 +136,7 @@
 - 最近迭代评估：`evaluate_fp_iter2_001.py`、`evaluate_fp_attn_iter_001.py`。
 - 第五步分析与同执行者检查：`analyze_fp_iter5_001.py`、`verify_fp_iter5_001_same_actor.py`。
 - 全line基础核对：`verify_policy_quantities_by_solve.py`。
+- 收紧证书：`fixed_policy_bernstein_certificate.py`（新模块，不改封存的 `fixed_policy_variance_certificate.py`）、`evaluate_fp_tight_001.py`、`analyze_fp_tight_001.py`、`verify_fp_tight_001_same_actor.py`。
 - 文档：索引清理审计 `docs/research_branches/2026-09-12-index-cleanup-audit.md`；独立验证交接 `docs/2026-09-12-independent-verification-handoff.md`。
 - 资格普查与第六步：`evaluate_fp_census_001.py`、`analyze_fp_census_001.py`、`analyze_fp_iter6_001.py`、`verify_census_batch_frozen.py`、`verify_fp_census_001_same_actor.py`、`verify_fp_iter6_001_same_actor.py`。
 - 网络第六步：`analyze_fp_attn_iter6_001.py`、`verify_fp_attn_iter6_001_same_actor.py`（评估沿用 `evaluate_fp_attn_iter_001.py`）。
@@ -142,6 +152,7 @@
 - `results/FP-ATTN-ITER6-001/claude/network/`
 - `results/FP-CENSUS-001/claude/smoke/`
 - `results/FP-CENSUS-001/claude/formal/`（含冻结的 `prediction_step6.json`）
+- `results/FP-TIGHT-001/claude/formal/`、`results/FP-TIGHT-001/claude/sample4/`
 
 各次实验的准确版本、环境、命令及失败记录，以对应 [任务单](docs/research_tasks/) 和 [结果报告](docs/research_branches/) 为准。旧实验依赖的程序与结果目录保持原位置。
 
