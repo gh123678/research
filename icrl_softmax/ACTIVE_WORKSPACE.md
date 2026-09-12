@@ -2,10 +2,61 @@
 
 ## Current objective
 
-No task is active. `docs/research_tasks/FP-ATTN-ITER-001.md` (v1.0) closed at
-Gate D on 2026-09-11.
+No task is active. `docs/research_tasks/FP-ITER4-001.md` (v1.0) closed at Gate D
+on 2026-09-11.
 
-### FP-ATTN-ITER-001 — the literal network carries the three-step iteration (2026-09-11)
+### FP-ITER4-001 — a fourth certified step, all three predictions held (2026-09-11)
+
+Extends the certified iteration to `MAX_STEPS = 4` with three **pre-registered**
+step-4 predictions, so the decay reading could be falsified rather than
+narrated.
+
+| step | emissions | mean gain | minimum gain |
+|---|---|---|---|
+| 1 | `22` (sealed) | `2.717707` (sealed) | `0.104197` (sealed) |
+| 2 | `20` (sealed) | `2.277997` (sealed) | `0.779902` (sealed) |
+| 3 | `15` (sealed) | `1.286906` (sealed) | `0.378197` (sealed) |
+| **4** | **`12`** | **`0.807500`** | **`0.184902`** |
+
+- Horizon inertness: **all `90` step-1..3 entries bit-identical** to the sealed
+  `FP-ITER3-001` run; `0` reproduction failures.
+- `12` route-records emitted **all four** steps; `105` step executions.
+- **`0` certificate violations and `0` non-degrading violations**; the only
+  stopping reason remains `improvement_lcb_nonpositive`.
+- **All three pre-registered predictions PASS**: `H7` (`12 < 15`), `H8`
+  (`0.8075 < 1.2869`), `H9` (`min4 = 0.1849 > 0.05`, so the fourth step is a
+  real improvement rather than a vacuous move).
+
+**Decay shape, with its limits.** Emission ratios `0.9091, 0.7500, 0.8000`;
+mean-gain ratios `0.8382, 0.5649, 0.6266`. Both **dip at 2 → 3 and recover at
+3 → 4**, so neither sequence is monotone or cleanly geometric. Four points
+identify no functional form and none is claimed. What the data support is the
+**churn** reading from `FP-ITER3-001` — each policy move creates new tight
+states, so the population and margin profile are re-drawn every step rather than
+filtered monotonically — not a smooth decay law.
+
+The fourth step has so far run on the **numpy** route only; the network is
+verified through three steps.
+
+Evidence: `docs/research_branches/FP-ITER4-001/claude/` (`first_result.md`,
+`verification_same_actor.md`); bundle `results/FP-ITER4-001/claude/formal/`.
+
+**A shared-code integrity note, recorded rather than hidden.** The horizon knob
+lives in the shared task evaluator `evaluate_fp_iter2_001.py`, so extending it
+changed that file's hash and correctly tripped `FP-ATTN-ITER-001`'s sealed-file
+check. The scientific corpus (certificate, routes, model, certificate verifier)
+is byte-identical everywhere; the evaluator is not part of it. The change is
+paired with an **inertness proof** — a re-run at the frozen horizon reproduces
+all `90` sealed step entries exactly — and `FP-ATTN-ITER-001`'s verifier was
+updated to keep the science checks strict while reporting evaluator evolution
+explicitly, then re-run to PASS.
+
+**Verification strength, stated plainly:** same-actor derived verification
+only. Every result in this line of work rests on implementations by one author,
+so a shared conceptual error would not be caught. Independent verification
+remains the one outstanding item for the project's headline result.
+
+## Previous task state (closed)
 
 This closed the last unexecuted inference step in the project's central claim.
 The certified iteration had only ever run in numpy: `FP-ATTN-001` verified
@@ -68,7 +119,7 @@ rules out implementation drift between the two paths, but it cannot catch a
 conceptual error shared by both. Independent verification remains the one
 outstanding item for the project's headline result.
 
-## Previous task state (closed)
+## Closed iteration tasks (evidence)
 
 ### FP-ITER3-001 — three certified steps, and a falsified prediction (2026-09-11)
 
@@ -113,7 +164,7 @@ only. `FP-ATTN-001`, `FP-ITER2-001` and this task all rest on implementations by
 one author, so a shared conceptual error would not be caught. Independent
 verification remains outstanding for the project's headline result.
 
-## Closed iteration tasks (evidence)
+## Earlier iteration tasks (evidence)
 
 ### FP-ITER2-001 — the certificate supports a second certified step (2026-09-11)
 

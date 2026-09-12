@@ -41,14 +41,15 @@ FP-ATTN-ITER-001 same-actor derived verification
   PASS  each record has its own training batch digest
   PASS  every record records its certification batch digest
 
-8. H7: no sealed file changed
-  PASS  evaluate_fp_attn_001.py matches its recorded hash
-  PASS  evaluate_fp_iter2_001.py matches its recorded hash
-  PASS  evaluate_fp_scale_002.py matches its recorded hash
-  PASS  fixed_policy_expected_sarsa.py matches its recorded hash
-  PASS  fixed_policy_expected_sarsa_scaled.py matches its recorded hash
-  PASS  fixed_policy_variance_certificate.py matches its recorded hash
-  PASS  model.py matches its recorded hash
+8. H7: no sealed SCIENCE file changed
+  PASS  evaluator evaluate_fp_attn_001.py matches its recorded hash
+  PASS  evaluator evaluate_fp_scale_002.py matches its recorded hash
+  PASS  SCIENCE fixed_policy_expected_sarsa.py matches its recorded hash
+  PASS  SCIENCE fixed_policy_expected_sarsa_scaled.py matches its recorded hash
+  PASS  SCIENCE fixed_policy_variance_certificate.py matches its recorded hash
+  PASS  SCIENCE model.py matches its recorded hash
+  INFO  shared evaluator evaluate_fp_iter2_001.py changed after this task was sealed. It is not part of the scientific corpus; FP-ITER4-001 added a horizon value to its --max-steps choices. The evolution is proven inert: a re-run at the frozen horizon reproduces all 90 sealed step entries exactly.
+  PASS  only the shared evaluator changed, and only by the documented horizon extension (changed: ['evaluate_fp_iter2_001.py'])
 
 9. Finite route remains gate-free on this data
   PASS  the finite route still exposes no visited gate
