@@ -96,8 +96,16 @@ def main() -> None:
     parser.add_argument("--mixings", type=str, default="0.08,0.5")
     parser.add_argument("--max-steps", type=int, default=12)
     parser.add_argument("--multiplier", type=int, default=8)
+    parser.add_argument(
+        "--task-id",
+        type=str,
+        default=TASK_ID,
+        help="overridden by follow-on tasks that reuse this evaluator, so each "
+        "bundle carries its own identity",
+    )
     parser.add_argument("--label", type=str, default="iteration-at-8x")
     args = parser.parse_args()
+    task_id = str(args.task_id)
 
     mixings = tuple(float(v) for v in args.mixings.split(","))
     chains = CERT_CHAINS * int(args.multiplier)
@@ -195,7 +203,7 @@ def main() -> None:
                 routes[route] = arms_out
             records.append(
                 {
-                    "task_id": TASK_ID,
+                    "task_id": task_id,
                     "mixing": float(mixing),
                     "task_index": int(task_index),
                     "routes": routes,
@@ -219,7 +227,7 @@ def main() -> None:
         json.dumps(
             strict_ready(
                 {
-                    "task_id": TASK_ID,
+                    "task_id": task_id,
                     "label": args.label,
                     "record_count": len(records),
                     "max_steps": int(args.max_steps),
@@ -238,7 +246,7 @@ def main() -> None:
     (args.output_dir / "config.json").write_text(
         json.dumps(
             {
-                "task_id": TASK_ID,
+                "task_id": task_id,
                 "label": args.label,
                 "mixings": list(mixings),
                 "tasks": args.tasks,
@@ -275,7 +283,7 @@ def main() -> None:
     (args.output_dir / "commands.log").write_text(
         " ".join(sys.argv) + "\n", encoding="utf-8"
     )
-    print(f"{TASK_ID}: {len(records)} records -> {args.output_dir}")
+    print(f"{task_id}: {len(records)} records -> {args.output_dir}")
 
 
 if __name__ == "__main__":
