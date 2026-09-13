@@ -108,9 +108,46 @@ def certificate_for(
     raise ValueError(f"unknown arm {arm!r}")
 
 
+def make_producer(name: str):
+    """Return a ``produce(route, policy, train) -> q_hat`` callable.
+
+    ``numpy`` uses the sealed array-formula routes; ``network`` (FP-CERTCHECK-001)
+    uses the literal attention networks of ``model.py`` via the FP-ATTN-001
+    ``network_qhat`` helper. Everything downstream (certificate, decision,
+    audit) is identical for both producers.
+    """
+    if name == "numpy":
+        return lambda route, policy, train: fs.run_route(route, policy, train)["q_hat"]
+    if name == "network":
+        import torch  # local import: numpy mode must not require torch
+
+        from evaluate_fp_attn_iter_001 import network_qhat
+        from model import (
+            EndToEndFiniteSoftmaxExpectedSARSA,
+            EndToEndMaskedSoftmaxExpectedSARSA,
+        )
+
+        networks = {
+            "expected_exact": EndToEndMaskedSoftmaxExpectedSARSA(
+                gamma=fs.GAMMA, alpha=fs.ALPHA
+            ),
+            "expected_finite": EndToEndFiniteSoftmaxExpectedSARSA(
+                gamma=fs.GAMMA, alpha=fs.ALPHA, zeta=fs.ZETA, xi=fs.XI, tau=fs.TAU
+            ),
+        }
+
+        def produce(route, policy, train):
+            q_literal, _ = network_qhat(networks[route], policy, train)
+            return np.asarray(q_literal, dtype=np.float64)
+
+        return produce
+    raise ValueError(f"unknown producer {name!r}")
+
+
 def run_records(args, mixings, tasks) -> dict[str, Any]:
     max_steps = 1 if args.mode == "step1" else int(args.max_steps)
     delta_step = DELTA_TOTAL / max_steps  # theorem 2: uniform allocation, K frozen
+    produce = make_producer(args.producer)
     records: list[dict[str, Any]] = []
     items_drawn_total = 0
     for mixing in mixings:
@@ -136,7 +173,7 @@ def run_records(args, mixings, tasks) -> dict[str, Any]:
                     for step_index in range(1, max_steps + 1):
                         # q_hat_k is a function of (train, pi_{k-1}) ONLY.
                         q_hat = np.asarray(
-                            fs.run_route(route, current, train)["q_hat"],
+                            produce(route, current, train),
                             dtype=np.float64,
                         ).reshape(fs.N_STATES, fs.N_ACTIONS)
                         if step_index > len(step_batches):
@@ -260,6 +297,7 @@ def run_records(args, mixings, tasks) -> dict[str, Any]:
         "task_id": TASK_ID,
         "mode": args.mode,
         "label": args.label,
+        "producer": args.producer,
         "arms": list(ARMS),
         "routes": list(PRIMARY),
         "n_per_pair": int(args.n_per_pair),
@@ -283,6 +321,7 @@ def main() -> None:
     parser.add_argument("--n-per-pair", type=int, required=True)
     parser.add_argument("--chains", type=int, required=True)
     parser.add_argument("--max-steps", type=int, default=12)
+    parser.add_argument("--producer", choices=["numpy", "network"], default="numpy")
     args = parser.parse_args()
 
     if args.mode == "smoke":
@@ -307,6 +346,7 @@ def main() -> None:
                 "task_id": TASK_ID,
                 "mode": args.mode,
                 "label": args.label,
+                "producer": args.producer,
                 "n_per_pair": int(args.n_per_pair),
                 "chains_per_step": int(args.chains),
                 "chain_length": CHAIN_LENGTH,
