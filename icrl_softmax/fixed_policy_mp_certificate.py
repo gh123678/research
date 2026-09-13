@@ -1,5 +1,15 @@
 """FP-CERTFIX-001: a residual certificate whose premises are actually met.
 
+UPDATE 2026-09-13 (independent review, OBJECTION): the original lemma A
+(first-n fixed-count extraction) is FALSE -- see the erratum in
+``docs/derivations/FP-CERTFIX-001-certificate-rederivation.md`` and the review
+in ``docs/research_branches/FP-CERTFIX-001/claude/review_of_derivation.md``.
+The valid extraction is the chain-replicated FIRST-VISIT sample (lemma A'),
+implemented by ``first_visit_batch`` and certified by
+``mp_certificate_firstvisit`` / ``split_bernstein_firstvisit`` below. The
+original ``mp_certificate`` / ``split_bernstein_certificate`` are kept only to
+reproduce the 2026-09-13 morning artifacts; their guarantee is withdrawn.
+
 This module is NEW and additive. It does not modify, import-patch, or shadow any
 sealed file. It implements the two constructions of
 ``docs/derivations/FP-CERTFIX-001-certificate-rederivation.md``:
@@ -164,6 +174,176 @@ def _finish(
         "delta_each": float(delta_each),
         **(extra or {}),
     }
+
+
+def mp_certificate_firstvisit(
+    q_hat: Any,
+    policy: Any,
+    batch: dict[str, Any],
+    *,
+    min_visits: int,
+    delta_step: float,
+    n_states: int = N_STATES,
+    n_actions: int = N_ACTIONS,
+    reward_bound: float = R_STAR,
+    gamma: float = GAMMA,
+) -> dict[str, Any]:
+    """MP certificate on the chain-replicated first-visit sample (lemma A').
+
+    The ``batch`` must be the output of ``first_visit_batch``: per pair, ONE
+    residual per visiting chain. Each pair's sample size ``N_x`` is random but
+    independent of its values, so Maurer-Pontil applies at the realised ``N_x``
+    and integrating over ``N_x`` costs nothing (derivation sections 1 and 5).
+
+    Abstains (``heldout_pair_support_missing``) when any pair has
+    ``N_x < min_visits`` -- a safe rule because ``N_x`` is independent of the
+    values. Radius per pair uses that pair's own ``N_x``.
+    """
+    value_bound = float(reward_bound) / (1.0 - float(gamma))
+    envelope = float(reward_bound) + float(gamma) * value_bound + value_bound
+    y_range = 2.0 * envelope
+    d = int(n_states) * int(n_actions)
+    reasons: list[str] = []
+    q_hat = np.asarray(q_hat, dtype=np.float64)
+    if q_hat.shape != (int(n_states), int(n_actions)):
+        raise ValueError("q_hat must match the declared dimensions")
+    if not np.all(np.isfinite(q_hat)):
+        reasons.append("numerical_nonfinite")
+    elif float(np.max(np.abs(q_hat))) > value_bound:
+        reasons.append("divergence_guard_triggered")
+
+    policy = np.asarray(policy, dtype=np.float64)
+    residuals = residuals_for(q_hat, policy, batch, gamma=gamma)
+    flat = np.asarray(batch["states"], dtype=np.int64) * int(n_actions) + np.asarray(
+        batch["actions"], dtype=np.int64
+    )
+    groups: dict[int, np.ndarray] = {}
+    sizes = np.zeros(d, dtype=np.int64)
+    for pair in range(d):
+        members = np.flatnonzero(flat == pair)
+        sizes[pair] = members.size
+        if members.size < int(min_visits):
+            reasons.append("heldout_pair_support_missing")
+            break
+        groups[pair] = members
+
+    delta_dir = float(delta_step) / (2.0 * d)
+    log_term = math.log(2.0 / delta_dir)
+    means = np.zeros(d, dtype=np.float64)
+    radii = np.zeros(d, dtype=np.float64)
+    sample_vars = np.zeros(d, dtype=np.float64)
+    if not reasons:
+        for pair in range(d):
+            y = residuals[groups[pair]]
+            n = int(sizes[pair])
+            v = float(np.var(y, ddof=1))
+            sample_vars[pair] = v
+            means[pair] = float(np.mean(y))
+            radii[pair] = math.sqrt(
+                2.0 * max(v, 0.0) * log_term / n
+            ) + MP_CONSTANT * y_range * log_term / max(n - 1, 1)
+    out = _finish(
+        sorted(set(reasons), key=REASON_ORDER.index) if reasons else [],
+        means,
+        radii,
+        d,
+        delta_step,
+        delta_dir,
+        gamma,
+        {
+            "arm": "mp_firstvisit",
+            "min_visits": int(min_visits),
+            "pair_sizes": sizes,
+            "sample_vars": sample_vars,
+        },
+    )
+    return out
+
+
+def split_bernstein_firstvisit(
+    q_hat: Any,
+    policy: Any,
+    batch: dict[str, Any],
+    *,
+    min_visits: int,
+    delta_step: float,
+    n_states: int = N_STATES,
+    n_actions: int = N_ACTIONS,
+    reward_bound: float = R_STAR,
+    gamma: float = GAMMA,
+) -> dict[str, Any]:
+    """Minimal-repair split-half Bernstein on the first-visit sample.
+
+    Conditional on ``N_x = n``, the retained sample is iid (lemma A'), so its
+    order-split halves are independent with fixed sizes ``m = n // 2`` and
+    ``n - m``; the two-stage argument of derivation section 7 applies
+    conditionally, and integrating over ``N_x`` costs nothing.
+    """
+    value_bound = float(reward_bound) / (1.0 - float(gamma))
+    envelope = float(reward_bound) + float(gamma) * value_bound + value_bound
+    y_range = 2.0 * envelope
+    d = int(n_states) * int(n_actions)
+    reasons: list[str] = []
+    q_hat = np.asarray(q_hat, dtype=np.float64)
+    if q_hat.shape != (int(n_states), int(n_actions)):
+        raise ValueError("q_hat must match the declared dimensions")
+    if not np.all(np.isfinite(q_hat)):
+        reasons.append("numerical_nonfinite")
+    elif float(np.max(np.abs(q_hat))) > value_bound:
+        reasons.append("divergence_guard_triggered")
+
+    policy = np.asarray(policy, dtype=np.float64)
+    residuals = residuals_for(q_hat, policy, batch, gamma=gamma)
+    flat = np.asarray(batch["states"], dtype=np.int64) * int(n_actions) + np.asarray(
+        batch["actions"], dtype=np.int64
+    )
+    groups: dict[int, np.ndarray] = {}
+    sizes = np.zeros(d, dtype=np.int64)
+    for pair in range(d):
+        members = np.flatnonzero(flat == pair)
+        sizes[pair] = members.size
+        if members.size < 2 * int(min_visits):
+            reasons.append("heldout_pair_support_missing")
+            break
+        groups[pair] = members
+
+    delta_1 = float(delta_step) / (2.0 * d)
+    delta_2 = float(delta_step) / (2.0 * d)
+    means = np.zeros(d, dtype=np.float64)
+    radii = np.zeros(d, dtype=np.float64)
+    scales = np.zeros(d, dtype=np.float64)
+    if not reasons:
+        for pair in range(d):
+            idx = groups[pair]
+            m = int(sizes[pair]) // 2
+            y_a = residuals[idx[:m]]
+            y_b = residuals[idx[m:]]
+            # Corrected Hoeffding on Z = Y^2 in [0, E^2] (sqrt(2) included).
+            m2 = float(np.mean(y_a**2))
+            slack = (envelope**2) * math.sqrt(math.log(1.0 / delta_1) / (2.0 * m))
+            v_x = m2 + slack
+            scales[pair] = math.sqrt(max(v_x, 0.0))
+            radii[pair] = _bernstein_t(
+                v_x, y_range, math.log(2.0 / delta_2), int(sizes[pair]) - m
+            )
+            means[pair] = float(np.mean(y_b))
+    return _finish(
+        sorted(set(reasons), key=REASON_ORDER.index) if reasons else [],
+        means,
+        radii,
+        d,
+        delta_step,
+        delta_1,
+        gamma,
+        {
+            "arm": "split_firstvisit",
+            "min_visits": int(min_visits),
+            "pair_sizes": sizes,
+            "delta_1": delta_1,
+            "delta_2": delta_2,
+            "scales": scales,
+        },
+    )
 
 
 def mp_certificate(

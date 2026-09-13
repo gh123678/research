@@ -46,7 +46,8 @@ def main() -> int:
     failures: list[str] = []
     routes = data["routes"]
     arms = data["arms"]
-    n = int(data["n_per_pair"])
+    n = int(data.get("n_per_pair") or 0)
+    extraction = data.get("extraction", "first_n")
     max_steps = int(data["max_steps"])
     delta_step = float(data["delta_step"])
 
@@ -101,10 +102,14 @@ def main() -> int:
                         )
                     if arm == "mp" and s.get("cert_sample_vars"):
                         log_term = math.log(2.0 / de)
-                        for v, r in zip(s["cert_sample_vars"], s["cert_radii"]):
+                        sizes = s.get("cert_pair_sizes")
+                        for i, (v, r) in enumerate(
+                            zip(s["cert_sample_vars"], s["cert_radii"])
+                        ):
+                            n_i = int(sizes[i]) if sizes else n
                             expect = math.sqrt(
-                                2.0 * max(v, 0.0) * log_term / n
-                            ) + MP_CONSTANT * Y_RANGE * log_term / max(n - 1, 1)
+                                2.0 * max(v, 0.0) * log_term / n_i
+                            ) + MP_CONSTANT * Y_RANGE * log_term / max(n_i - 1, 1)
                             if abs(expect - r) > 1e-12 * max(1.0, r):
                                 failures.append(
                                     f"mp radius mismatch at step {s['step']} "

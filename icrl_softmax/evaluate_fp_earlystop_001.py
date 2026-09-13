@@ -47,7 +47,10 @@ import fixed_policy_expected_sarsa_scaled as fs  # noqa: E402
 import fixed_policy_mp_certificate as mc  # noqa: E402
 from evaluate_fixed_policy_q_routes import policy_quantities  # noqa: E402
 from evaluate_fp_gap_001 import optimal_values  # noqa: E402
-from fp_certfix_first_n import first_n_batch, step_seed_parts  # noqa: E402
+from fp_certfix_first_n import (  # noqa: E402
+    first_visit_batch,
+    step_seed_parts,
+)
 from fp_sample_vectorised_batch import vectorised_batch  # noqa: E402
 
 TASK_ID = "FP-EARLYSTOP-001"
@@ -58,9 +61,9 @@ DELTA_TOTAL = 0.05
 MIXINGS = fs.MIXING
 TASK_INDICES = tuple(range(12, 24))  # pre-registered NEW environments
 CHAIN_LENGTH = 64
-N_A = 16384
-N_B = 65536
-CHAINS = 65536  # 4x batch per record-step; A/C take the first 16384 per pair
+CHAINS = 65536  # one 64k-chain batch per record-step; 16k arms use its first 16384
+ARM_CHAINS = {"conj_n16k": 16384, "conj_n64k": 65536, "perstate_n16k": 16384}
+MIN_VISITS = 2000  # pre-registered abstention threshold on retained chains N_x
 
 ETA_GRID = fs.ETA_CANDIDATES
 
@@ -171,7 +174,7 @@ def run(args) -> dict[str, Any]:
                 step_batches: list[Any] = []
                 arms_out: dict[str, Any] = {}
                 for arm in ARMS:
-                    n_arm = N_B if arm == "conj_n64k" else N_A
+                    arm_chains = ARM_CHAINS[arm]
                     current = behaviour.copy()
                     q_ref = np.asarray(exact0["q_pi"], dtype=np.float64).copy()
                     v_chain = [np.asarray(exact0["v_pi"], dtype=np.float64).copy()]
@@ -195,7 +198,9 @@ def run(args) -> dict[str, Any]:
                             items_drawn_total += CHAINS * CHAIN_LENGTH
                             step_batches.append(raw)
                         raw = step_batches[step_index - 1]
-                        reduced, counts = first_n_batch(raw, n_arm)
+                        reduced, counts = first_visit_batch(
+                            raw, CHAIN_LENGTH, max_chains=arm_chains
+                        )
                         realized = float(np.max(np.abs(q_hat - q_ref)))
                         if reduced is None:
                             e_q = None
@@ -208,11 +213,11 @@ def run(args) -> dict[str, Any]:
                             }
                             reasons = ["heldout_pair_support_missing"]
                         else:
-                            cert = mc.mp_certificate(
+                            cert = mc.mp_certificate_firstvisit(
                                 q_hat,
                                 current,
                                 reduced,
-                                n_per_pair=n_arm,
+                                min_visits=MIN_VISITS,
                                 delta_step=delta_step,
                             )
                             e_q = cert.get("e_q")
@@ -307,7 +312,7 @@ def run(args) -> dict[str, Any]:
         "routes": list(PRIMARY),
         "task_indices": list(TASK_INDICES),
         "mixings": list(MIXINGS),
-        "n_per_pair": {"conj_n16k": N_A, "conj_n64k": N_B, "perstate_n16k": N_A},
+        "n_per_pair": {"note": "first-visit protocol: random N_x per pair; arms differ by chain count", "arm_chains": ARM_CHAINS, "min_visits": MIN_VISITS},
         "chains_per_step": CHAINS,
         "chain_length": CHAIN_LENGTH,
         "delta_total": DELTA_TOTAL,

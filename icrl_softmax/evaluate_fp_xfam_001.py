@@ -40,7 +40,10 @@ import fixed_policy_expected_sarsa as es  # noqa: E402
 import fixed_policy_expected_sarsa_scaled as fs  # noqa: E402
 import fixed_policy_mp_certificate as mc  # noqa: E402
 from evaluate_fixed_policy_q_routes import make_mdp, make_policy, policy_quantities  # noqa: E402
-from fp_certfix_first_n import first_n_batch, step_seed_parts  # noqa: E402
+from fp_certfix_first_n import (  # noqa: E402
+    first_visit_batch,
+    step_seed_parts,
+)
 from mdps import rollout  # noqa: E402
 
 TASK_ID = "FP-XFAM-001"
@@ -49,7 +52,7 @@ ARMS = ("conj", "perstate")
 TASK_SALT = 66337
 DELTA_TOTAL = 0.05
 K_STEPS = 12
-N_PER_PAIR = 16384
+MIN_VISITS = 2000  # first-visit protocol: abstain if any pair retains fewer chains
 CHAIN_LENGTH = 64
 PI_MIN = 0.15
 ETA_GRID = fs.ETA_CANDIDATES
@@ -294,8 +297,8 @@ def run_family(fam_name: str, args) -> dict[str, Any]:
                             items_drawn_total += fam["chains"] * CHAIN_LENGTH
                             step_batches.append(raw)
                         raw = step_batches[step_index - 1]
-                        reduced, counts = first_n_batch(
-                            raw, N_PER_PAIR, n_states=n_states, n_actions=n_actions
+                        reduced, counts = first_visit_batch(
+                            raw, CHAIN_LENGTH, n_states=n_states, n_actions=n_actions
                         )
                         realized = float(np.max(np.abs(q_hat - q_ref)))
                         if reduced is None:
@@ -303,11 +306,11 @@ def run_family(fam_name: str, args) -> dict[str, Any]:
                             emitted, nxt, eta_info, lb = False, current.copy(), None, np.zeros(n_states)
                             reasons = ["heldout_pair_support_missing"]
                         else:
-                            cert = mc.mp_certificate(
+                            cert = mc.mp_certificate_firstvisit(
                                 q_hat,
                                 current,
                                 reduced,
-                                n_per_pair=N_PER_PAIR,
+                                min_visits=MIN_VISITS,
                                 delta_step=delta_step,
                                 n_states=n_states,
                                 n_actions=n_actions,
@@ -392,7 +395,7 @@ def run_family(fam_name: str, args) -> dict[str, Any]:
         "label": args.label,
         "arms": list(ARMS),
         "routes": list(PRIMARY),
-        "n_per_pair": N_PER_PAIR,
+        "n_per_pair": {"note": "first-visit protocol: random N_x per pair", "min_visits": MIN_VISITS},
         "delta_total": DELTA_TOTAL,
         "max_steps": K_STEPS,
         "delta_step": delta_step,

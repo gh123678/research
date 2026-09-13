@@ -44,7 +44,11 @@ sys.path.insert(0, str(PROJECT))
 import fixed_policy_expected_sarsa_scaled as fs  # noqa: E402
 import fixed_policy_mp_certificate as mc  # noqa: E402
 from evaluate_fixed_policy_q_routes import policy_quantities  # noqa: E402
-from fp_certfix_first_n import first_n_batch, step_seed_parts  # noqa: E402
+from fp_certfix_first_n import (  # noqa: E402
+    first_n_batch,
+    first_visit_batch,
+    step_seed_parts,
+)
 from fp_sample_vectorised_batch import vectorised_batch  # noqa: E402
 
 TASK_ID = "FP-CERTFIX-001"
@@ -95,17 +99,31 @@ def sha256(path: Path) -> str:
 
 
 def certificate_for(
-    arm: str, q_hat: np.ndarray, policy: np.ndarray, batch: dict, n_per_pair: int, delta_step: float
+    arm: str,
+    q_hat: np.ndarray,
+    policy: np.ndarray,
+    batch: dict,
+    n_per_pair: int,
+    delta_step: float,
+    extraction: str = "first_n",
+    min_visits: int = 2000,
 ) -> dict:
+    if extraction == "first_visit":
+        if arm == "mp":
+            return mc.mp_certificate_firstvisit(
+                q_hat, policy, batch, min_visits=min_visits, delta_step=delta_step
+            )
+        return mc.split_bernstein_firstvisit(
+            q_hat, policy, batch, min_visits=min_visits, delta_step=delta_step
+        )
+    # Deprecated path: reproduces the 2026-09-13 morning artifacts only.
     if arm == "mp":
         return mc.mp_certificate(
             q_hat, policy, batch, n_per_pair=n_per_pair, delta_step=delta_step
         )
-    if arm == "split":
-        return mc.split_bernstein_certificate(
-            q_hat, policy, batch, n_per_pair=n_per_pair, delta_step=delta_step
-        )
-    raise ValueError(f"unknown arm {arm!r}")
+    return mc.split_bernstein_certificate(
+        q_hat, policy, batch, n_per_pair=n_per_pair, delta_step=delta_step
+    )
 
 
 def make_producer(name: str):
@@ -188,9 +206,14 @@ def run_records(args, mixings, tasks) -> dict[str, Any]:
                                 CHAIN_LENGTH,
                             )
                             items_drawn_total += int(args.chains) * CHAIN_LENGTH
-                            step_batches.append(
-                                first_n_batch(raw, int(args.n_per_pair))
-                            )
+                            if args.extraction == "first_visit":
+                                step_batches.append(
+                                    first_visit_batch(raw, CHAIN_LENGTH)
+                                )
+                            else:
+                                step_batches.append(
+                                    first_n_batch(raw, int(args.n_per_pair))
+                                )
                         reduced, counts = step_batches[step_index - 1]
                         realized = float(np.max(np.abs(q_hat - q_ref)))
                         if reduced is None:
@@ -214,6 +237,8 @@ def run_records(args, mixings, tasks) -> dict[str, Any]:
                                 reduced,
                                 int(args.n_per_pair),
                                 delta_step,
+                                extraction=args.extraction,
+                                min_visits=int(args.min_visits),
                             )
                             decision = fs.improvement_for(current, q_hat, certificate)
                         emitted = decision["status"] == "safe_update_emitted"
@@ -242,6 +267,11 @@ def run_records(args, mixings, tasks) -> dict[str, Any]:
                                 certificate.get("sample_vars", []), dtype=np.float64
                             ).tolist()
                             if arm == "mp" and certificate.get("sample_vars") is not None
+                            else None,
+                            "cert_pair_sizes": np.asarray(
+                                certificate.get("pair_sizes", []), dtype=np.int64
+                            ).tolist()
+                            if certificate.get("pair_sizes") is not None
                             else None,
                             "ordered_reasons": fs.route_failure_reasons(
                                 certificate, decision
@@ -298,6 +328,8 @@ def run_records(args, mixings, tasks) -> dict[str, Any]:
         "mode": args.mode,
         "label": args.label,
         "producer": args.producer,
+        "extraction": args.extraction,
+        "min_visits": int(args.min_visits),
         "arms": list(ARMS),
         "routes": list(PRIMARY),
         "n_per_pair": int(args.n_per_pair),
@@ -322,6 +354,14 @@ def main() -> None:
     parser.add_argument("--chains", type=int, required=True)
     parser.add_argument("--max-steps", type=int, default=12)
     parser.add_argument("--producer", choices=["numpy", "network"], default="numpy")
+    parser.add_argument(
+        "--extraction",
+        choices=["first_visit", "first_n"],
+        default="first_visit",
+        help="first_visit = valid chain-replicated sample (lemma A'); "
+        "first_n = DEPRECATED, reproduces the 2026-09-13 morning artifacts only",
+    )
+    parser.add_argument("--min-visits", type=int, default=2000)
     args = parser.parse_args()
 
     if args.mode == "smoke":
@@ -347,6 +387,8 @@ def main() -> None:
                 "mode": args.mode,
                 "label": args.label,
                 "producer": args.producer,
+                "extraction": args.extraction,
+                "min_visits": int(args.min_visits),
                 "n_per_pair": int(args.n_per_pair),
                 "chains_per_step": int(args.chains),
                 "chain_length": CHAIN_LENGTH,
