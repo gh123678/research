@@ -40,7 +40,7 @@ import fixed_policy_expected_sarsa_scaled as fs  # noqa: E402
 import fixed_policy_mp_certificate as mc  # noqa: E402
 from evaluate_fixed_policy_q_routes import policy_quantities  # noqa: E402
 from fp_certfix_first_n import first_visit_batch, step_seed_parts  # noqa: E402
-from fp_sample_vectorised_batch import vectorised_batch  # noqa: E402
+from fp_sample_vectorised_batch import kernel_batch, vectorised_batch  # noqa: E402
 
 import mpmath as mp  # noqa: E402
 
@@ -242,6 +242,7 @@ def main() -> None:
     args = parser.parse_args()
     data = json.loads((args.results / "task_results.json").read_text(encoding="utf-8"))
     n_per_pair = int(data.get("n_per_pair") or 0)  # unused under first-visit
+    extraction = data.get("extraction", "first_visit")
     chains = int(data["chains_per_step"])
     delta_step = float(data["delta_step"])
     salt = int(data["task_salt"])
@@ -272,15 +273,25 @@ def main() -> None:
                         fs.run_route(route, current, train)["q_hat"],
                         dtype=np.float64,
                     ).reshape(fs.N_STATES, fs.N_ACTIONS)
-                    raw = vectorised_batch(
-                        mdp,
-                        behaviour,
-                        mu_state,
-                        step_seed_parts(fs.SEED, salt, mixing, task_index, step_index),
-                        chains,
-                        64,
-                    )
-                    reduced, counts = first_visit_batch(raw, 64)
+                    if extraction == "oracle_kernel":
+                        # Second confirmation arm: re-draw the same kernel sample.
+                        reduced, counts = kernel_batch(
+                            mdp,
+                            step_seed_parts(
+                                fs.SEED, salt, mixing, task_index, step_index
+                            ),
+                            int(data.get("n_per_pair") or 65536),
+                        )
+                    else:
+                        raw = vectorised_batch(
+                            mdp,
+                            behaviour,
+                            mu_state,
+                            step_seed_parts(fs.SEED, salt, mixing, task_index, step_index),
+                            chains,
+                            64,
+                        )
+                        reduced, counts = first_visit_batch(raw, 64)
                     # (1) float64 replay via the production module
                     min_visits = int(data.get("min_visits", 2000))
                     cert = mc.mp_certificate_firstvisit(
