@@ -1,5 +1,25 @@
 # FP-RANGE-001 first result: the envelope ceiling is an artifact
 
+> **Correction, 2026-09-13.** `FP-CERTFIX-001`'s derivation review found that
+> `fixed_policy_bernstein_certificate.py`'s second-moment slack was too **tight** by a
+> factor of `sqrt(2)` — including inside `data_range_certificate`, this task's main arm.
+>
+> **The conclusion is unaffected and can only strengthen.** A correctly larger slack
+> makes `E_Q` **larger**, so the data-range arm is **worse** than published, and the
+> finding "the `−45%` ceiling cannot be collected soundly" holds *a fortiori*. The
+> headline of §3 stands.
+>
+> **Affected figures**: the exact percentages in §2's ladder (`+6.9%`, `−24.5%`,
+> `−43.4%`, `−56.4%`) will move toward the frozen certificate. They must be
+> **re-measured** before being quoted again.
+>
+> **Not affected**: the mechanism in §4 — the empirical tail mass is exactly zero and
+> the price lands in the Cauchy–Schwarz bias — and `H5`'s falsification, since the bias
+> term is computed from `V_x` and grows with a larger slack rather than changing sign.
+>
+> The module has been fixed. The sealed bundle is left intact as the record of what was
+> actually run.
+
 Date: 2026-09-12.
 Branch: `claude/FP-CENSUS-001`. Baseline: `7c0123f`.
 Actor: Claude, under the user's instruction of 2026-09-12 ("都做").

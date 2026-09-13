@@ -1,5 +1,24 @@
 # FP-TIGHT-001 first result
 
+> **Correction, 2026-09-13.** `FP-CERTFIX-001`'s derivation review found that
+> `fixed_policy_bernstein_certificate.py`'s second-moment slack was too **tight** by a
+> factor of `sqrt(2)`: it used `(E^2/2)·sqrt(log(1/δ)/n)` where Hoeffding on
+> `Z = Y^2 ∈ [0, E^2]` requires `(E^2/2)·sqrt(2·log(1/δ)/n)`. The sealed
+> `fixed_policy_variance_certificate.py` was correct; this module was not.
+>
+> **Affected figure: the `bernstein` arm's `−15.0%`** (§4's table and the `H3`
+> verdict). A correctly larger slack makes `E_Q` larger, so the true reduction is
+> **less negative** than published. `H3`'s band was `[−25%, −10%]`, so the verdict may
+> or may not survive; it must be **re-measured, not assumed**.
+>
+> **Not affected**: the headline arm `empirical_bernstein` (`−20.0%`), which uses the
+> Maurer–Pontil form and is correct; the coverage audit, where a larger `E_Q` can only
+> help; and the `H5` flip count, which is driven by the `empirical_bernstein` arm.
+>
+> The module has been fixed. The sealed bundle at `results/FP-TIGHT-001/claude/formal`
+> is left intact as the record of what was actually run; re-measurement is pending and
+> is required before the `bernstein` figure is quoted again.
+
 Date: 2026-09-12.
 Branch: `claude/FP-CENSUS-001`. Baseline: `12ecfea`.
 Actor: Claude, under the user's instruction of 2026-09-12 ("好的你去做"), closing the

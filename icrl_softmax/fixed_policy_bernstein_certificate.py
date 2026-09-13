@@ -259,8 +259,15 @@ def bernstein_certificate(
             first, second = split[pair]
             n_a, n_b = int(first.size), int(second.size)
             m2 = float(np.mean(residuals[first] ** 2))
-            # Hoeffding on Z = Y^2 in [0, (2B)^2]: the same step as the frozen one.
-            slack = (ENVELOPE**2 / 2.0) * math.sqrt(math.log(1.0 / delta_each) / n_a)
+            # Hoeffding on Z = Y^2 in [0, E^2], range E^2: for a variable in an
+            # interval of length K, P(mean - E[Z] >= t) <= exp(-2 N t^2 / K^2), so
+            # t = K sqrt(log(1/delta) / (2N)). An earlier version wrote
+            # (E^2/2) sqrt(log(1/delta)/N) = E^2 sqrt(log/(4N)), which is too TIGHT
+            # by sqrt(2) -- anti-conservative. Caught by FP-CERTFIX-001's derivation
+            # and confirmed numerically in the review of it.
+            slack = (ENVELOPE**2 / 2.0) * math.sqrt(
+                2.0 * math.log(1.0 / delta_each) / n_a
+            )
             v_x = m2 + slack
             scales[pair] = math.sqrt(max(v_x, 0.0))
             radii[pair] = _equilibrium(v_x, Y_RANGE, log_term, n_b)
@@ -382,8 +389,9 @@ def data_range_certificate(
             y_b = residuals[second]
 
             # Second moment from half A, exactly as the frozen construction does.
+            # Same sqrt(2) correction as in bernstein_certificate above.
             m2 = float(np.mean(y_a**2))
-            slack = (ENVELOPE**2 / 2.0) * math.sqrt(log_tail / n_a)
+            slack = (ENVELOPE**2 / 2.0) * math.sqrt(2.0 * log_tail / n_a)
             v_x = m2 + slack
             scales[pair] = math.sqrt(max(v_x, 0.0))
 
