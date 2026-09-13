@@ -91,8 +91,11 @@ def _prepare(
     n_per_pair: int,
     n_states: int,
     n_actions: int,
+    reward_bound: float = R_STAR,
+    gamma: float = GAMMA,
 ) -> tuple[list[str], np.ndarray, dict[int, np.ndarray], int]:
     """Guards, residuals, and per-pair indices with the fixed-count check."""
+    value_bound = float(reward_bound) / (1.0 - float(gamma))
     d = int(n_states) * int(n_actions)
     reasons: list[str] = []
     q_hat = np.asarray(q_hat, dtype=np.float64)
@@ -100,12 +103,12 @@ def _prepare(
         raise ValueError("q_hat must match the declared dimensions")
     if not np.all(np.isfinite(q_hat)):
         reasons.append("numerical_nonfinite")
-    elif float(np.max(np.abs(q_hat))) > VALUE_BOUND:
+    elif float(np.max(np.abs(q_hat))) > value_bound:
         # Enforces the premise |Qhat| <= B on which the ENVELOPE range rests.
         reasons.append("divergence_guard_triggered")
 
     policy = np.asarray(policy, dtype=np.float64)
-    residuals = residuals_for(q_hat, policy, batch)
+    residuals = residuals_for(q_hat, policy, batch, gamma=gamma)
     flat = np.asarray(batch["states"], dtype=np.int64) * int(n_actions) + np.asarray(
         batch["actions"], dtype=np.int64
     )
@@ -131,6 +134,7 @@ def _finish(
     d: int,
     delta_step: float,
     delta_each: float,
+    gamma: float = GAMMA,
     extra: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     if reasons:
@@ -151,7 +155,7 @@ def _finish(
         "status": "certificate_emitted",
         "failure_reasons": [],
         # Lemma C: ||Qhat - Q^pi||_inf <= ||rho||_inf / (1 - gamma).
-        "e_q": epsilon_res / (1.0 - GAMMA),
+        "e_q": epsilon_res / (1.0 - float(gamma)),
         "epsilon_res": epsilon_res,
         "residual_means": means,
         "radii": radii,
@@ -171,6 +175,8 @@ def mp_certificate(
     delta_step: float,
     n_states: int = N_STATES,
     n_actions: int = N_ACTIONS,
+    reward_bound: float = R_STAR,
+    gamma: float = GAMMA,
 ) -> dict[str, Any]:
     """Maurer-Pontil empirical Bernstein per pair, derivation sections 2 and 5.
 
@@ -181,10 +187,15 @@ def mp_certificate(
 
     with probability >= ``1 - delta_dir`` per DIRECTION, where
     ``delta_dir = delta_step / (2d)``. Union over ``d`` pairs and two
-    directions costs exactly ``delta_step`` (theorem 1).
+    directions costs exactly ``delta_step`` (theorem 1). ``Y_RANGE`` is derived
+    from ``reward_bound``/``gamma``: ``E = R* + gamma*B + B``, ``B =
+    R*/(1-gamma)``, ``Y_RANGE = 2E`` (derivation section 0).
     """
+    value_bound = float(reward_bound) / (1.0 - float(gamma))
+    envelope = float(reward_bound) + float(gamma) * value_bound + value_bound
+    y_range = 2.0 * envelope
     reasons, residuals, groups, d = _prepare(
-        q_hat, policy, batch, n_per_pair, n_states, n_actions
+        q_hat, policy, batch, n_per_pair, n_states, n_actions, reward_bound, gamma
     )
     delta_dir = float(delta_step) / (2.0 * d)
     log_term = math.log(2.0 / delta_dir)
@@ -200,7 +211,7 @@ def mp_certificate(
             means[pair] = float(np.mean(y))
             radii[pair] = math.sqrt(
                 2.0 * max(v, 0.0) * log_term / n
-            ) + MP_CONSTANT * Y_RANGE * log_term / max(n - 1, 1)
+            ) + MP_CONSTANT * y_range * log_term / max(n - 1, 1)
     return _finish(
         reasons,
         means,
@@ -208,6 +219,7 @@ def mp_certificate(
         d,
         delta_step,
         delta_dir,
+        gamma,
         {"arm": "mp", "n_per_pair": int(n_per_pair), "sample_vars": sample_vars},
     )
 
@@ -236,6 +248,8 @@ def split_bernstein_certificate(
     delta_step: float,
     n_states: int = N_STATES,
     n_actions: int = N_ACTIONS,
+    reward_bound: float = R_STAR,
+    gamma: float = GAMMA,
 ) -> dict[str, Any]:
     """Minimal-repair split-half Bernstein, derivation section 7.
 
@@ -258,8 +272,11 @@ def split_bernstein_certificate(
     Risk per pair: ``delta_1 + delta_2`` with ``delta_1 = delta_2 =
     delta_step/(2d)``; over ``d`` pairs the total is exactly ``delta_step``.
     """
+    value_bound = float(reward_bound) / (1.0 - float(gamma))
+    envelope = float(reward_bound) + float(gamma) * value_bound + value_bound
+    y_range = 2.0 * envelope
     reasons, residuals, groups, d = _prepare(
-        q_hat, policy, batch, n_per_pair, n_states, n_actions
+        q_hat, policy, batch, n_per_pair, n_states, n_actions, reward_bound, gamma
     )
     delta_1 = float(delta_step) / (2.0 * d)
     delta_2 = float(delta_step) / (2.0 * d)
@@ -278,12 +295,12 @@ def split_bernstein_certificate(
             y_b = residuals[second]
             # Step 1: corrected Hoeffding on Z = Y^2 in [0, E^2].
             m2 = float(np.mean(y_a**2))
-            slack = (ENVELOPE**2) * math.sqrt(math.log(1.0 / delta_1) / (2.0 * m))
+            slack = (envelope**2) * math.sqrt(math.log(1.0 / delta_1) / (2.0 * m))
             v_x = m2 + slack
             scales[pair] = math.sqrt(max(v_x, 0.0))
             # Step 2: Bernstein on half B with the true range.
             radii[pair] = _bernstein_t(
-                v_x, Y_RANGE, math.log(2.0 / delta_2), m
+                v_x, y_range, math.log(2.0 / delta_2), m
             )
             means[pair] = float(np.mean(y_b))
     return _finish(
@@ -293,6 +310,7 @@ def split_bernstein_certificate(
         d,
         delta_step,
         delta_1,
+        gamma,
         {
             "arm": "split_bernstein",
             "n_per_pair": int(n_per_pair),
