@@ -68,3 +68,21 @@ Protocol/certificates: FP-CERTFIX-001（有效 MP 证书、前 n 固定计数、
 - 封存：`results/FP-EARLYSTOP-001/claude/{smoke,formal}/`（含 per-record 完整明细与逐状态最终间隙）。
 - 代码：`evaluate_fp_earlystop_001.py`、`verify_fp_earlystop_001.py`。
 - 复现：`python evaluate_fp_earlystop_001.py --output-dir ... --label formal --max-steps 12`。
+
+---
+
+## v2：修复协议（引理 A'）下的重跑
+
+封存：`results/FP-EARLYSTOP-001/claude/formal_fv/`。**只有本节携带保证语言。**
+三臂结构不变（合取 16k 链 / 合取 64k 链 / 按状态 16k 链；首访采样，`min_visits=2000`）：
+
+| 臂 | 发出总步数 | 第一步发出 | 平均总收益 | 平均闭合 | 违规/退化 |
+|---|---:|---:|---:|---:|---:|
+| A 合取 16k | 34 | 13/48 | 1.702 | 17.9% | 0 / 0 |
+| B 合取 64k（4x 链） | 195 | 29/48 | 4.237 | 54.9% | 0 / 0 |
+| **C 按状态 16k** | **474** | **46/48** | **5.054** | **74.4%** | **0 / 0** |
+
+配对：**C > A 46/48，C < A 0**；C > B 27/48；A 零发出 35 条中 C 救出 33 条。
+验证脚本 PASS（`verify_fp_earlystop_001.py`，重算配对头条数字）。
+
+**机制结论在有效协议下成立且保持方向**：合取门槛仍是主要早停机制（A 臂 35/48 零发出），按状态规则在同数据下闭合率 4 倍于基线、且优于 4 倍数据臂。数值全面小于旧（无效）协议——那是保证为真的价格；缓解机制的**排序**不变。

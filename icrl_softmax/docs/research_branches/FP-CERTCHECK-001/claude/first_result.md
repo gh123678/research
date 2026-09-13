@@ -92,3 +92,21 @@ not use cross-quantity ratios as a proxy for the decision chain.
   `hp_recheck_steps.json` with per-step pi/LB detail)
 - Code: `analyze_fp_certcheck_hp_001.py`, `analyze_fp_certcheck_drift_001.py`,
   `evaluate_fp_certfix_001.py --producer network`; commit on `claude/FP-CENSUS-001`.
+
+---
+
+## v2: the same checks under the REPAIRED (lemma A') protocol
+
+After the review's OBJECTION, the multi run was repeated under the first-visit
+protocol (`results/FP-CERTFIX-001/claude/multi_fv/`), and all three checks were
+repeated on it:
+
+| check | v2 result |
+|---|---|
+| network vs numpy, 12 steps, both arms | **0 decision divergences, 0 eta divergences** (identical totals: mp 76, split 8) |
+| drift probe (`drift_fv`) | worst gap **1.076e-05**, flat across steps, within `1e-4` |
+| HP recheck (`hp_recheck_fv`) | **178 decision points, 0 replay mismatches, 0 flips** (104 points also at mpmath-50); smallest emitted margin **5.86e-10** |
+
+The conclusion is unchanged and now attached to a protocol whose bridge lemma is
+valid: within the measured 12 steps, no decision is arithmetic-dominated, and the
+network reproduces every numpy decision.
