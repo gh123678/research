@@ -6,8 +6,12 @@ Actor: Claude, under the user's instruction of 2026-09-12 ("去做").
 
 ## 1. What was measured
 
-`FP-GAP-001` found that records emitting only `1`–`5` steps leave a mean of `54.89%`
-of their initial suboptimality uncollected, while long trajectories close `99.97%`.
+`FP-GAP-001` found that records emitting only `1`–`5` steps close a mean of `54.89%`
+of their initial suboptimality, leaving **`45.11%`** uncollected, while long
+trajectories close `99.97%`. *(Erratum 2026-09-13: the previous sentence originally
+read "leave a mean of `54.89%` ... uncollected", inverting the figure. `54.89%` is the
+**closed** fraction per `FP-GAP-001`'s H6 table; the uncollected remainder is
+`45.11%`.)*
 This task asked **what specifically fails** at the stopping step, and separated three
 candidate mechanisms. Both arms use the sealed certificate and the same `8x`
 certification, so the `eta` grid is the only difference between them.
@@ -44,8 +48,22 @@ before the additions) and it holds.
 certified error for which some candidate would pass. Emission is exactly `E_Q < h`, so
 `E_Q / h` is the whole gate as one number.
 
+> **Population note (erratum 2026-09-13).** These `12` records are **not** the same
+> population as `FP-GAP-001`'s `12` short trajectories. GAP's twelve emitted `1`–`5`
+> steps across both certificate arms of its `96` trajectories (with the `10`
+> never-emitting trajectories counted separately). This task's twelve are the
+> **`frozen_grid` arm only**, filtered to `emitted ≤ 5`, which **includes six
+> zero-emission records** (`0.5/9`, `0.08/4`, `0.5/5` above). Statements carried over
+> from GAP (e.g. the `54.89%` closed-fraction) describe GAP's population, not this
+> one; in particular the median `E_Q / h` of the six records here that actually
+> emitted `1`–`5` steps is `1.029009`, not the all-twelve figure.
+
 - `H3` **PASS**: `E_Q / h` lies in `[1, 2]` for **`12/12`** short trajectories.
-  Median `1.121`, and **two cases sit at `1.001` and `1.006`** — touching the line.
+  Median `1.104`, and **two cases sit at `1.001` and `1.006`** — touching the line.
+  *(Erratum 2026-09-13: this line originally reported median `1.121`, which is the
+  **upper** median of the 12 values. The standard median is `1.103873`; for the six
+  records that actually emitted `1`–`5` steps it is `1.029009`. Recomputed from the
+  sealed `task_results.json` per-record `e_q_over_h` fields.)*
 - `H4` **PASS**: **exactly one** state blocks in **`12/12`** cases. The blocking-state
   distribution is `{1: 12}`, with no case of two, three or four.
 
@@ -69,10 +87,16 @@ removes the cheapest remedy and points at the other two.
 
 ## 5. What the two live mechanisms actually say
 
-**The stop is narrow.** Median `E_Q / h = 1.121` means the typical short record needs
-its certified error reduced by about `12%` to pass; the two tightest need `0.1%`. At
-the scaling `FP-SAMPLE-001` measured (the radius falls roughly as `N^{-1/2}` plus a
-`1/N` term), a `12%` reduction is well within reach of a modest further increase in
+**The stop is narrow.** The per-record error reduction needed to pass is
+`1 − h/E_Q`; its median over the 12 short records is **`9.39%`**, and over the six
+records that actually emitted `1`–`5` steps it is **`2.77%`** — the two tightest need
+about `0.1%`. *(Erratum 2026-09-13: this paragraph originally said "median
+`E_Q / h = 1.121` ... reduced by about `12%`", using the upper median of an
+even sample and a ratio instead of the per-record reduction. Correct values
+recomputed from the sealed per-record `e_q_over_h` fields: medians `1.103873` (all 12)
+and `1.029009` (the six emitting records); reduction medians `9.39%` and `2.77%`.)*
+At the scaling `FP-SAMPLE-001` measured (the radius falls roughly as `N^{-1/2}` plus a
+`1/N` term), a reduction of this size is well within reach of a modest further increase in
 certification data — `FP-SAMPLE-001` got `−31.5%` going from `1x` to `2x`.
 
 **Exactly one state vetoes.** The rule requires `min_s LB_s > 0` — a conjunction over
@@ -82,7 +106,8 @@ means the obstruction is not "the record cannot be improved" but "one state cann
 improved **by the same policy tilt that the other three want**".
 
 Those two readings suggest different remedies, and the data separates them: more data
-buys a `12%` error reduction for the whole record, while a per-state treatment would
+buys a single-digit-to-`9.39%` error reduction for the typical record *(erratum
+2026-09-13: was "`12%`")*, while a per-state treatment would
 attack the veto directly. **This task does not choose between them** — it was scoped to
 diagnose, and both are protocol-level changes that would need their own task.
 
@@ -102,13 +127,16 @@ Construction checks **PASS**.
 ## 7. What this settles, and what it leaves
 
 **Settled.** The early stops are not a grid artifact and not a gross certificate
-failure. They are **narrow misses** — typically `12%`, sometimes `0.1%` — caused by a
+failure. They are **narrow misses** — median `9.39%` over all 12 short records,
+`2.77%` over the six that emitted `1`–`5` steps, and about `0.1%` for the two
+tightest *(erratum 2026-09-13: was "typically `12%`")* — caused by a
 **single state** failing a conjunctive gate that the other three states pass.
 
 **Left open, and this task deliberately does not decide:**
 
-- **Whether more data is the remedy.** The arithmetic says a `12%` reduction is
-  reachable; measuring it needs a longer certification ladder than `FP-SAMPLE-001`
+- **Whether more data is the remedy.** The arithmetic says a `9.39%` (`2.77%` for the
+  emitting six) reduction is reachable *(erratum 2026-09-13: was "`12%`")*; measuring
+  it needs a longer certification ladder than `FP-SAMPLE-001`
   ran, or a higher multiplier than `8x`. That is a protocol change with a compute
   cost.
 - **Whether a per-state treatment is sound.** Updating only the states whose `LB_s > 0`

@@ -112,8 +112,12 @@ it is not presented as a guarantee.
 | certificate violations | `0` | `0` |
 | abstentions without a frozen reason | `0` | `0` |
 
-`H1`/`H2` **PASS**. `841` certified updates across the two arms, none degrading, none
-violating the bound.
+`H1`/`H2` **PASS**. `837` certified updates across the two arms, none degrading, none
+violating the bound. *(Erratum 2026-09-13: this line originally said `841`. The table
+above sums to `402 + 435 = 837`, and a three-way re-aggregation of both sealed JSONs —
+by emitted flag, by boolean field, and by per-state field — gives `837` with identical
+emission sequences. `841` was an aggregation slip in this report, not a difference
+between implementations. See `docs/research_branches/2026-09-13-review-audit-claude.md`.)*
 
 **But the tail is margin-starved.** The minimum gains at steps `11` and `12` are
 `0.000183` and `0.000649` — three to four orders of magnitude below the `0.05` floor
@@ -125,7 +129,7 @@ numerical dust. Any claim that the iteration "reaches 12" should carry that.
 
 | hypothesis | verdict |
 |---|---|
-| `H1` validity | **PASS** (`841` emitted steps, `0` degrading) |
+| `H1` validity | **PASS** (`837` emitted steps — erratum 2026-09-13, was `841`; `0` degrading) |
 | `H2` soundness | **PASS** (`0` certificate violations) |
 | `H3` the iteration passes six steps | **PASS** (`33`/`35` seventh-step emissions) |
 | `H4` step-7 population exceeds `1x`'s step 6 | **PASS** (`33` vs `9`) |
@@ -148,7 +152,8 @@ Construction checks **PASS**.
   step and removes none.
 - The worst-case margin at step 6 **improves** (`0.019347 → 0.051690`) while the
   population grows `9 → 36`.
-- Validity and soundness hold at every one of `841` emitted updates.
+- Validity and soundness hold at every one of `837` emitted updates *(erratum
+  2026-09-13: was `841`; correct sum is `402 + 435 = 837`)*.
 
 **Not established**
 

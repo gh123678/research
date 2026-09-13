@@ -46,8 +46,22 @@ and it improves by a quantity `float64` resolves easily.
 
 ## 4. `H3`: the certified bound decays to nothing, and the iteration runs on
 
-The certified bound `min_lb` decays geometrically by a mean factor of **`6.54` per
-step** (`H4` **PASS**, registered range `[3, 10]`):
+The certified bound `min_lb` decays with a mean adjacent-step ratio of **`6.54`**
+(`H4` **PASS**, registered range `[3, 10]`).
+
+> **Erratum (2026-09-13).** `6.54` is the **arithmetic** mean of adjacent overall-minimum
+> ratios; the sealed sequence contains 6 upward jumps and the per-step ratios span
+> roughly `0.000756`–`70.726`. The end-to-end geometric-mean ratio is about `2.47`.
+> The original wording "decays geometrically by a mean factor of `6.54` per step"
+> overstates a fixed geometric rate; only the arithmetic mean of ratios is measured.
+> Separately, the "measured floor" below is the disagreement between
+> `policy_quantities` and a value iteration stopped at `1e-14` — an artificial
+> tolerance, as §2 notes — and is **not** a forward error bound on the `LB`
+> computation chain. The "step `18`" crossing is therefore withdrawn as a conclusion
+> and reclassified as an open numerical-reliability question: whether and where the
+> `LB` decisions become arithmetic-dominated requires step-by-step high-precision
+> recomputation of the actual decision chain. See
+> `docs/research_branches/2026-09-13-review-audit-claude.md`.
 
 | step | `min_lb` (certified) | min gain (realized) | certified fraction | vs method floor |
 |---|---:|---:|---:|---:|

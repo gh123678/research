@@ -217,7 +217,7 @@ trajectories.
 
 | hypothesis | verdict |
 |---|---|
-| `H1` validity | **PASS** (`841` emitted steps, `0` degrading) |
+| `H1` validity | **PASS** (`837` emitted steps — erratum 2026-09-13, was `841`; `0` degrading) |
 | `H2` soundness | **PASS** (`0` certificate violations) |
 | `H3` passes six steps | **PASS** (`33`/`35` seventh-step emissions) |
 | `H4` step-7 population > `1x` step 6 | **PASS** (`33` vs `9`) |
@@ -245,7 +245,10 @@ trajectories.
   share `π_0` and `q_hat` — and there it holds (`42 ⊆ 44`), which the analyzer now
   checks explicitly. Cross-arm containment at `11/12` levels is reported as an
   observation, not a guarantee.
-- **Validity holds at every one of `841` emitted updates**: `0` degrading, `0`
+- **Validity holds at every one of `837` emitted updates** *(erratum 2026-09-13: was
+  `841`; the sealed JSONs re-aggregate to `402 + 435 = 837` under three independent
+  countings, with identical emission sequences — the old figure was an aggregation
+  slip, not an implementation difference)*: `0` degrading, `0`
   non-positive gains, `0` certificate violations, `0` abstentions without a reason.
 - **The tail is margin-starved**: minimum gains at steps 11 and 12 are `0.000183` and
   `0.000649`, three to four orders of magnitude below the `0.05` floor steps 4 and 5
