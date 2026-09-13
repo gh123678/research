@@ -1,24 +1,33 @@
 # FP-RANGE-001 first result: the envelope ceiling is an artifact
 
-> **Correction, 2026-09-13.** `FP-CERTFIX-001`'s derivation review found that
+> **Re-measured, 2026-09-13.** `FP-CERTFIX-001`'s derivation review found that
 > `fixed_policy_bernstein_certificate.py`'s second-moment slack was too **tight** by a
 > factor of `sqrt(2)` — including inside `data_range_certificate`, this task's main arm.
 >
-> **The conclusion is unaffected and can only strengthen.** A correctly larger slack
-> makes `E_Q` **larger**, so the data-range arm is **worse** than published, and the
-> finding "the `−45%` ceiling cannot be collected soundly" holds *a fortiori*. The
-> headline of §3 stands.
+> **The re-measurement is done.** `results/FP-RANGE-001/claude/formal_v2` re-runs the
+> identical ladder with the fixed module, after the scripted comparison confirmed there
+> is no sampler confound. The re-run is **self-validated**: `frozen_same_sample`,
+> `empirical_bernstein` and `counterfactual_no_envelope` — the three arms that never
+> touch the defective slack — come back **bit-identical** (max |Δ| `0.000e+00`, `0`
+> field mismatches over all `48` route-records × `4` rungs × `4` arms), so the batches
+> were reproduced exactly and the only thing that moved is the corrected formula.
+> Comparison script: `verify_fp_tight_range_sqrt2_remeasure.py`.
 >
-> **Affected figures**: the exact percentages in §2's ladder (`+6.9%`, `−24.5%`,
-> `−43.4%`, `−56.4%`) will move toward the frozen certificate. They must be
-> **re-measured** before being quoted again.
+> **Every verdict is unchanged, and the headline strengthens.** A correctly larger
+> slack makes `E_Q` larger, so the data-range arm is *worse* than published:
 >
-> **Not affected**: the mechanism in §4 — the empirical tail mass is exactly zero and
-> the price lands in the Cauchy–Schwarz bias — and `H5`'s falsification, since the bias
-> term is computed from `V_x` and grows with a larger slack rather than changing sign.
+> | rung | §2 `data_range` before | after | vs frozen before | after | emits before | after |
+> |---|---:|---:|---:|---:|---:|---:|
+> | `1x` | `0.2587` | **`0.2789`** | `+6.9%` | **`+15.2%`** | `17` | `14` |
+> | `2x` | `0.1827` | **`0.1940`** | `−24.5%` | **`−19.8%`** | `30` | `30` |
+> | `4x` | `0.1369` | **`0.1433`** | `−43.4%` | **`−40.8%`** | `35` | `33` |
+> | `8x` | `0.1055` | **`0.1089`** | `−56.4%` | **`−55.0%`** | `42` | `42` |
 >
-> The module has been fixed. The sealed bundle is left intact as the record of what was
-> actually run.
+> `H1` `0/192` again, `H2`/`H3`/`H4`/`H6` PASS, `H5` still FALSIFIED with the
+> comparable-not-larger ratio now `0.840` (was `0.735`). The `empirical_bernstein`
+> column is untouched (`−19.2% / −44.7% / −57.9% / −66.1%`), so the ordering that
+> carries §6 never flips. The sealed bundle is left intact; `formal_v2` is the
+> corrected record.
 
 Date: 2026-09-12.
 Branch: `claude/FP-CENSUS-001`. Baseline: `7c0123f`.
@@ -69,17 +78,20 @@ Two design choices carry the result and are justified rather than assumed:
 
 | rung | items | `data_range` | vs frozen | `empirical_bernstein` | vs frozen | `data_range` emits |
 |---|---:|---:|---:|---:|---:|---:|
-| `1x` | `1,048,576` | `0.2587` | **`+6.9%`** | `0.1955` | `−19.2%` | `17` |
-| `2x` | `2,097,152` | `0.1827` | `−24.5%` | `0.1339` | `−44.7%` | `30` |
-| `4x` | `4,194,304` | `0.1369` | `−43.4%` | `0.1018` | `−57.9%` | `35` |
-| `8x` | `8,388,608` | `0.1055` | `−56.4%` | `0.0821` | `−66.1%` | `42` |
+| `1x` | `1,048,576` | `0.2789` | **`+15.2%`** | `0.1955` | `−19.2%` | `14` |
+| `2x` | `2,097,152` | `0.1940` | `−19.8%` | `0.1339` | `−44.7%` | `30` |
+| `4x` | `4,194,304` | `0.1433` | `−40.8%` | `0.1018` | `−57.9%` | `33` |
+| `8x` | `8,388,608` | `0.1089` | `−55.0%` | `0.0821` | `−66.1%` | `42` |
+
+*(re-measured figures; the pre-`sqrt(2)`-fix values were `+6.9% / −24.5% / −43.4% /
+−56.4%` with `17 / 30 / 35 / 42` emissions.)*
 
 Same-sample references at `1x`: frozen `0.2420`, unsound ceiling `0.1356`
 (`−44.0%`).
 
-**Paying honestly for the tails turns `−44.0%` into `+6.9%`.** The sound
+**Paying honestly for the tails turns `−44.0%` into `+15.2%`.** The sound
 data-driven range is **worse than the frozen certificate** at `1x`, and it loses to
-the plain inequality repair at every rung. At `8x` it reaches `−56.4%` — which is
+the plain inequality repair at every rung. At `8x` it reaches `−55.0%` — which is
 still behind `empirical_bernstein` at `8x` (`−66.1%`), so the ordering never flips.
 
 `H1` holds throughout: **`0` coverage violations over `192` certificate-fits**. The
@@ -91,10 +103,12 @@ The decomposition is completely uniform across all `48` route-records:
 
 - **the empirical tail mass is exactly `0.00000` everywhere** — because `tau` is
   taken from half A, no half-B sample ever exceeds it;
-- **the concentration term is small** (`0.0084`–`0.0359`), as expected once the
+- **the concentration term is small** (`0.0083`–`0.0359`), as expected once the
   range is `2 tau ≈ 2.5–7` instead of `20`;
-- **the entire price is the Cauchy-Schwarz bias** `sqrt(V_x · p_ub) ≈ ` `0.0266`–
-  `0.0542`, which is what remains after the empirical tail comes back empty.
+- **the entire price is the Cauchy-Schwarz bias** `sqrt(V_x · p_ub)`, now
+  `0.0266`–`0.0840` (mean by rung: `0.0484` at `1x` falling to `0.0112` at `8x`),
+  which is what remains after the empirical tail comes back empty. The corrected
+  slack enlarges this bias, which is the whole of the movement in §3.
 
 So the certificate is paying to certify that a tail it never observes is small, and
 the cheapest sound way to say that costs about as much as the entire frozen radius.
@@ -104,12 +118,13 @@ record, so the loss is not coming from the concentration side.
 
 `H5` **FALSIFIED**, and it is my registered mechanism that was wrong. I predicted
 the bias alone would *exceed* the frozen radius at the same pair; it does not
-(`0/48`; mean ratio `0.735`, max `0.759`). The bias is **comparable to**, not larger
-than, the frozen radius. The loss comes from the two terms being **added**, not from
-either one dominating. Recorded as falsified, not reinterpreted.
+(`0/48`; mean ratio `0.840`, max `0.842` after re-measurement). The bias is
+**comparable to**, not larger than, the frozen radius. The loss comes from the two
+terms being **added**, not from either one dominating. Recorded as falsified, not
+reinterpreted.
 
 `H6` **PASS**: the ordering is stable across the whole ladder —
-`1x dr+7% vs eb−19%`, `2x −25% vs −45%`, `4x −43% vs −58%`, `8x −56% vs −66%`. More
+`1x dr+15% vs eb−19%`, `2x −20% vs −45%`, `4x −41% vs −58%`, `8x −55% vs −66%`. More
 data improves both levers and never reverses their order, which is what the theory
 predicts: the bias decays as `1/sqrt(N)`, the same rate as the term truncation was
 meant to remove.
@@ -120,29 +135,34 @@ meant to remove.
 |---|---|
 | `H1` soundness | **PASS** (`0/192`) |
 | `H2` the range lever loses to the inequality lever | **PASS** |
-| `H3` `1x` reduction in `[+5%, +25%]` | **PASS** (`+6.9%`) |
+| `H3` `1x` reduction in `[+5%, +25%]` | **PASS** (`+15.2%`) |
 | `H4` the tail price exceeds the concentration term | **PASS** (`48/48`) |
-| `H5` the bias alone exceeds the frozen radius | **FALSIFIED** (`0/48`, ratio `0.735`) |
+| `H5` the bias alone exceeds the frozen radius | **FALSIFIED** (`0/48`, ratio `0.840`) |
 | `H6` the ordering is stable at `8x` | **PASS** |
 
 Construction checks **PASS**.
 
 ## 6. What this closes
 
-**The `−45%` ceiling was an artifact of not paying for the tails.** There is no
-sound route to it at any affordable sample size: the price is a
-`sqrt(V_x · p)` term that decays as `1/sqrt(N)`, the same rate as the term it was
-meant to remove, so the ordering between "truncate and pay" and "correct the
-inequality" is stable rather than closing.
+**The `−45%` ceiling was an artifact of not paying for the tails — and the comparison
+only means anything at equal data.** The ceiling was measured by deleting the envelope
+*on the `1x` sample*. Against that same sample the sound truncation certificate gives
+`+15.2%`, i.e. it is worse than doing nothing to the range at all. What closes the
+remaining distance is **buying data, not truncating**: the ladder does reach `−55.0%`
+at `8x`, but `empirical_bernstein` on the *same* `8x` sample already gives `−66.1%`,
+and at every rung the ordering is the same. The price of truncation is a
+`sqrt(V_x · p)` term that decays as `1/sqrt(N)` — the same rate as the range term it
+was meant to remove — so more data improves both levers without ever reversing them.
 
 Combined with `FP-SAMPLE-001`, the accounting on this line is now settled:
 
-| lever | sound? | worth |
-|---|---|---|
-| correct the mean-step inequality | yes | `−15%` |
-| empirical Bernstein | yes | `−20%` |
-| delete the envelope | **no** | `−45%` — unreachable, see above |
-| `8x` certification data | yes | `−58%` (and `22` of `26` abstainers revived) |
+| lever | sound? | worth | at what data |
+|---|---|---|---|
+| correct the mean-step inequality | yes | `−6.9%` *(re-measured; was quoted as `−15%`)* | `1x` |
+| empirical Bernstein | yes | `−20%` | `1x` |
+| delete the envelope | **no** | `−45%` — unreachable at `1x`, see above | `1x` |
+| data-driven truncated range | yes | `+15.2%` at `1x`, `−55.0%` at `8x` | ladder |
+| `8x` certification data | yes | `−58%` (and `22` of `26` abstainers revived) | `8x` |
 
 **Sample size is the only large lever that is both sound and collectable.** It is a
 cost lever, and `FP-SAMPLE-001` measured its price.

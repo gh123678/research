@@ -19,7 +19,7 @@
 
 | lever | `E_Q` reduction | sound? |
 |---|---:|---|
-| correct the mean-step inequality (Bernstein) | `−15%` | yes |
+| correct the mean-step inequality (Bernstein) | `−6.9%` *(re-measured 2026-09-13; was `−15%`)* | yes |
 | correct it further (empirical Bernstein) | `−20%` | yes |
 | delete the envelope | `−45%` | **no** |
 | multiply certification data by `4` | **`−64%`** | yes |

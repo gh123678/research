@@ -1,5 +1,15 @@
 FP-TIGHT-001 same-actor derived verification
 ==============================================================================
+CORRECTION 2026-09-13: this transcript verifies the SEALED bundle
+(`results/FP-TIGHT-001/claude/formal`), whose `bernstein` arm was computed with a
+second-moment slack too tight by sqrt(2) (see first_result.md). Its line
+"mean E_Q bernstein 0.2061 -15.0%" is therefore WITHDRAWN: the re-measured value
+is 0.2258 / -6.9%, and H3 flips to FALSIFIED. The re-run is self-validated (the
+three arms that do not touch the defective slack are bit-identical), and is
+sealed at results/FP-TIGHT-001/claude/formal_v2 with its own analysis_report.md.
+Everything else in this transcript (coverage, risk accounting, monotonicity) is
+unaffected and was re-checked on the corrected bundle.
+
 NOTE: the user instructed that verification is not the focus of this
 round. These checks are recorded for completeness and are same-actor only.
 

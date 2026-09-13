@@ -3,6 +3,15 @@ FP-SAMPLE-001 same-actor derived verification
 NOTE: the user instructed that verification is not the focus of this
 round. These checks are recorded for completeness and are same-actor only.
 
+CORRECTION 2026-09-13: this transcript verifies the SEALED bundle
+(results/FP-SAMPLE-001/claude/formal), whose secondary `bernstein` arm was
+computed with a second-moment slack too tight by sqrt(2). That arm's E_Q figures
+are therefore withdrawn (0.2063/0.1424/0.1075/0.0853 become
+0.2252/0.1531/0.1133/0.0883). This task's headline is the `empirical_bernstein`
+column and the revival counts, both unaffected -- the corrected re-run is
+bit-identical on every arm that does not touch the defective slack.
+Corrected bundle: results/FP-SAMPLE-001/claude/formal_v2.
+
 1. Frozen inputs
   PASS  48 route-records (found 48)
   PASS  the registered rungs (found [1, 2, 4, 8])

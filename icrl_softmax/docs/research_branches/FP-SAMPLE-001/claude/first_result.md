@@ -38,10 +38,20 @@ certificates and eight batches up to `8.4M` items).
 
 | rung | items | mean `E_Q` (empirical Bernstein) | vs `1x` | mean `E_Q` (Bernstein) | vs `1x` |
 |---|---:|---:|---:|---:|---:|
-| `1x` | `1,048,576` | `0.1955` | — | `0.2063` | — |
-| `2x` | `2,097,152` | `0.1339` | **`−31.5%`** | `0.1424` | `−31.0%` |
-| `4x` | `4,194,304` | `0.1018` | **`−47.9%`** | `0.1075` | `−47.9%` |
-| `8x` | `8,388,608` | `0.0821` | **`−58.0%`** | `0.0853` | `−58.7%` |
+| `1x` | `1,048,576` | `0.1955` | — | `0.2252` | — |
+| `2x` | `2,097,152` | `0.1339` | **`−31.5%`** | `0.1531` | `−32.0%` |
+| `4x` | `4,194,304` | `0.1018` | **`−47.9%`** | `0.1133` | `−49.7%` |
+| `8x` | `8,388,608` | `0.0821` | **`−58.0%`** | `0.0883` | `−60.8%` |
+
+> **Re-measured 2026-09-13.** The `Bernstein` column was computed with a
+> second-moment slack too tight by `√2` (see `FP-TIGHT-001`). The table above gives
+> the corrected values; the pre-fix column was `0.2063 / 0.1424 / 0.1075 / 0.0853`
+> (`−31.0% / −47.9% / −58.7%`). The re-run is **self-validated**: the three arms that
+> do not touch the defective slack (`empirical_bernstein`, `frozen_same_sample`,
+> `counterfactual_no_envelope`) are **bit-identical** over all `192` record-rungs
+> (max `|Δ| = 0.000e+00`, `0` field mismatches), so this ladder's headline —
+> the `empirical_bernstein` column and the revival counts — is untouched, and no
+> verdict moves. Corrected bundle: `results/FP-SAMPLE-001/claude/formal_v2`.
 
 Both certificate arms move together, so the gain is the sample size and not an
 interaction with which inequality is used.

@@ -1,5 +1,15 @@
 FP-RANGE-001 same-actor derived verification
 ====================================================================================
+CORRECTION 2026-09-13: this transcript verifies the SEALED bundle
+(`results/FP-RANGE-001/claude/formal`), whose `data_range` arm was computed with a
+second-moment slack too tight by sqrt(2) (see first_result.md). Its ladder lines
+(+6.9% / -24.5% / -43.4% / -56.4%) are therefore WITHDRAWN; the re-measured
+ladder is +15.2% / -19.8% / -40.8% / -55.0%, every verdict unchanged. The re-run
+is self-validated (the three arms that do not touch the defective slack are
+bit-identical) and is sealed at results/FP-RANGE-001/claude/formal_v2 with its own
+analysis_report.md. The coverage checks below were re-run on the corrected bundle
+and still pass.
+
 NOTE: the user instructed that verification is not the focus of this
 round. These checks are recorded for completeness and are same-actor only.
 

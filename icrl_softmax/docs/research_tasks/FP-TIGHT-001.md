@@ -248,9 +248,9 @@ Route journal: `docs/research_branches/FP-TIGHT-001/claude/first_result.md`.
 |---|---|
 | `H1` both repairs cover | **PASS** (`0` violations on `48/48`) |
 | `H2` monotonicity | **PASS** (`0` lost) |
-| `H3` Bernstein band | **PASS** (`−15.0%` in `[−25%, −10%]`) |
-| `H4` empirical-Bernstein band | **PASS** (`−20.0%` in `[−35%, −18%]`) |
-| `H5` no flips | **FALSIFIED** — `8` distinct route-records flip, `22/48 → 30/48` |
+| `H3` Bernstein band | **FALSIFIED** (`−6.9%` **re-measured** after the `√2` fix; the pre-fix `−15.0%` cleared `[−25%, −10%]`) |
+| `H4` empirical-Bernstein band | **PASS** (`−20.0%` in `[−35%, −18%]`; unaffected by the fix) |
+| `H5` no flips | **FALSIFIED** — `8` distinct route-records flip, `12` arm-flips, `22/48 → 30/48` |
 | `H6` inequality beats envelope | **FALSIFIED** — envelope `−45%` vs inequality `−20%` |
 | `H7` reduction clause | **PASS** (`−64.0%`, needed `≤ −40%`) |
 | `H7` flip clause | **NOT EXERCISED** (population held no abstainer) |
@@ -258,7 +258,8 @@ Route journal: `docs/research_branches/FP-TIGHT-001/claude/first_result.md`.
 - **The frozen mean step was not licensed by the inequality it names.** Hoeffding's
   lemma needs the range of `Y` (`20`), not the data-estimated `s_x ≈ 1.2`.
   Replacing it with Bernstein — same two ingredients, correct inequality — is sound
-  and worth `−15%`; the empirical-Bernstein variant is worth `−20%`.
+  and worth `−6.9%` after re-measurement (`−15%` pre-fix, withdrawn); the
+  empirical-Bernstein variant is worth `−20%` and is the arm that clears its band.
 - **That revives `8` of the `26` never-emitting route-records**, taking step-1
   emissions from `22/48` to `30/48`. The pre-draft's `22 → 35+` was directionally
   right and numerically over-optimistic.
@@ -291,3 +292,12 @@ Route journal: `docs/research_branches/FP-TIGHT-001/claude/first_result.md`.
   measured value is `−20%`. The pre-review records the withdrawal.
 - Sealed modules byte-identical; every replayed verification record reproduced
   exactly.
+
+## 记录区（续）：`√2` 修正后的重测（2026-09-13）
+
+- **触发**：`FP-CERTFIX-001` 的推导审读发现 `fixed_policy_bernstein_certificate.py` 的二阶矩余项少了 `√2`（过紧）。本任务的 `bernstein` 臂与 `H3` 因此作废，需重测。
+- **重测**：`evaluate_fp_tight_001.py --tasks 12 --mixings 0.08,0.5` 以修正后模块重跑，封存 `results/FP-TIGHT-001/claude/formal_v2`；`analyze_fp_tight_001.py --result-dir …/formal_v2` 重新出报告。原封存 `formal` 保留不动。
+- **重跑可信度（自校验）**：三个不触碰缺陷余项的臂（`frozen` / `empirical_bernstein` / `counterfactual_no_envelope`）在同一批数据上**逐位一致**（最大 `|Δ| = 0.000e+00`，48 条记录 × 4 臂零字段不一致）。因此批量被精确复现，变化的只有被修正的公式。对比脚本 `verify_fp_tight_range_sqrt2_remeasure.py`。
+- **结果**：`bernstein` 均值 `E_Q` `0.2061 → 0.2258`，相对冻结 `−15.0% → −6.9%`；第一步发出 `30 → 26`。`H3` **由 PASS 翻为 FALSIFIED**（`−6.9%` 落在登记带 `[−25%, −10%]` 之外）。
+- **不受影响**：`empirical_bernstein`（`−20.0%`，`H4` 仍 PASS）、`H1` 覆盖（再次 `0` 违规）、`H6`、`H7` 样本量臂。`H5` 的臂级翻转数 `16 → 12`（`bernstein` 由 8 条降为 4 条），不同路线记录数仍为 `8`（全部由 `empirical_bernstein` 驱动），故 `H5` 仍为 FALSIFIED。
+- **结论层面的变化**：最小修复（只换均值步不等式、保留冻结二阶矩步）**过不了自己的登记带**；真正达标的是单样本 Maurer–Pontil 臂（`−20%`）。这条结论在此前被 `−15%` 的错值掩盖。

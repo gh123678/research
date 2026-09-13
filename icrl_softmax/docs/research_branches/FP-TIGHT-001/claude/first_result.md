@@ -1,23 +1,41 @@
 # FP-TIGHT-001 first result
 
-> **Correction, 2026-09-13.** `FP-CERTFIX-001`'s derivation review found that
+> **Re-measured, 2026-09-13.** `FP-CERTFIX-001`'s derivation review found that
 > `fixed_policy_bernstein_certificate.py`'s second-moment slack was too **tight** by a
 > factor of `sqrt(2)`: it used `(E^2/2)·sqrt(log(1/δ)/n)` where Hoeffding on
 > `Z = Y^2 ∈ [0, E^2]` requires `(E^2/2)·sqrt(2·log(1/δ)/n)`. The sealed
 > `fixed_policy_variance_certificate.py` was correct; this module was not.
 >
-> **Affected figure: the `bernstein` arm's `−15.0%`** (§4's table and the `H3`
-> verdict). A correctly larger slack makes `E_Q` larger, so the true reduction is
-> **less negative** than published. `H3`'s band was `[−25%, −10%]`, so the verdict may
-> or may not survive; it must be **re-measured, not assumed**.
+> **The re-measurement is done.** `results/FP-TIGHT-001/claude/formal_v2` re-runs the
+> identical experiment with the fixed module, and the re-run is **self-validated**:
+> `frozen`, `empirical_bernstein` and `counterfactual_no_envelope` — the three arms that
+> never touch the defective slack — come back **bit-identical** (max |Δ| `0.000e+00`,
+> `0` field mismatches over all `48` route-records × `4` arms), so the batch was
+> reproduced exactly and the only thing that moved is the corrected formula.
+> Comparison script: `verify_fp_tight_range_sqrt2_remeasure.py`.
 >
-> **Not affected**: the headline arm `empirical_bernstein` (`−20.0%`), which uses the
-> Maurer–Pontil form and is correct; the coverage audit, where a larger `E_Q` can only
-> help; and the `H5` flip count, which is driven by the `empirical_bernstein` arm.
+> **What changed** (§4 and `H3`):
 >
-> The module has been fixed. The sealed bundle at `results/FP-TIGHT-001/claude/formal`
-> is left intact as the record of what was actually run; re-measurement is pending and
-> is required before the `bernstein` figure is quoted again.
+> | arm | mean `E_Q` before | after | vs frozen before | after | emits before | after |
+> |---|---:|---:|---:|---:|---:|---:|
+> | `bernstein` | `0.2061` | **`0.2258`** | `−15.0%` | **`−6.9%`** | `30` | **`26`** |
+> | `empirical_bernstein` | `0.1940` | `0.1940` | `−20.0%` | `−20.0%` | `30` | `30` |
+> | `frozen` | `0.2426` | `0.2426` | — | — | `22` | `22` |
+> | `counterfactual_no_envelope` | `0.1334` | `0.1334` | `−45.0%` | `−45.0%` | `33` | `33` |
+>
+> **`H3` flips from PASS to FALSIFIED.** `−6.9%` is outside the registered band
+> `[−25%, −10%]`. The correction banner's open question ("the verdict may or may not
+> survive") is now answered: it does not. `H4` (`empirical_bernstein`, `−20.0%`) is
+> unaffected and still PASS.
+>
+> **Not affected**: the `empirical_bernstein` arm, the coverage audit (`0` violations
+> again), the `H7` sample-size arm, and `H6`. The `H5` flip count changes from `16` to
+> `12` arm-flips (the `bernstein` arm now flips `4` route-records instead of `8`); the
+> number of distinct flipping route-records stays `8`, all of them driven by
+> `empirical_bernstein`, so `H5` remains FALSIFIED.
+>
+> The sealed bundle at `results/FP-TIGHT-001/claude/formal` is left intact as the
+> record of what was actually run, and `formal_v2` is the corrected record.
 
 Date: 2026-09-12.
 Branch: `claude/FP-CENSUS-001`. Baseline: `12ecfea`.
@@ -82,13 +100,15 @@ does and does not establish.
 | arm | mean `E_Q` | vs frozen |
 |---|---:|---:|
 | `frozen` | `0.2426` | — |
-| `bernstein` | `0.2061` | **`−15.0%`** |
+| `bernstein` | `0.2258` | **`−6.9%`** *(re-measured; was `0.2061` / `−15.0%`)* |
 | `empirical_bernstein` | `0.1940` | **`−20.0%`** |
 | `counterfactual_no_envelope` | `0.1334` | `−45.0%` *(not a certificate)* |
 
-`H3` **PASS** (`−15.0%` in the registered `[−25%, −10%]`), `H4` **PASS** (`−20.0%`
-in `[−35%, −18%]`). Both bands were anchored on a `12`-route-record pilot taken
-before the task sheet was written.
+`H3` **FALSIFIED** (`−6.9%`, outside the registered `[−25%, −10%]`), `H4` **PASS**
+(`−20.0%` in `[−35%, −18%]`). Both bands were anchored on a `12`-route-record pilot
+taken before the task sheet was written. The consequence is worth stating plainly:
+**the minimal repair of the frozen construction does not clear its own registered
+band; the Maurer–Pontil arm is the one that does.**
 
 **A correction I owe the record.** During exploratory work I reported to the user
 that empirical Bernstein would give about `−56%`. That figure came from a scratch
@@ -106,15 +126,17 @@ over-optimistic**. The sound repair reaches `0.194`, and emissions go `22 → 30
 
 ## 5. `H5` FALSIFIED: the tightening *does* revive records
 
-**`8` distinct route-records flip from abstention to emission**, each under both
-sound arms (`16` arm-flips):
+**`8` distinct route-records flip from abstention to emission** (`12` arm-flips after
+re-measurement: all `8` under `empirical_bernstein`, `4` of them also under
+`bernstein`):
 
 ```text
 0.08/3 exact   0.08/3 finite   0.08/9 exact   0.08/9 finite
 0.5/2  exact   0.5/6 exact     0.5/11 exact   0.5/11 finite
 ```
 
-Step-1 emissions go from `22/48` to `30/48`.
+Step-1 emissions go from `22/48` to `30/48` under `empirical_bernstein`, and to
+`26/48` under the re-measured `bernstein` arm.
 
 ### Why I predicted wrong, stated precisely
 
@@ -122,7 +144,7 @@ I registered `H5` as "zero flips" from the arithmetic `sigma_min/E_Q = 1.244` ve
 a threshold of `2.17`, i.e. a flip needs about `−43%`. **That arithmetic used the
 abstainers' *mean* spread and then made a universal claim from it.** The flipped
 records are the **high-spread tail**, not the average: they need far less than
-`−43%`, and `−15%` to `−20%` is enough. The mean-sitting records (`σ ≈ 0.15–0.29`)
+`−43%`, and the re-measured `−6.9%` to `−20%` is enough. The mean-sitting records (`σ ≈ 0.15–0.29`)
 sit far below the threshold and do not move.
 
 The lesson is the one this repository keeps re-learning: a mean is not a population,
@@ -188,9 +210,9 @@ called a classifier on the strength of one population; the counts are given inst
 |---|---|
 | `H1` soundness, both repairs cover | **PASS** (`0` violations on `48/48`, both arms) |
 | `H2` monotonicity | **PASS** (`0` lost) |
-| `H3` Bernstein band | **PASS** (`−15.0%`) |
+| `H3` Bernstein band | **FALSIFIED** (`−6.9%`, re-measured; was `−15.0%`) |
 | `H4` empirical-Bernstein band | **PASS** (`−20.0%`) |
-| `H5` no flips | **FALSIFIED** (`8` distinct records flip) |
+| `H5` no flips | **FALSIFIED** (`8` distinct records flip; `12` arm-flips) |
 | `H6` inequality beats envelope | **FALSIFIED** (envelope `−45%` vs inequality `−20%`) |
 | `H7` sample size: reduction clause | **PASS** (`−64.0%`, needed `≤ −40%`) |
 | `H7` sample size: flip clause | **NOT EXERCISED** (population contained no abstainer) |
@@ -247,10 +269,15 @@ rather than assuming it away.
 **Established**
 
 - The frozen mean step is not licensed by the inequality it names, and replacing it
-  with Bernstein is **sound** (`H1`) and **worth `−15%`**; the empirical-Bernstein
-  variant is worth `−20%`.
+  with Bernstein is **sound** (`H1`) and **worth `−6.9%`** after re-measurement (the
+  pre-fix figure `−15%` is withdrawn); the empirical-Bernstein variant is worth
+  `−20%` and is the arm that clears its band.
 - That is **enough to revive `8` of the `26` never-emitting route-records**, taking
-  step-1 emissions from `22/48` to `30/48`.
+  step-1 emissions from `22/48` to `30/48` under `empirical_bernstein` (`26/48` under
+  the re-measured `bernstein` arm).
+- **The minimal repair is not the deliverable.** Correcting only the mean-step
+  inequality — keeping the frozen second-moment step — buys `−6.9%` and fails its own
+  registered band; the single-sample Maurer–Pontil construction is what buys `−20%`.
 - The census's threshold is a **certificate-independent gate**, validated
   out-of-sample at `0/48`.
 - The largest remaining lever is the **range**, not the inequality — measured, not

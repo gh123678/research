@@ -192,10 +192,13 @@ Route journal: `docs/research_branches/FP-RANGE-001/claude/first_result.md`.
 
 | rung | items | `data_range` | vs frozen | `empirical_bernstein` | vs frozen |
 |---|---:|---:|---:|---:|---:|
-| `1x` | `1,048,576` | `0.2587` | **`+6.9%`** | `0.1955` | `−19.2%` |
-| `2x` | `2,097,152` | `0.1827` | `−24.5%` | `0.1339` | `−44.7%` |
-| `4x` | `4,194,304` | `0.1369` | `−43.4%` | `0.1018` | `−57.9%` |
-| `8x` | `8,388,608` | `0.1055` | `−56.4%` | `0.0821` | `−66.1%` |
+| `1x` | `1,048,576` | `0.2789` | **`+15.2%`** | `0.1955` | `−19.2%` |
+| `2x` | `2,097,152` | `0.1940` | `−19.8%` | `0.1339` | `−44.7%` |
+| `4x` | `4,194,304` | `0.1433` | `−40.8%` | `0.1018` | `−57.9%` |
+| `8x` | `8,388,608` | `0.1089` | `−55.0%` | `0.0821` | `−66.1%` |
+
+*(re-measured 2026-09-13 after the `√2` fix; pre-fix values were
+`+6.9% / −24.5% / −43.4% / −56.4%`.)*
 
 Same-sample references at `1x`: frozen `0.2420`, unsound ceiling `0.1356`
 (`−44.0%`).
@@ -204,23 +207,24 @@ Same-sample references at `1x`: frozen `0.2420`, unsound ceiling `0.1356`
 |---|---|
 | `H1` soundness | **PASS** (`0/192` certificate-fits) |
 | `H2` the range lever loses to the inequality lever | **PASS** |
-| `H3` `1x` reduction in `[+5%, +25%]` | **PASS** (`+6.9%`) |
+| `H3` `1x` reduction in `[+5%, +25%]` | **PASS** (`+15.2%`) |
 | `H4` the tail price exceeds the concentration term | **PASS** (`48/48`) |
-| `H5` the bias alone exceeds the frozen radius | **FALSIFIED** (`0/48`, mean ratio `0.735`) |
+| `H5` the bias alone exceeds the frozen radius | **FALSIFIED** (`0/48`, mean ratio `0.840`) |
 | `H6` the ordering is stable at `8x` | **PASS** |
 
-- **The `−45%` ceiling was an artifact of not paying for the tails.** A sound
-  truncation certificate costs `+6.9%` at `1x` — **worse than the frozen
-  certificate** — and never overtakes the plain inequality repair at any rung,
-  including `8x`.
+- **The `−45%` ceiling was an artifact of not paying for the tails — and the
+  comparison is only meaningful at equal data.** On the same `1x` sample a sound
+  truncation certificate costs `+15.2%` — **worse than the frozen certificate** — and
+  never overtakes the plain inequality repair at any rung, including `8x`. The climb
+  to `−55.0%` at `8x` is bought with data, not with the truncation.
 - The certificate **is** sound (`0` coverage violations over `192` fits). It is
   simply not an improvement, and the two facts are reported separately.
 - **The mechanism is now exact**: the empirical tail mass is **exactly zero on all
   `48` route-records** (because `tau` is taken from the independent half), so the
-  entire price lands in the Cauchy-Schwarz bias `sqrt(V_x p)` ≈ `0.0266`–`0.0542`,
-  which is comparable to the frozen radius (`0.0485`) rather than larger. `H5` had
-  predicted the bias would *exceed* the radius; it is falsified, and the loss is
-  additive rather than dominated by one term.
+  entire price lands in the Cauchy-Schwarz bias `sqrt(V_x p)` (`0.0266`–`0.0840` after
+  re-measurement), which is comparable to the frozen radius (`0.0485`) rather than
+  larger. `H5` had predicted the bias would *exceed* the radius; it is falsified, and
+  the loss is additive rather than dominated by one term.
 - **The negative result does not rest on a weak choice.** The pilot measured `+155%`
   with a Hoeffding tail bound and `+10.2%` with Maurer-Pontil; the tighter bound is
   used and both numbers are recorded, so the conclusion is about the lever rather
@@ -229,12 +233,22 @@ Same-sample references at `1x`: frozen `0.2420`, unsound ceiling `0.1356`
 
   | lever | sound? | worth |
   |---|---|---|
-  | correct the mean-step inequality | yes | `−15%` |
+  | correct the mean-step inequality | yes | `−6.9%` (re-measured; was quoted `−15%`) |
   | empirical Bernstein | yes | `−20%` |
-  | delete the envelope | **no** | `−45%`, unreachable per this task |
+  | delete the envelope | **no** | `−45%`, unreachable at `1x` per this task |
+  | data-driven truncated range | yes | `+15.2%` at `1x`, `−55.0%` at `8x` |
   | `8x` certification data | yes | `−58%`, and `22` of `26` abstainers revived |
 
   Sample size is the only large lever that is both sound and collectable.
 - **Not established**: nothing about the iteration (step 1 only), and the result is
   about **this** truncation construction — a different tail treatment is not ruled
   out by it.
+
+## 记录区（续）：`√2` 修正后的重测（2026-09-13）
+
+- **触发**：`FP-CERTFIX-001` 的推导审读发现 `fixed_policy_bernstein_certificate.py` 的二阶矩余项少了 `√2`（过紧），`data_range_certificate` 内部同样受影响，故 §2 的阶梯百分比作废，需重测。
+- **重测**：`evaluate_fp_range_001.py --tasks 12 --mixings 0.08,0.5 --rungs 1,2,4,8` 以修正后模块重跑，封存 `results/FP-RANGE-001/claude/formal_v2`；`analyze_fp_range_001.py --result-dir …/formal_v2` 重新出报告。原封存 `formal` 保留不动。
+- **重跑可信度（自校验）**：三个不触碰缺陷余项的臂（`frozen_same_sample` / `empirical_bernstein` / `counterfactual_no_envelope`）在 48 条记录 × 4 档 × 4 臂上**逐位一致**（最大 `|Δ| = 0.000e+00`，零字段不一致），故批量被精确复现，`empirical_bernstein` 列原封不动（`−19.2 / −44.7 / −57.9 / −66.1`），排序结论不受采样器混淆。对比脚本 `verify_fp_tight_range_sqrt2_remeasure.py`。
+- **结果**：阶梯变为 `+15.2% / −19.8% / −40.8% / −55.0%`（发出 `14 / 30 / 33 / 42`）。`H5` 的比值 `0.735 → 0.840`。
+- **判定**：`H1`/`H2`/`H3`/`H4`/`H6` 全部仍为 PASS，`H5` 仍为 FALSIFIED——**没有一个判定翻转**，且 `H3` 从贴边（`+6.9%`）变为带内更稳（`+15.2%`）。
+- **结论层面的澄清（重测暴露的表述问题）**：原文"`−45%` 上限在任何可承受样本量下都取不到"与 §3 自己列的 `8x = −56.4%` 相矛盾。正确的说法是**同一份数据上**取不到（`1x` 为 `+15.2%`）；爬到 `−55%` 靠的是买数据，而同样买到 `8x` 时 `empirical_bernstein` 已经是 `−66.1%`。已在报告 §6 与任务记录中改准。
