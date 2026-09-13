@@ -239,7 +239,7 @@ Route journal: `docs/research_branches/FP-TIGHT-001/claude/first_result.md`.
 | arm | mean `E_Q` | vs frozen | coverage |
 |---|---:|---:|---:|
 | `frozen` | `0.2426` | — | `0/48` violations |
-| `bernstein` (corrected inequality) | `0.2061` | `−15.0%` | `0/48` |
+| `bernstein` (corrected inequality) | `0.2258` | `−6.9%` *(re-measured after the `√2` fix; was `0.2061` / `−15.0%`)* | `0/48` |
 | `empirical_bernstein` | `0.1940` | `−20.0%` | `0/48` |
 | `counterfactual_no_envelope` *(unsound)* | `0.1334` | `−45.0%` | `0/48` |
 | `x4` certification *(subset pilot)* | `0.0730` from `0.2029` | `−64.0%` | `0/48` |
