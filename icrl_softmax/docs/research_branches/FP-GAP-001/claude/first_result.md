@@ -31,7 +31,7 @@ record and dominates `v^{pi_0}` everywhere. `H3` **PASS**: not one rise in any o
 
 On a long trajectory, step by step:
 
-| step | remaining gap | gain that step | gain / gap |
+| step | remaining gap | gain that step | gain / remaining gap |
 |---:|---:|---:|---:|
 | 4 | `0.186` | — | `0.81` |
 | 8 | `0.018` | — | `0.54` |
@@ -42,18 +42,50 @@ On a long trajectory, step by step:
 | 28 | — | — | `0.45` |
 | 32 | — | — | `0.44` |
 
-**The gap decays by a constant factor of about `0.45` per step, steadily, from step 4
-to step 32.** Each step closes roughly half of whatever remains. That is what
+**The gain relative to whatever remains is constant at about `0.45`, steadily, from
+step 4 to step 32.** Each step closes a fixed fraction of what is left, which is what
 geometric convergence looks like, and it means the shrinking absolute gains are a
 *consequence* of the shrinking gap, not evidence that the iteration has stopped doing
 work.
+
+### A labelling error, found by a cross-session check
+
+The first version of this record said "the gap decays by a constant factor of about
+`0.45` per step". **That is wrong: `0.45` is not a decay factor.** It is the gain
+divided by the *remaining* gap. For a geometric process `gap_k = ρ·gap_{k-1}` that
+ratio equals `(1−ρ)/ρ`, so the same measurement has three equivalent forms:
+
+| form | value |
+|---|---:|
+| gain / remaining gap (`(1−ρ)/ρ`) | `0.45` |
+| decay factor `ρ` | **`0.69`** |
+| fraction of the *current* gap closed (`1−ρ`) | `0.31` |
+
+A cross-session check (`cross_check_fp_gap_001.md` in this directory) measured the decay
+factor independently and got **`~0.69`** and a fraction closed of **`~0.305`** — which
+**agree** with the table above once the forms are matched: `1/(1+0.45) = 0.690` and
+`0.45/1.45 = 0.310`.
+
+So the check's finding is correct and worth stating twice: **the label was wrong, the
+arithmetic was not.** Its own summary that the median "differs by `2.3x`"
+(`0.327` vs `0.758`) is the same labelling mismatch read in the other direction —
+`1/(1+0.327) = 0.754`, which matches its measured `0.758` to within aggregation noise.
+Two sessions compared a gain-to-remaining-gap ratio against a decay factor and each
+called the discrepancy a disagreement.
+
+The corrected forms are used from here on, and the analyzer and verifier now name the
+quantity explicitly rather than calling it a decay factor.
 
 **So the tail updates count.** They are doing the same *relative* work as the early
 ones. The question "is `3.8e-7` big enough" turns out to have a clean answer: it is
 big enough because there was only `~8e-7` left to close.
 
 Across the `38` long trajectories (≥ `24` emitted steps), a mean of **`99.9717%` of
-the initial suboptimality is closed**, at a median decay factor of `0.327`.
+the initial suboptimality is closed**, at a median gain-to-remaining-gap ratio of
+`0.327` — equivalently a decay factor of `0.754` and a fraction closed per step of
+`0.246`. An independent cross-session re-derivation got `99.9388%` (a `0.03pp`
+difference) and a decay factor of `0.758`, so the conclusion and the numbers both
+reproduce once the three forms of the ratio are kept apart.
 
 ## 3. All three registered predictions failed — in the direction that favours the tail
 

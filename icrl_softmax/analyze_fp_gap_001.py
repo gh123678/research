@@ -261,9 +261,17 @@ def main() -> None:
         REPORT.append(
             "  WHY H5 WAS THE WRONG TEST: a process converging geometrically has a "
             "CONSTANT ratio of per-step gain to remaining gap, not a vanishing one. "
-            "A vanishing ratio would mean faster-than-geometric convergence. The "
-            "observed ~0.33 is the decay factor, and it is the signature of "
-            "convergence rather than of idling."
+            "A vanishing ratio would mean faster-than-geometric convergence."
+        )
+        REPORT.append(
+            "  LABELLING, corrected after a cross-session check: the quantity in the "
+            "last column above is the gain relative to the REMAINING gap, not a decay "
+            "factor. For a geometric process with gap_k = rho * gap_{k-1} it equals "
+            "(1-rho)/rho, so the three forms of the same measurement are: "
+            "gain/remaining-gap ~0.33, decay factor rho = 1/(1+0.33) ~ 0.75, and "
+            "fraction of the CURRENT gap closed (1-rho) ~ 0.25. A first version of "
+            "this report called the first of those 'the decay factor', which it is "
+            "not. See cross_check_fp_gap_001.md in this directory."
         )
         # Show the decay factor is stable rather than drifting, on one long
         # trajectory, so the geometric reading is visible rather than asserted.

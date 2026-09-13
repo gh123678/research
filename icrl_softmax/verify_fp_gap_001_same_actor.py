@@ -144,8 +144,9 @@ def main() -> None:
         f"the initial gap closed {mean_closed:.4%}"
     )
     REPORT.append(
-        f"  median (last gain / remaining gap) {median_ratio:.3f} — the geometric "
-        f"decay factor, which is what a converging process shows"
+        f"  median (last gain / remaining gap) {median_ratio:.3f}; the decay factor is "
+        f"1/(1+that) = {1.0 / (1.0 + median_ratio):.3f}, which is what a converging "
+        f"process shows as a constant"
     )
     check(
         mean_closed > 0.99,
@@ -224,7 +225,10 @@ def main() -> None:
     REPORT.append(
         f"  long trajectories : {len(closed)} closing {mean_closed:.4%} of the gap"
     )
-    REPORT.append(f"  decay factor      : {median_ratio:.3f}")
+    REPORT.append(
+        f"  median gain / remaining gap : {median_ratio:.3f} "
+        f"(decay factor {1.0 / (1.0 + median_ratio):.3f})"
+    )
     REPORT.append(
         f"  registered verdicts: H4 {summary['H4']['verdict']}, "
         f"H5 {summary['H5']['verdict']}, H6 {summary['H6']['verdict']}"

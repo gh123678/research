@@ -21,7 +21,7 @@ round. These checks are recorded for completeness and are same-actor only.
 
 5. The headline number, re-derived independently
   38 long trajectories (>= 24 emitted steps): mean fraction of the initial gap closed 99.9717%
-  median (last gain / remaining gap) 0.327 — the geometric decay factor, which is what a converging process shows
+  median (last gain / remaining gap) 0.327; the decay factor is 1/(1+that) = 0.753, which is what a converging process shows as a constant
   PASS  long trajectories close more than 99% of the gap (99.9717%)
   PASS  the decay factor is a stable interior value, not a vanishing one (0.327)
 
@@ -50,7 +50,7 @@ SUMMARY
   H2 v* optimal     : worst Bellman residual 8.882e-16
   H3 gap monotone   : 0 rises
   long trajectories : 38 closing 99.9717% of the gap
-  decay factor      : 0.327
+  median gain / remaining gap : 0.327 (decay factor 0.753)
   registered verdicts: H4 FALSIFIED, H5 FALSIFIED, H6 FALSIFIED
 ============================================================================================
 RESULT: PASS
