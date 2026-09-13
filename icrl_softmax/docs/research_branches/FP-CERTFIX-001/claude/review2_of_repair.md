@@ -151,8 +151,26 @@ python icrl_softmax\docs\research_branches\FP-CERTFIX-001\claude\review2_aux.py 
 1. `fixed_policy_mp_certificate.py` 顶部横幅已撤回旧保证，但第 17–39 行仍以"lemma A / first-n extraction"描述 `mp_certificate` 与两个臂的公共前提，与文件自身横幅矛盾。轮换为"已撤回，仅用于复现 2026-09-13 上午封存"更一致。
 2. 推导 §9 实现对应表第 2 行仍把 §2 映射到 `mp_certificate`，应为 `mp_certificate_firstvisit`。
 
+（两处已由作者在 `351ca75` 修正。）
+
+## 9b. 审读过程中发现的验证链缺陷（已修，供记录）
+
+**`verify_fp_certfix_001.py` 在 `smoke_fv` 封存上直接崩溃**：该封存的 `n_per_pair` 记为 `0`（首访协议不使用固定计数），且产生它的代码版本尚未写入 `cert_pair_sizes`；验证器于是回退到 `n_i = 0`，`2·v·log/n_i` 抛 `ZeroDivisionError`。一个会在封存包上崩掉的验证脚本，等于把一个封存档悄悄排除在验证之外。
+
+已修：当每对样本量缺失且固定计数 `< 2` 时，**显式计入 `mp_radius_unchecked_no_size_field` 并报 `NO_DATA`**，不崩溃、也不静默通过。修后：
+
+| 封存 | `mp_steps_checked` | 未检查 | 状态 |
+|---|---:|---:|---|
+| `smoke_fv` | 0 | 12 | `NO_DATA`（该档早于 size 字段） |
+| `step1_fv_c16k` / `c64k` / `multi_fv` / `step1_ok_c64k` | 48 / 48 / 122 / 48 | 0 | `PASS` |
+| `smoke` / `step1_n16k` / `n64k` / `multi_n16k` | — | 0 | `PASS` |
+
+`smoke_fv` 的其余内容仍可核：我用当前代码以同一组参数（`--mode smoke --max-steps 3 --chains 16384`）重跑，`summary.json` 与 `task_results.json` 除 `label`、`n_per_pair` 与新增的 `cert_pair_sizes` 字段外**逐字节一致**（mp 12 步、split 2 步、`items_drawn_total` 12582912）。因此该档不是错数据，只是**字段不全**；不覆盖封存档，仅在记录中标注。
+
 ## 10. 状态
 
 - 本审读结束状态：**`OBJECTION`**（范围：§7 的预登记协议替换与独立性闭合；数学部分全部 **PASS**）。
-- 按 `AGENTS.md` §4，受影响工作进入 `BLOCKED_BY_OBJECTION`，等待用户裁决；我推荐选项 A。
+- 按 `AGENTS.md` §4，受影响工作当时进入 `BLOCKED_BY_OBJECTION`。
+- **用户裁决（2026-09-13）= 选项 A：追认。** ① 引理 A' 为本任务主协议；② 预登记 fallback（oracle 核直接采样）登记为第二确认臂并常设保留——已一级实现（`fp_sample_vectorised_batch.kernel_batch`、`evaluate_fp_certfix_001.py --extraction oracle_kernel`）并封存 `results/FP-CERTFIX-001/claude/step1_ok_c64k/`：mp **41/48**、split 34/48、0 违规，`verify_fp_certfix_001.py` 与本次审读的独立重放均 **PASS**；③ 报告表述已按 §4 逐档改正；④ `BLOCKED_BY_OBJECTION` 解除，任务回到 `ACTIVE`。
+- **裁决不消除的残余风险**：审读 #1/#2、引理 A' 的提议、两臂的实现与验证全部来自同一执行者。真正独立的第三方重推或重跑仍然缺失，本线全部结论维持"初步结果"。
 - 未决事项（与本审读无关，仍挂着）：FP-TIGHT-001 的 `bernstein` 臂与 FP-RANGE-001 的 `data_range` 阶梯在 `√2` 修正后**尚未重测**，两条记录上的更正横幅要求在此之前不得重新引用其数字。

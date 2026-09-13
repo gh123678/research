@@ -15,6 +15,24 @@ What this fixes relative to ``evaluate_fp_iter8x_001.py`` (derivation
    ``pi_{k-1}`` and ``q_hat_k`` (theorem 2). The old protocol reused one batch
    for all 12 steps, which broke the fixed-object premise.
 
+EXTRACTION MODES (three, and only two of them carry a guarantee).
+
+``first_visit`` -- PRIMARY (user ruling 2026-09-13, option A). Lemma A': one
+residual per independent chain at that chain's first visit; the retained count
+``N_x`` is a function of the pre-visit trajectories, hence independent of the
+values, so Maurer-Pontil applies at the realised ``N_x`` with no union cost over
+the random count.
+
+``oracle_kernel`` -- SECOND CONFIRMATORY ARM (same ruling). The task sheet's
+pre-registered fallback: ``n`` iid successors per pair drawn straight from
+``P(.|s,a)``. Same estimand, no random count, no chains; changes the data-access
+declaration (it reads the kernel), so it corroborates but cannot replace
+``first_visit`` for claims about learning from experience.
+
+``first_n`` -- DEPRECATED. First ``n`` visits per pair; its bridge lemma was
+proved false by independent review. Kept only to reproduce the 2026-09-13
+morning artifacts.
+
 Guarantee scope: per-trajectory, over the frozen horizon ``K``, with
 ``delta_k = DELTA_TOTAL / K`` per step; step-1-only runs use ``K = 1`` so their
 risk is ``0.05`` per record, matching the sealed runs' per-call budget. Joint
@@ -49,7 +67,7 @@ from fp_certfix_first_n import (  # noqa: E402
     first_visit_batch,
     step_seed_parts,
 )
-from fp_sample_vectorised_batch import vectorised_batch  # noqa: E402
+from fp_sample_vectorised_batch import kernel_batch, vectorised_batch  # noqa: E402
 
 TASK_ID = "FP-CERTFIX-001"
 PRIMARY = ("expected_exact", "expected_finite")
@@ -108,7 +126,7 @@ def certificate_for(
     extraction: str = "first_n",
     min_visits: int = 2000,
 ) -> dict:
-    if extraction == "first_visit":
+    if extraction in ("first_visit", "oracle_kernel"):
         if arm == "mp":
             return mc.mp_certificate_firstvisit(
                 q_hat, policy, batch, min_visits=min_visits, delta_step=delta_step
@@ -195,25 +213,43 @@ def run_records(args, mixings, tasks) -> dict[str, Any]:
                             dtype=np.float64,
                         ).reshape(fs.N_STATES, fs.N_ACTIONS)
                         if step_index > len(step_batches):
-                            raw = vectorised_batch(
-                                mdp,
-                                behaviour,
-                                mu_state,
-                                step_seed_parts(
-                                    fs.SEED, TASK_SALT, mixing, task_index, step_index
-                                ),
-                                int(args.chains),
-                                CHAIN_LENGTH,
-                            )
-                            items_drawn_total += int(args.chains) * CHAIN_LENGTH
-                            if args.extraction == "first_visit":
+                            if args.extraction == "oracle_kernel":
+                                # Pre-registered fallback: no chains at all, n iid
+                                # successors per pair straight from P(.|s,a).
                                 step_batches.append(
-                                    first_visit_batch(raw, CHAIN_LENGTH)
+                                    kernel_batch(
+                                        mdp,
+                                        step_seed_parts(
+                                            fs.SEED, TASK_SALT, mixing, task_index, step_index
+                                        ),
+                                        int(args.n_per_pair),
+                                    )
+                                )
+                                items_drawn_total += (
+                                    int(args.n_per_pair)
+                                    * fs.N_STATES
+                                    * fs.N_ACTIONS
                                 )
                             else:
-                                step_batches.append(
-                                    first_n_batch(raw, int(args.n_per_pair))
+                                raw = vectorised_batch(
+                                    mdp,
+                                    behaviour,
+                                    mu_state,
+                                    step_seed_parts(
+                                        fs.SEED, TASK_SALT, mixing, task_index, step_index
+                                    ),
+                                    int(args.chains),
+                                    CHAIN_LENGTH,
                                 )
+                                items_drawn_total += int(args.chains) * CHAIN_LENGTH
+                                if args.extraction == "first_visit":
+                                    step_batches.append(
+                                        first_visit_batch(raw, CHAIN_LENGTH)
+                                    )
+                                else:
+                                    step_batches.append(
+                                        first_n_batch(raw, int(args.n_per_pair))
+                                    )
                         reduced, counts = step_batches[step_index - 1]
                         realized = float(np.max(np.abs(q_hat - q_ref)))
                         if reduced is None:
@@ -238,7 +274,18 @@ def run_records(args, mixings, tasks) -> dict[str, Any]:
                                 int(args.n_per_pair),
                                 delta_step,
                                 extraction=args.extraction,
-                                min_visits=int(args.min_visits),
+                                min_visits=(
+                                    # oracle_kernel: the batch holds exactly
+                                    # n_per_pair items per pair, and the split arm
+                                    # needs 2*min_visits of them (one per half)
+                                    (
+                                        int(args.n_per_pair) // 2
+                                        if arm == "split"
+                                        else int(args.n_per_pair)
+                                    )
+                                    if args.extraction == "oracle_kernel"
+                                    else int(args.min_visits)
+                                ),
                             )
                             decision = fs.improvement_for(current, q_hat, certificate)
                         emitted = decision["status"] == "safe_update_emitted"
@@ -351,18 +398,30 @@ def main() -> None:
     parser.add_argument("--label", required=True)
     parser.add_argument("--mode", choices=["smoke", "step1", "multi"], required=True)
     parser.add_argument("--n-per-pair", type=int, required=True)
-    parser.add_argument("--chains", type=int, required=True)
+    parser.add_argument(
+        "--chains",
+        type=int,
+        default=0,
+        help="chains per step for the chain-based extractions; unused (may be 0) "
+        "for --extraction oracle_kernel",
+    )
     parser.add_argument("--max-steps", type=int, default=12)
     parser.add_argument("--producer", choices=["numpy", "network"], default="numpy")
     parser.add_argument(
         "--extraction",
-        choices=["first_visit", "first_n"],
+        choices=["first_visit", "oracle_kernel", "first_n"],
         default="first_visit",
         help="first_visit = valid chain-replicated sample (lemma A'); "
+        "oracle_kernel = pre-registered fallback, n iid draws per pair from "
+        "P(.|s,a) (needs the kernel; second confirmatory arm, user ruling "
+        "2026-09-13 option A); "
         "first_n = DEPRECATED, reproduces the 2026-09-13 morning artifacts only",
     )
     parser.add_argument("--min-visits", type=int, default=2000)
     args = parser.parse_args()
+
+    if args.extraction != "oracle_kernel" and int(args.chains) <= 0:
+        raise SystemExit("--chains must be positive for the chain-based extractions")
 
     if args.mode == "smoke":
         mixings, tasks = (0.08,), 2

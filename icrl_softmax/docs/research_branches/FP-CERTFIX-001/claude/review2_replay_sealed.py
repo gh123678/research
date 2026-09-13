@@ -38,6 +38,7 @@ from evaluate_fixed_policy_q_routes import policy_quantities  # noqa: E402
 
 RUNGS = [
     "smoke_fv", "step1_fv_c16k", "step1_fv_c64k", "multi_fv",
+    "step1_ok_c64k",
     "smoke", "step1_n16k", "step1_n64k", "multi_n16k",
 ]
 BASE = PROJ / "results" / "FP-CERTFIX-001" / "claude"

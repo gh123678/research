@@ -169,3 +169,86 @@ All three rungs pass `verify_fp_certfix_001.py` (counts three ways, risk account
 per-pair sizes, zero violations, zero degradations). The guarantee now rests on
 lemma A' + theorem 2 as re-issued in the derivation; the review confirmed theorem
 2's machinery unchanged.
+
+---
+
+## v3: the second confirmatory arm (oracle kernel), registered by user ruling
+
+User ruling 2026-09-13 (option A) on the independent review #2 turned the task
+sheet's **pre-registered fallback** into a first-class arm: `n` iid successors per
+pair drawn straight from `P(·|s,a)` (`fp_sample_vectorised_batch.kernel_batch`,
+`--extraction oracle_kernel`). It is a different sampling mechanism for the *same*
+estimand (the residual law is `P_x` either way), so it is an independent
+construction for lemma A' rather than a competing protocol. It reads the
+transition kernel, so it corroborates but cannot replace the first-visit arm for
+claims about learning from experience.
+
+| rung | per-pair data | step-1 emitted (mp) | step-1 emitted (split) | violations |
+|---|---|---:|---:|---:|
+| `step1_ok_c64k` | 65,536 iid draws/pair | **41/48** | 34/48 | 0 |
+
+At the same nominal per-pair budget the oracle arm emits 41/48 against the
+first-visit arm's 38/48: expected, because its per-pair count is *fixed* at
+65,536 whereas the chains retain `N_x ∈ [36k, 64k]`, and its batch has no
+chain-internal correlation. It also draws **37.7M items for the whole step-1
+ladder versus 402.7M for the chain protocol — 10.7× less**, since it never
+simulates trajectories it will not use.
+
+The review's decision-level comparison (different seed stream, so not the sealed
+rung): **45/48 decisions agree**, and all 3 disagreements are
+*first-visit abstains / oracle emits* — never the reverse. A biased first-visit
+sample would have produced the reverse direction, so this is the evidence the
+ruling asked for.
+
+Both readings of the new rung pass: `verify_fp_certfix_001.py` (PASS,
+`failure_count = 0`, 48 mp steps checked) and the reviewer's independent replay
+(`review2_replay_sealed.py`, zero discrepancies on all 9 rungs).
+
+**Standing caveat.** Review #1, review #2, the lemma A' proposal and both arms
+were produced by the same actor. The ruling closes the *protocol* question, not
+the *independence* question: every number in this file remains a preliminary
+result until a third party re-derives or re-runs it.
+
+---
+
+## v3a: cross-check of the data-volume comparison, and the K=12 oracle rung
+
+*(Appended by the executing session after reading v3; the text above is the
+reviewer's and is left intact.)*
+
+**One figure in v3 does not match the sealed bundles.** v3 compares "37.7M items
+versus 402.7M — 10.7× less". The 402,653,184 items belong to `step1_n64k`, the
+**withdrawn first-n rung**. The primary arm's corresponding rung is
+`step1_fv_c64k` with **201,326,592** items. Sealed values:
+
+| rung | extraction | items drawn | step-1 mp |
+|---|---|---:|---:|
+| `step1_fv_c16k` | first_visit (primary) | 50,331,648 | 22/48 |
+| `step1_fv_c64k` | first_visit (primary) | 201,326,592 | 38/48 |
+| `step1_oracle_n64k` | oracle_kernel (confirmation) | 37,748,736 | 41/48 |
+| `step1_ok_c64k` | oracle_kernel (confirmation) | 37,748,736 | 41/48 |
+| `step1_n16k` | first_n (**withdrawn**) | 100,663,296 | 28/48 |
+| `step1_n64k` | first_n (**withdrawn**) | 402,653,184 | 36/48 |
+
+So the honest saving of the confirmation arm over the **primary** arm at matched
+nominal per-pair budget is **5.33×** (201.3M / 37.7M), not 10.7×; the larger ratio
+only appears if the oracle arm is compared against a withdrawn rung.
+
+**The K=12 oracle rung (this session).** `multi_oracle_n64k`, sealed and verified
+(PASS, `failure_count = 0`, 371 mp radii recomputed):
+
+| arm | step-1 emitted | total emitted steps (K=12) | items drawn |
+|---|---:|---:|---:|
+| oracle mp | 39/48 | **338** | 293,339,136 |
+| oracle split | 32/48 | 237 | — |
+| first_visit mp (primary) | 16/48 | 76 | 127,926,272 |
+| first_visit split (primary) | 2/48 | 8 | — |
+
+The oracle arm reaches 338 emitted steps against the primary arm's 76 at a
+comparable data volume, because its per-pair count is fixed at 65,536 while the
+chain protocol retains only the visiting chains. That difference is a
+**data-access** effect (kernel versus chains), not a validity effect: both arms
+estimate the same residual law, and the review's decision comparison shows the
+disagreements run only in the direction a biased first-visit sample would not
+produce. A high-precision replay of this rung (`hp_oracle_n64k`, float64/fsum/
+mpmath-50 over its decision points) is running at the time of writing.

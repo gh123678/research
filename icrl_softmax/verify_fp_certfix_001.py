@@ -88,6 +88,7 @@ def main() -> int:
     # C3/C4/C5 per step
     violations = degrading = missing_reason = 0
     radius_checked = 0
+    radius_unchecked = 0
     for rec in data["records"]:
         for route in routes:
             for arm in arms:
@@ -107,6 +108,15 @@ def main() -> int:
                             zip(s["cert_sample_vars"], s["cert_radii"])
                         ):
                             n_i = int(sizes[i]) if sizes else n
+                            if n_i < 2:
+                                # The bundle predates the per-pair size field
+                                # (``smoke_fv``, whose fixed count is recorded as
+                                # 0 because the first-visit protocol does not use
+                                # one), so the radius CANNOT be recomputed here.
+                                # Count it explicitly instead of crashing or
+                                # silently accepting the stored number.
+                                radius_unchecked += 1
+                                break
                             expect = math.sqrt(
                                 2.0 * max(v, 0.0) * log_term / n_i
                             ) + MP_CONSTANT * Y_RANGE * log_term / max(n_i - 1, 1)
@@ -136,6 +146,7 @@ def main() -> int:
         else "FAIL",
         "C3_radius_formula": {
             "mp_steps_checked": radius_checked,
+            "mp_radius_unchecked_no_size_field": radius_unchecked,
             "status": "PASS" if radius_checked and not any(
                 "radius mismatch" in f for f in failures
             ) else ("FAIL" if any("radius mismatch" in f for f in failures) else "NO_DATA"),

@@ -49,7 +49,7 @@
 2. 弃权条件：**`N_x < n_min`**（`n_min` 预登记为 2000；`N_x` 与取值独立，故任何只依赖 `N` 的弃权规则都安全）。旧的"访问总数不足 n"表述作废。
 3. 每对的 MP 半径用该对实际的 `N_x`（界对一切 `N_x ≥ 2` 的实现值成立）。
 4. 代价（如实）：每对有效样本量从"访问总次数"降为"访问过该对的链数"（本冻结构型下同数量级但更小）。这是保证为真的价格。
-5. 备选（任务单预登记 fallback）：直接从转移核 `P(·|s,a)` 逐对采样——同样正确，但需要 oracle 核、改变数据访问声明；引理 A' 保持在行为链数据内，是更强声明。本任务采用引理 A'。
+5. 备选（任务单预登记 fallback）：直接从转移核 `P(·|s,a)` 逐对采样——同样正确，但需要 oracle 核、改变数据访问声明；引理 A' 保持在行为链数据内，是更强声明。**用户 2026-09-13 裁决（选项 A）：引理 A' 为主协议，本条 fallback 登记为第二确认臂常设保留**（实现 `fp_sample_vectorised_batch.kernel_batch` + `evaluate_fp_certfix_001.py --extraction oracle_kernel`，封存 `results/FP-CERTFIX-001/claude/step1_ok_c64k/`）。两臂目标量相同（残差分布同为 `P_x`，§0）；oracle 臂每对容量固定为 `n`、无链内相关，因而略紧且省数据 `5.3×`，但**不能替代 A'** 回答"只用行为数据"的核心问题。审读 #2 实测：oracle 臂第一步发出 `41/48`（A' 为 `38/48`），判决一致 `45/48`，3 条不一致**全部**是"A' 弃权、oracle 发出"——方向与"A' 样本有偏"相反。
 
 ## 2. 引理 B（单对均值集中：Maurer–Pontil 经验 Bernstein）
 
@@ -150,4 +150,5 @@
 | §3 引理 C | `ε_res/(1−γ)`（同封存口径） |
 | §5 风险账务 | 输出 `delta_each = δ_step/(2d)`、`delta_step`、`K`；可加总验证 |
 | §6 定理 2 | `evaluate_fp_certfix_001.py`：每步 `vectorised_batch` 新批次，种子含步索引；`δ_k = δ_total/K` |
-| §7 对照臂 | `fixed_policy_mp_certificate.split_bernstein_certificate` |
+| §7 对照臂 | `fixed_policy_mp_certificate.split_bernstein_firstvisit`（首访样本切半；旧 `split_bernstein_certificate` 只用于复现已撤回档） |
+| §1 第 5 条 oracle 臂（第二确认臂，用户裁决 A） | `fp_sample_vectorised_batch.kernel_batch` + `evaluate_fp_certfix_001.py --extraction oracle_kernel`；`first_visit_batch` 不参与（无链） |

@@ -113,6 +113,58 @@ def vectorised_batch(
     }
 
 
+def kernel_batch(
+    mdp: Any,
+    seed_parts: list[Any],
+    n_per_pair: int,
+    *,
+    n_states: int = N_STATES,
+    n_actions: int = N_ACTIONS,
+) -> tuple[dict[str, np.ndarray], np.ndarray]:
+    """Pre-registered fallback sampler: ``n`` iid successors per pair, from ``P(.|s,a)``.
+
+    This is the alternative protocol named in the FP-CERTFIX-001 stop condition
+    ("draw iid samples per pair directly from the transition kernel"). It needs
+    no chains at all: for each pair ``(s, a)`` it draws ``s' ~ P(.|s, a)``
+    ``n_per_pair`` times and forms the batch item directly. The residual law is
+    still ``P_x`` (derivation section 0), so the estimand is identical to the
+    behavioural-chain protocols, but the per-pair count is FIXED at
+    ``n_per_pair`` with no random ``N_x`` and no within-batch dependence.
+
+    Registered (user ruling 2026-09-13, option A) as the SECOND CONFIRMATORY arm
+    of FP-CERTFIX-001. It changes the data-access declaration -- it reads the
+    kernel instead of behaviour chains -- so it corroborates but does not replace
+    the first-visit protocol for claims about learning from experience.
+
+    Returns ``(batch, counts)`` exactly like ``first_visit_batch``, with
+    ``counts[x] == n_per_pair`` for every pair.
+    """
+    P = np.asarray(mdp["P"], dtype=np.float64)
+    R = np.asarray(mdp["R"], dtype=np.float64)
+    rng = np.random.default_rng(seed_parts)
+    n = int(n_per_pair)
+    d = int(n_states) * int(n_actions)
+    states = np.empty(d * n, dtype=np.int64)
+    actions = np.empty(d * n, dtype=np.int64)
+    next_states = np.empty(d * n, dtype=np.int64)
+    for pair in range(d):
+        s, a = divmod(pair, int(n_actions))
+        block = slice(pair * n, (pair + 1) * n)
+        states[block] = s
+        actions[block] = a
+        next_states[block] = rng.choice(int(n_states), size=n, p=P[s, a])
+    return (
+        {
+            "states": states,
+            "actions": actions,
+            "rewards": R[states, actions, next_states],
+            "next_states": next_states,
+            "next_actions": actions,
+        },
+        np.full(d, n, dtype=np.int64),
+    )
+
+
 def main() -> None:
     """Self-test: the vectorised sampler is unbiased against the sealed generator.
 
