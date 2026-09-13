@@ -39,7 +39,7 @@ sys.path.insert(0, str(PROJECT))
 import fixed_policy_expected_sarsa_scaled as fs  # noqa: E402
 import fixed_policy_mp_certificate as mc  # noqa: E402
 from evaluate_fixed_policy_q_routes import policy_quantities  # noqa: E402
-from fp_certfix_first_n import first_n_batch, step_seed_parts  # noqa: E402
+from fp_certfix_first_n import first_visit_batch, step_seed_parts  # noqa: E402
 from fp_sample_vectorised_batch import vectorised_batch  # noqa: E402
 
 import mpmath as mp  # noqa: E402
@@ -59,9 +59,13 @@ def fsum_var(values: list[float], mean: float) -> float:
 
 
 def cert_mp_fsum(
-    q_hat: np.ndarray, policy: np.ndarray, batch: dict, n: int, delta_step: float
+    q_hat: np.ndarray, policy: np.ndarray, batch: dict, n_unused: int, delta_step: float
 ) -> tuple[float, np.ndarray]:
-    """MP certificate with compensated summation (derivation section 2)."""
+    """MP certificate with compensated summation (derivation section 2).
+
+    Per-pair sample size is the retained size in ``batch`` (first-visit
+    protocol: random ``N_x``, valid at every realised value).
+    """
     residuals = mc.residuals_for(q_hat, policy, batch)
     flat = batch["states"].astype(np.int64) * fs.N_ACTIONS + batch["actions"]
     d = fs.N_STATES * fs.N_ACTIONS
@@ -71,7 +75,7 @@ def cert_mp_fsum(
     means = np.zeros(d)
     for pair in range(d):
         y = [float(v) for v in residuals[np.flatnonzero(flat == pair)]]
-        assert len(y) == n
+        n = len(y)
         mean = fsum_mean(y)
         var = fsum_var(y, mean)
         means[pair] = mean
@@ -83,25 +87,26 @@ def cert_mp_fsum(
 
 
 def cert_split_fsum(
-    q_hat: np.ndarray, policy: np.ndarray, batch: dict, n: int, delta_step: float
+    q_hat: np.ndarray, policy: np.ndarray, batch: dict, n_unused: int, delta_step: float
 ) -> float:
-    """Split-Bernstein certificate (derivation section 7), compensated sums."""
+    """Split-Bernstein certificate (derivation section 7), compensated sums;
+    order-split halves of each pair's retained first-visit sample."""
     residuals = mc.residuals_for(q_hat, policy, batch)
     flat = batch["states"].astype(np.int64) * fs.N_ACTIONS + batch["actions"]
     d = fs.N_STATES * fs.N_ACTIONS
     delta_1 = delta_step / (2.0 * d)
     delta_2 = delta_step / (2.0 * d)
-    m = n // 2
     radii = np.zeros(d)
     means = np.zeros(d)
     for pair in range(d):
         idx = np.flatnonzero(flat == pair)
+        m = idx.size // 2
         y_a = [float(v) for v in residuals[idx[:m]]]
         y_b = [float(v) for v in residuals[idx[m:]]]
         m2 = math.fsum(v * v for v in y_a) / m
         slack = (mc.ENVELOPE**2) * math.sqrt(math.log(1.0 / delta_1) / (2.0 * m))
         v_x = m2 + slack
-        radii[pair] = mc._bernstein_t(v_x, mc.Y_RANGE, math.log(2.0 / delta_2), m)
+        radii[pair] = mc._bernstein_t(v_x, mc.Y_RANGE, math.log(2.0 / delta_2), idx.size - m)
         means[pair] = fsum_mean(y_b)
     eps_res = float(np.max(np.abs(means) + radii))
     return eps_res / (1.0 - GAMMA)
@@ -120,7 +125,7 @@ def cert_mp_mpmath(
         eps_res = mp.mpf(0)
         for pair in range(d):
             ys = [mp.mpf(float(v)) for v in residuals[np.flatnonzero(flat == pair)]]
-            assert len(ys) == n
+            n = len(ys)
             mean = mp.fsum(ys) / n
             var = mp.fsum([(y - mean) ** 2 for y in ys]) / (n - 1)
             radius = mp.sqrt(2 * var * log_term / n) + (
@@ -140,23 +145,23 @@ def cert_split_mpmath(
         d = fs.N_STATES * fs.N_ACTIONS
         delta_1 = mp.mpf(delta_step) / (2 * d)
         delta_2 = mp.mpf(delta_step) / (2 * d)
-        m = n // 2
         eps_res = mp.mpf(0)
         for pair in range(d):
             idx = np.flatnonzero(flat == pair)
+            m = idx.size // 2
             y_a = [mp.mpf(float(v)) for v in residuals[idx[:m]]]
             y_b = [mp.mpf(float(v)) for v in residuals[idx[m:]]]
             m2 = mp.fsum([v * v for v in y_a]) / m
             slack = mp.mpf(mc.ENVELOPE) ** 2 * mp.sqrt(mp.log(1 / delta_1) / (2 * m))
             v_x = m2 + slack
             log2 = mp.log(2 / delta_2)
-            t = mp.sqrt(2 * v_x * log2 / m)
+            t = mp.sqrt(2 * v_x * log2 / (idx.size - m))
             for _ in range(300):
-                nxt = mp.sqrt((2 * v_x + mp.mpf(4) / 3 * mc.Y_RANGE * t) * log2 / m)
+                nxt = mp.sqrt((2 * v_x + mp.mpf(4) / 3 * mc.Y_RANGE * t) * log2 / (idx.size - m))
                 if abs(nxt - t) <= mp.mpf("1e-40") * max(mp.mpf(1), t):
                     break
                 t = nxt
-            mean_b = mp.fsum(y_b) / m
+            mean_b = mp.fsum(y_b) / (idx.size - m)
             eps_res = max(eps_res, abs(mean_b) + t)
         return eps_res / (1 - mp.mpf(GAMMA))
 
@@ -236,7 +241,7 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
     data = json.loads((args.results / "task_results.json").read_text(encoding="utf-8"))
-    n_per_pair = int(data["n_per_pair"])
+    n_per_pair = int(data.get("n_per_pair") or 0)  # unused under first-visit
     chains = int(data["chains_per_step"])
     delta_step = float(data["delta_step"])
     salt = int(data["task_salt"])
@@ -275,10 +280,23 @@ def main() -> None:
                         chains,
                         64,
                     )
-                    reduced, counts = first_n_batch(raw, n_per_pair)
-                    if reduced is None:
-                        # Protocol abstention on support shortfall: confirm the
-                        # seal says the same, then the trajectory ends.
+                    reduced, counts = first_visit_batch(raw, 64)
+                    # (1) float64 replay via the production module
+                    min_visits = int(data.get("min_visits", 2000))
+                    cert = mc.mp_certificate_firstvisit(
+                        q_hat,
+                        current,
+                        reduced,
+                        min_visits=min_visits,
+                        delta_step=delta_step,
+                    ) if arm == "mp" else mc.split_bernstein_firstvisit(
+                        q_hat,
+                        current,
+                        reduced,
+                        min_visits=min_visits,
+                        delta_step=delta_step,
+                    )
+                    if cert["e_q"] is None:
                         ok = (not bool(s["update_emitted"])) and any(
                             "heldout_pair_support_missing" in r_
                             for r_ in s.get("ordered_reasons", [])
@@ -300,20 +318,6 @@ def main() -> None:
                                 }
                             )
                         break
-                    # (1) float64 replay via the production module
-                    cert = mc.mp_certificate(
-                        q_hat,
-                        current,
-                        reduced,
-                        n_per_pair=n_per_pair,
-                        delta_step=delta_step,
-                    ) if arm == "mp" else mc.split_bernstein_certificate(
-                        q_hat,
-                        current,
-                        reduced,
-                        n_per_pair=n_per_pair,
-                        delta_step=delta_step,
-                    )
                     e_q64 = float(cert["e_q"])
                     lbs64 = candidate_lbs_float64(current, q_hat, e_q64)
                     eta64, margin64 = first_passage(lbs64)

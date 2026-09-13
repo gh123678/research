@@ -1,5 +1,11 @@
 # FP-EARLYSTOP-001 first result: the per-state rule beats buying 4x data, on environments nobody had touched
 
+> **ERRATUM 2026-09-13.** The runs below used the first-n protocol (lemma A falsified;
+> see FP-CERTFIX-001's `review_of_derivation.md`). The guarantee language ("certified",
+> "safe") attached to those runs is withdrawn; the comparative measurements (C > A
+> 47/0/1 etc.) stand as measurements of the decision rules. The repaired-protocol
+> re-run is reported in the v2 section appended below.
+
 Date: 2026-09-13.
 Branch: `claude/FP-CENSUS-001`（治理例外见任务单）。
 Task: [FP-EARLYSTOP-001](../../research_tasks/FP-EARLYSTOP-001.md)（**预登记在运行前冻结**：总体、指标、预算、停止规则）。

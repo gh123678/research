@@ -1,5 +1,13 @@
 # FP-CERTCHECK-001 first result: network agrees step-for-step, and no sealed decision is arithmetic-dominated
 
+> **ERRATUM 2026-09-13.** The underlying certificates came from the first-n protocol
+> whose bridge lemma was falsified by independent review (see FP-CERTFIX-001's
+> `review_of_derivation.md`). The network/numpy agreement and the high-precision
+> recheck below are **protocol-agnostic measurements** (two producers through the same
+> decision rule; arithmetic of the decision chain) and stand as measurements. Any
+> reading of them as evidence about guarantee validity is withdrawn. Re-runs under the
+> repaired lemma-A' protocol are reported in the v2 section appended below.
+
 Date: 2026-09-13.
 Branch: `claude/FP-CENSUS-001`（治理例外见任务单）。
 Task: [FP-CERTCHECK-001](../../research_tasks/FP-CERTCHECK-001.md). Protocol and

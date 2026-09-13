@@ -1,5 +1,15 @@
 # FP-CERTFIX-001 first result: valid certificates, and what validity costs
 
+> **ERRATUM 2026-09-13 (independent review, OBJECTION).** The runs below used the
+> first-n extraction whose bridge lemma (lemma A) was **proved false** by the
+> independent review (`review_of_derivation.md` in this directory, exact
+> counterexample). **Every guarantee statement in this file tied to that protocol is
+> withdrawn.** The measurements (emission counts, zero violations, agreement checks)
+> remain correct as measurements. The repaired protocol (lemma A': one first-visit
+> sample per independent chain) is implemented in `fixed_policy_mp_certificate.py`
+> (`*_firstvisit`) and re-run; see the v2 section appended below and the derivation's
+> errata banner.
+
 Date: 2026-09-13.
 Branch: `claude/FP-CENSUS-001` (task executed under the user's direct 2026-09-13
 authorization covering phases 1–4 of the 2026-09-13 GPT review plan; baseline
