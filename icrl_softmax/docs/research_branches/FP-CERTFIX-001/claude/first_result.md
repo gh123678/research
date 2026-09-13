@@ -250,5 +250,11 @@ chain protocol retains only the visiting chains. That difference is a
 **data-access** effect (kernel versus chains), not a validity effect: both arms
 estimate the same residual law, and the review's decision comparison shows the
 disagreements run only in the direction a biased first-visit sample would not
-produce. A high-precision replay of this rung (`hp_oracle_n64k`, float64/fsum/
-mpmath-50 over its decision points) is running at the time of writing.
+produce.
+
+**High-precision replay of this rung** (`hp_oracle_n64k`, float64 / `math.fsum` /
+mpmath-50 over the rung's decision points): **646 decision points, 0 replay
+mismatches, 0 flips**; 96 tight/abstain points also recomputed at 50 digits.
+Smallest emitted margin **6.41e-10** — three orders above the measured rounding
+envelope (~9e-16), so unlike the tail of the K=32 primary run, no oracle-arm
+decision approaches the arithmetic floor.
