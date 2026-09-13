@@ -7,11 +7,13 @@
 ## 修复线：FP-CERTFIX / CERTCHECK / EARLYSTOP（2026-09-13，用户直接授权）
 
 > **2026-09-13 独立审读 OBJECTION 与修复。** 用户安排的独立审读（`docs/research_branches/FP-CERTFIX-001/claude/review_of_derivation.md`）裁定：原引理 A（前 n 固定计数桥梁）**不成立**（精确反例 + 40 万链实测）；引理 B/C/D 与定理 2 的适应性机制全部确认正确；并顺带确认了我方早前核查发现的 `√2` 缺陷（审读方已修其模块）。修复（审读给出）：**每条独立链对每对只取首访样本**（引理 A'），随机容量 N 与取值独立，MP 逐 n 条件成立、对 N 积分无代价。全部下游运行已在修复协议下重跑（见各报告的 v2 节）。旧协议封存全部保留作测量记录，其保证声明随引理 A 撤回。
+>
+> **2026-09-13 独立审读 #2（修复后）：数学 PASS，流程 OBJECTION。** 见 `docs/research_branches/FP-CERTFIX-001/claude/review2_of_repair.md`。要点：① 引理 A' 经独立重证**为真**（条件化到 `σ(F_{τ_c})`，`N` 可测、逐 n 条件 iid 成立，对 `N` 积分无代价）；定理 1'/2 与 §7 对照臂成立；② 封存 v2 头条数字（22/48、38/48、76 步）由封存数据**逐条重放，零差异**；③ 用预登记的 **oracle 核协议**做独立构造：发出 **41/48** vs 首访 38/48，判决一致 **45/48**，3 条不一致全部是"首访弃权、oracle 发出"（无反向），A' 得到独立佐证；④ 覆盖实验 0/900 记录级、0/10800 逐对级失效，但 `E_Q` 比实测误差大 5–10 倍（最松 37 倍），故**卡住发出数的是界的保守度而非数据量**；⑤ **OBJECTION 范围**：任务单预登记的停止条件要求改用 oracle 核协议，实际采用了第三个未预登记协议（首访复制），且该协议由审读方提出又由审读方验证——方法变更未经用户裁决（`AGENTS.md` §1/§4）。推荐裁决 **A**：追认 A' 为主协议 + oracle 核臂登记为第二确认臂。在裁决前，本线结果维持"初步结果"，受影响工作为 `BLOCKED_BY_OBJECTION`。
 
 按 GPT 审阅的四阶段规划，用户当日直接授权 Claude 执行全部四阶段（治理例外，记录于各任务单）。**阶段 1–4 的主体工作已于当日完成**（初步结果，独立验证仍缺）：
 
 - **阶段 1**（证据备份）：`results/` 全量 2209 文件 / 757MB 已备份至本机第二位置，SHA256 清单入库并逐一验证（2209/2209 通过）。见 `docs/evidence/2026-09-13-results-backup.md`。
-- **阶段 2**（证书重推，[FP-CERTFIX-001](docs/research_tasks/FP-CERTFIX-001.md)）：三个确定缺陷全部修复——MP 经验 Bernstein 直接用已知值域（不再以估计尺度冒充值域）；对照臂恢复正确的 `√2` Hoeffding 余量；前 n 固定计数协议（引理 A 停时论证）替代随机计数切半；**每步全新独立认证批**（定理 2）消除多步适应性。推导文档 `docs/derivations/FP-CERTFIX-001-certificate-rederivation.md` 逐节可审。报告：[first_result](docs/research_branches/FP-CERTFIX-001/claude/first_result.md)。
+- **阶段 2**（证书重推，[FP-CERTFIX-001](docs/research_tasks/FP-CERTFIX-001.md)）：三个确定缺陷全部修复——MP 经验 Bernstein 直接用已知值域（不再以估计尺度冒充值域）；对照臂恢复正确的 `√2` Hoeffding 余量；~~前 n 固定计数协议（引理 A 停时论证）替代随机计数切半~~（**已作废**：引理 A 被证伪，改用首访复制协议 A'，见上方两条注）；**每步全新独立认证批**（定理 2）消除多步适应性。推导文档 `docs/derivations/FP-CERTFIX-001-certificate-rederivation.md` 逐节可审。报告：[first_result](docs/research_branches/FP-CERTFIX-001/claude/first_result.md)。
 - **阶段 3**（确认性复算，[FP-CERTCHECK-001](docs/research_tasks/FP-CERTCHECK-001.md)）：第一步与 12 步轨迹在修正协议下复算；**网络路线与 numpy 零分歧**（12 步 × 两臂 × 48 记录），漂移最差 `1.315e-05` 不积累；全部 246 个封存判决点经 fsum 与 mpmath-50 重算**零翻转**，最紧发出余量 `4.75e-10` 是实测舍入包络 `9.1e-16` 的 5.2×10⁵ 倍——即"本协议 12 步内无算术支配的判决"（撤回旧第 17/18 步说法后的正确版本；12 步之外未测）。报告：[first_result](docs/research_branches/FP-CERTCHECK-001/claude/first_result.md)。
 - **阶段 4**（早停机制，[FP-EARLYSTOP-001](docs/research_tasks/FP-EARLYSTOP-001.md)，预登记在运行前冻结）：在**从未使用的 24 个新环境**（`task_index 12..23`）上同预算比较。按状态保守更新（C 臂，n=16k）对合取基线（A，n=16k）：配对 **47 胜 0 负 1 平**，平均次优性闭合 **82.8% vs 31.8%**，第一步发出 **48/48 vs 18/48**；A 零发出的 30 条记录被 C **全部救出**；C 也优于 4 倍数据臂（B，50.6%）——**规则修复胜过买四倍数据**。三臂零违规零退化（H4）。结论：**全状态合取门槛确是主要早停机制，且可以用有保证的按状态规则修复**。报告：[first_result](docs/research_branches/FP-EARLYSTOP-001/claude/first_result.md)。
 
