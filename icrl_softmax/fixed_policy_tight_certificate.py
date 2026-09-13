@@ -68,7 +68,7 @@ MP_CONSTANT = 7.0 / 3.0
 
 REASONS = ("divergence_guard_triggered", "heldout_pair_support_missing", "numerical_nonfinite")
 
-LEVERS = ("frozen", "L1", "L12", "L123", "support_range")
+LEVERS = ("frozen", "L1", "L12", "L123", "L12M", "support_range")
 
 
 def effective_envelope(
@@ -118,6 +118,102 @@ def support_range(
     return (hi - lo).reshape(-1)
 
 
+def successor_counts(batch: dict[str, Any], d: int, n_states: int = N_STATES) -> np.ndarray:
+    """Per-pair successor histogram ``C[x, s'] = #{i in pair x : s'_i = s'}``.
+
+    A sufficient statistic of the batch for every propagation estimate below: the
+    same iid draws of ``s' ~ P(.|s,a)`` that produced the residuals also estimate
+    ``E_{s'~P(.|s,a)}[f(s')]`` for ANY ``f``, with no kernel.
+    """
+    flat = np.asarray(batch["states"], dtype=np.int64) * N_ACTIONS + np.asarray(
+        batch["actions"], dtype=np.int64
+    )
+    nxt = np.asarray(batch["next_states"], dtype=np.int64)
+    out = np.zeros((d, int(n_states)), dtype=np.int64)
+    for pair in range(d):
+        members = np.flatnonzero(flat == pair)
+        if members.size:
+            out[pair] = np.bincount(nxt[members], minlength=int(n_states))
+    return out
+
+
+def propagation_data_driven(
+    eps: np.ndarray,
+    sizes: np.ndarray,
+    counts: np.ndarray,
+    policy: Any,
+    *,
+    delta_prop: float,
+    gamma: float = GAMMA,
+    n_iter: int = 12,
+    n_states: int = N_STATES,
+    n_actions: int = N_ACTIONS,
+) -> dict[str, Any]:
+    """MODEL-FREE exact-propagation bound (L12M): no transition kernel is read.
+
+    L3 uses the identity ``Qhat - Q^pi = -(I - gamma P^pi)^{-1} rho`` with the
+    known ``P``. This does the same propagation using only the certification
+    batch, because the batch already contains iid draws of ``s' ~ P(.|s,a)`` for
+    every pair: ``E_{s'~P(.|s,a)}[f(s')]`` is estimated by the pair's own
+    successor histogram, with a Hoeffding correction at its own risk level.
+
+    Induction, with ``eps_x`` the certified interval on ``|rho_x|``:
+
+        W_0        = max_x eps_x/(1-gamma)          (a valid bound on ||w||_inf)
+        W_{k+1}(s) = sum_a pi(a|s) eps(s,a)
+                     + gamma sum_a pi(a|s) [ T_x(W_k) + c_k(x) ]
+        T_x(f)     = (1/n_x) sum_i f(s'_i),   c_k(x) = ||W_k||_inf sqrt(log(1/da_k)/(2 n_x))
+
+    ``|w| <= W_k`` for every k, and the returned bound on ``|u|`` follows from one
+    more application with its own risk ``db``. Risk spent: ``delta_prop`` total,
+    split ``delta_prop/(2 n_iter d)`` per (iteration, pair) and ``delta_prop/(2d)``
+    for the final estimate. The samples are reused across iterations, which is why
+    the risk is union-bounded over ``n_iter`` rather than assumed fresh.
+
+    This recovers most of L3's gain while reading no kernel; it is strictly weaker
+    than L3 (it pays for its estimates) and strictly stronger than the uniform
+    ``1/(1-gamma)`` step, since ``T_x`` converges to ``K``.
+    """
+    pi = np.asarray(policy, dtype=np.float64)
+    eps_grid = np.asarray(eps, dtype=np.float64).reshape(int(n_states), int(n_actions))
+    sizes = np.asarray(sizes, dtype=np.float64)
+    counts = np.asarray(counts, dtype=np.float64)
+    epsbar = (pi * eps_grid).sum(axis=1)
+
+    delta_k = float(delta_prop) / (2.0 * int(n_iter) * sizes.size)
+    log_k = math.log(1.0 / delta_k)
+    delta_f = float(delta_prop) / (2.0 * sizes.size)
+    log_f = math.log(1.0 / delta_f)
+
+    def estimate(f: np.ndarray, log_term: float):
+        """One-sided Hoeffding estimate of ``E_{s'~P(.|s,a)}[f(s')]`` per pair."""
+        t = (counts * f[None, :]).sum(axis=1) / sizes
+        c = float(np.max(f)) * np.sqrt(log_term / (2.0 * sizes))
+        return t, c
+
+    w = np.full(int(n_states), float(np.max(eps)) / (1.0 - float(gamma)))
+    for _ in range(int(n_iter)):
+        t, c = estimate(w, log_k)
+        nxt_w = epsbar + float(gamma) * (
+            pi * (t + c).reshape(int(n_states), int(n_actions))
+        ).sum(axis=1)
+        if float(np.max(np.abs(nxt_w - w))) <= 1e-14:
+            w = nxt_w
+            break
+        w = nxt_w
+
+    t, c = estimate(w, log_f)
+    bound = eps_grid + float(gamma) * (t + c).reshape(int(n_states), int(n_actions))
+    return {
+        "e_q": float(np.max(bound)),
+        "w": w.tolist(),
+        "uniform_bound": float(np.max(eps)) / (1.0 - float(gamma)),
+        "delta_per_iteration": delta_k,
+        "delta_final": delta_f,
+        "n_iter": int(n_iter),
+    }
+
+
 def _guards(q_hat: Any, *, reward_bound: float, gamma: float) -> list[str]:
     q = np.asarray(q_hat, dtype=np.float64)
     if not np.all(np.isfinite(q)):
@@ -158,6 +254,7 @@ def certificate(
     n_actions: int = N_ACTIONS,
     reward_bound: float = R_STAR,
     gamma: float = GAMMA,
+    delta_prop_fraction: float = 0.5,
 ) -> dict[str, Any]:
     """One ``E_Q`` per lever, from the chain-replicated first-visit sample.
 
@@ -167,6 +264,8 @@ def certificate(
     ``L1``            frozen + the known-Qhat envelope;
     ``L12``           L1 + the full risk budget;
     ``L123``          L12 + exact propagation (needs ``transition``);
+    ``L12M``          L1 + MODEL-FREE propagation from the batch's successor draws
+                      (half the budget reserved for the propagation estimates);
     ``support_range`` L1 + the oracle support range (reference only).
     """
     if lever not in LEVERS:
@@ -192,6 +291,14 @@ def certificate(
         y_range = None  # per-pair, computed below
 
     delta_dir = float(delta_step) / (d if use_full_budget else 2.0 * d)
+    if lever == "L12M":
+        # L12M spends two budgets: (1 - frac) on the per-pair intervals and frac on
+        # the propagation estimates. The default frac = 0.5 reproduces FP-BOUND-002;
+        # FP-BOUND-003 measures a lopsided split, because the propagation estimates
+        # are far less risk-hungry than the intervals (their confidence terms are
+        # O(1e-3) against a gain of O(3e-2), so spending delta on them is waste).
+        delta_prop = float(delta_prop_fraction) * float(delta_step)
+        delta_dir = (float(delta_step) - delta_prop) / d
     log_term = math.log(2.0 / delta_dir)
 
     means = np.zeros(d)
@@ -240,6 +347,7 @@ def certificate(
         prop = float(gamma) * (P * w[None, None, :]).sum(axis=2)
         bound = eps.reshape(int(n_states), int(n_actions)) + prop
         out["propagation"] = {
+            "kind": "kernel",
             "K": K.tolist(),
             "inverse": inv.tolist(),
             "epsbar": epsbar.tolist(),
@@ -247,6 +355,27 @@ def certificate(
             "uniform_bound": float(np.max(eps)) / (1.0 - float(gamma)),
         }
         out["e_q"] = float(np.max(bound))
+    elif lever == "L12M":
+        # Model-free: the propagation is estimated from the batch's own successor
+        # draws, so half the risk budget is reserved for those estimates.
+        cnt = successor_counts(batch, d, n_states=int(n_states))
+        delta_prop = float(delta_prop_fraction) * float(delta_step)
+        prop = propagation_data_driven(
+            eps,
+            sizes,
+            cnt,
+            pi,
+            delta_prop=delta_prop,
+            gamma=gamma,
+            n_states=int(n_states),
+            n_actions=int(n_actions),
+        )
+        prop["kind"] = "data_driven"
+        prop["successor_counts"] = cnt.tolist()
+        prop["delta_eps"] = float(delta_step) - delta_prop
+        prop["delta_prop_fraction"] = float(delta_prop_fraction)
+        out["propagation"] = prop
+        out["e_q"] = prop["e_q"]
     else:
         out["e_q"] = float(np.max(eps)) / (1.0 - float(gamma))
     return out
