@@ -129,3 +129,43 @@ python verify_fp_certfix_001.py --results results/FP-CERTFIX-001/claude/<rung>
 
 Versions and file hashes: each rung's `config.json` (sealed-file and new-file
 SHA256). Code: commit `66fd826` on `claude/FP-CENSUS-001`.
+
+---
+
+## v2: results under the REPAIRED protocol (lemma A', first-visit sampling)
+
+After the independent review proved lemma A false, the protocol was repaired
+(chain-replicated first-visit sample; random per-pair `N_x` independent of values;
+abstain if `N_x < 2000`) and everything was re-run. **Only this section carries
+guarantee language.** The repaired step-1 ladder and multi run:
+
+| rung | protocol | step-1 emitted | total steps | violations |
+|---|---|---:|---:|---:|
+| `step1_fv_c16k` | 16,384 chains (N_x ≈ 9k–16k/pair) | mp **22/48**, split 6/48 | — | 0 |
+| `step1_fv_c64k` | 65,536 chains (N_x ≈ 36k–64k/pair) | mp **38/48**, split 32/48 | — | 0 |
+| `multi_fv` | 16,384 chains/step, fresh each step, K=12, δ_k=0.05/12 | mp 16/48 | mp **76**, split 8 | 0 |
+
+Read against the withdrawn table in §3, with the per-rung attribution the second
+independent review (§4 of `review2_of_repair.md`) insisted on:
+
+- at **16k chains** the first-visit arm retains `N_x ≈ 9k–16k` per pair, strictly
+  below the withdrawn protocol's fixed 16,384, and the radius grows: **22 vs 28 is
+  the real sample-size cost** of a valid bridge;
+- at **64k chains** the valid arm emits **more** than the withdrawn one (38 vs 36).
+  That difference is **not** a validity effect: the withdrawn run abstained on 2
+  records (`mix=0.5, task=10`, both routes) for insufficient per-pair counts, while
+  the first-visit arm counts chains and clears its threshold there. So
+  "validity costs power" holds at 16k and reverses at 64k for an unrelated reason;
+  the corrected statement is: **the cost of validity is a smaller per-pair sample
+  at fixed chain count, worth about 6 emissions at 16k, and nothing at 64k.**
+
+The valid certificate is looser than the withdrawn one at equal chain count — that
+is the price of the guarantee being true — but it is far from vacuous, and the
+split (minimal-repair) arm's collapse at 16k chains (6/48) quantifies exactly how
+much the MP single-sample construction buys over the minimal repair.
+
+All three rungs pass `verify_fp_certfix_001.py` (counts three ways, risk accounting
+`2d·δ_each = δ_step`, MP radius recomputed from sealed per-pair variances AND
+per-pair sizes, zero violations, zero degradations). The guarantee now rests on
+lemma A' + theorem 2 as re-issued in the derivation; the review confirmed theorem
+2's machinery unchanged.

@@ -146,7 +146,7 @@
 |---|---|
 | §0 值域常数 `E=10` | `fixed_policy_mp_certificate.ENVELOPE`（与 `divergence_guard` 的 `B` 检查） |
 | §1 引理 A' 首访保留 | `fp_certfix_first_n.py:first_visit_batch`：每对每链取首访；`N_x < n_min` 则 `heldout_pair_support_missing`（旧 `first_n_batch` 保留供旧档复现，**其保证已随引理 A 撤回**） |
-| §2 引理 B | `fixed_policy_mp_certificate.mp_certificate`：`np.var(y, ddof=1)`、`log(2/δ_dir)`、`(7/3)·R/(n−1)`，半径用每对实际 `N_x` |
+| §2 引理 B | `fixed_policy_mp_certificate.mp_certificate_firstvisit`：`np.var(y, ddof=1)`、`log(2/δ_dir)`、`(7/3)·R/(n−1)`，半径用每对实际 `N_x`（旧 `mp_certificate` 只用于复现已撤回档） |
 | §3 引理 C | `ε_res/(1−γ)`（同封存口径） |
 | §5 风险账务 | 输出 `delta_each = δ_step/(2d)`、`delta_step`、`K`；可加总验证 |
 | §6 定理 2 | `evaluate_fp_certfix_001.py`：每步 `vectorised_batch` 新批次，种子含步索引；`δ_k = δ_total/K` |

@@ -11,27 +11,32 @@ original ``mp_certificate`` / ``split_bernstein_certificate`` are kept only to
 reproduce the 2026-09-13 morning artifacts; their guarantee is withdrawn.
 
 This module is NEW and additive. It does not modify, import-patch, or shadow any
-sealed file. It implements the two constructions of
+sealed file. It implements the constructions of
 ``docs/derivations/FP-CERTFIX-001-certificate-rederivation.md``:
 
-``mp_certificate`` -- the reference arm (derivation section 2 + 5). One fixed-size
-iid sample per pair (the first ``n_per_pair`` visits, extracted upstream by
-``fp_certfix_first_n``), one Maurer-Pontil empirical Bernstein bound per pair per
-direction, with the KNOWN range ``2*ENVELOPE = 20`` of the residual ``Y``. No
-split halves, no estimated second-moment scale, no ordinary Bernstein with a
-plugged-in sample variance.
+``mp_certificate_firstvisit`` -- the reference arm (derivation sections 1, 2, 5).
+One iid sample per pair drawn as ONE sample per independent chain at that
+chain's FIRST visit (lemma A'), one Maurer-Pontil empirical Bernstein bound per
+pair per direction at the realised ``N_x``, with the KNOWN range
+``2*ENVELOPE`` of the residual ``Y``. Random sample size costs nothing because
+``N_x`` is independent of the values.
 
-``split_bernstein_certificate`` -- the minimal-repair control arm (derivation
-section 7). Keeps the frozen two-step structure but fixes all three defects:
-fixed half size ``m`` (first ``2m`` visits, lemma A), the second-moment Hoeffding
-with the correct ``sqrt(2)`` (range ``ENVELOPE**2`` of ``Z = Y^2``), and the mean
-step as ordinary Bernstein with variance proxy ``v_x`` and TRUE range ``2E``.
+``split_bernstein_firstvisit`` -- the minimal-repair control arm (derivation
+section 7) on the same first-visit sample; order-split halves, second-moment
+Hoeffding with the correct ``sqrt(2)`` (range ``ENVELOPE**2`` of ``Z = Y^2``),
+mean step as ordinary Bernstein with variance proxy ``v_x`` and TRUE range
+``2E``.
 
-Premises both arms rely on, and where each is enforced:
+WITHDRAWN ARMS (reproduction only, NOT for new claims): ``mp_certificate`` and
+``split_bernstein_certificate``. They take the first ``n_per_pair`` visits per
+pair and rest on the falsified lemma A; they are kept solely to reproduce the
+2026-09-13 morning sealed artifacts. Do not cite their guarantee.
 
-- iid, fixed-size samples: lemma A of the derivation, enforced by the upstream
-  first-n extraction (this module REFUSES batches whose per-pair counts are not
-  exactly the frozen count);
+Premises the first-visit arms rely on, and where each is enforced:
+
+- iid samples of random size with ``N_x`` independent of the values: lemma A'
+  of the derivation, enforced by ``first_visit_batch`` upstream; the module
+  abstains when any pair retains fewer than ``min_visits`` chains;
 - boundedness: ``|Y| <= ENVELOPE = R* + gamma*B + B`` with
   ``B = R*/(1-gamma)``, enforced by the ``divergence_guard`` check below;
 - independence of ``(policy, q_hat)`` from the certification batch: protocol
