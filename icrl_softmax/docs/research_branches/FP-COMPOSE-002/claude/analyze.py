@@ -286,7 +286,6 @@ def main() -> None:
         "margin_ratio_median_counterfactual": float(np.median(old_ratio)),
         "e_q_inflation_factor_median": float(np.median(
             [a / b for a, b in zip(new_ratio, old_ratio)])),
-        "cells_that_would_stop_at_step1": int(sum(1 for x in old_ratio if x <= 1.0)),
         "cell_steps_with_closed_gate_sealed": int(sum(1 for x in new_ratio if x <= 1.0)),
         "cell_steps_with_closed_gate_counterfactual": int(sum(1 for x in old_ratio if x <= 1.0)),
         "cell_steps_total": len(new_ratio),
