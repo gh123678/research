@@ -182,15 +182,46 @@ f1 从 `step 4` 到 `step 12` 只再收窄 `×0.773`（8 步），即 **≈−2.
 
 ## 7. 产物位置
 
-| 产物 | 路径 |
+### 7.1 C1 重放自检（封存后补入，全量）
+
+按任务单 §7 与 FP-COMPOSE-001 的同一门槛（Q̂ 重放 ≤`1e-9`、`E_Q`/价值回放 ≤`1e-10`），
+用 `verify.py` 从冻结种子**逐步重建**并与封存记录逐字段比较，**覆盖全部 96 条记录、无抽样**：
+
+| 量 | 值 |
 |---|---|
-| 正式结果（权威件） | `results/FP-COMPOSE-002/claude/formal/task_results.json` |
-| 分析 | `results/FP-COMPOSE-002/claude/formal/analysis.json` |
-| 输入清单（含 `run_metadata`） | `results/FP-COMPOSE-002/claude/formal/input_manifest.json` |
-| 运行日志 / 高精度复核日志 | `results/FP-COMPOSE-002/claude/{formal_run.log,boundary_diagnosis.log}` |
-| 高精度边界复核 | `results/FP-COMPOSE-002/claude/verification/boundary_diagnosis_step12.json` |
-| C1 重放自检 | `results/FP-COMPOSE-002/claude/verification/selfcheck_c1.json`（本件封存后补入） |
-| 被中断的首次尝试（保留） | `results/FP-COMPOSE-002/claude/formal_aborted_killed_v1/` |
-| smoke（非冻结协议） | `results/FP-COMPOSE-002/claude/_smoke/` |
+| 重放的生产者步骤 / Q̂ / `E_Q` / 判决 | **4534 / 4534 / 4534 / 4534** |
+| 价值重放 | **4510**（`4534 − 4510 = 24`，与**停止的 24 格**逐一对应） |
+| 认证批哈希核对 / 不一致 | **4534 / 0** |
+| 重放的网络前向 | **2267**（与封存的 `net_forwards` **完全相等**） |
+| Q̂ 重放最大差 | **`0.0`**（逐位一致） |
+| `E_Q` 重放最大差 | `1.11e-16` |
+| 价值增量重放最大差 | `3.55e-15` |
+| 闭合率重放最大差 | `1.60e-12` |
+| 判定 | **PASS**（hard failures `0`、failures `0`、warnings `0`、H1 违规 `0`） |
+| 耗时 | `3669.6 s` |
+
+**这不是独立验证**：`verify.py` 与 `evaluate.py` 同作者，且本任务的任务单也是我起草的。
+它能抓算术与实现错误，**抓不到共同的 conceptual 错误**。
+
+### 7.2 产物清单
+
+| 产物 | 路径 | SHA256（前 32 位） |
+|---|---|---|
+| 正式结果（权威件） | `results/FP-COMPOSE-002/claude/formal/task_results.json` | `284fcc7394bb5ae339f3f6631dd1995c` |
+| 分析 | `results/FP-COMPOSE-002/claude/formal/analysis.json` | `8a102b29b14e65c15ee9430ec0bf146d` |
+| 输入清单（含 `run_metadata`） | `results/FP-COMPOSE-002/claude/formal/input_manifest.json` | `a1a35885bf80b61ee29a3dd8ccbd585b` |
+| 配置 / 环境 | `results/FP-COMPOSE-002/claude/formal/{config,environment}.json` | `6f8b9857bf7a05b8c6290738625f6c4d` / `daf8dcb9ef2b7e0361c7b6181d237245` |
+| 运行日志 | `results/FP-COMPOSE-002/claude/formal_run.log` | `cf0be7d83c6980947abbc1d3ff8ea9c5` |
+| C1 自检 | `results/FP-COMPOSE-002/claude/verification/selfcheck_c1.json` | `25f5b4fcf6f418e092495be36db14c50` |
+| 高精度边界复核 | `results/FP-COMPOSE-002/claude/verification/boundary_diagnosis_step12.json` | `4661855b4654a90076fcb5d423981ac6` |
+| 被中断的首次尝试（保留） | `results/FP-COMPOSE-002/claude/formal_aborted_killed_v1/` | — |
+| smoke（非冻结协议） | `results/FP-COMPOSE-002/claude/_smoke/` | — |
 
 `results/` 被 Git 忽略，故数据不随提交进入仓库；代码、任务单、预测与本报告按任务单 §7 提交。
+
+## 8. 结构上仍然缺什么（一句话）
+
+**没有一个环节由非 Claude 主体完成。** `H0` 是跨进程位级一致性，C1 是全量重放，
+两者都强于"跑一遍看看"，但两者都由我写、我跑、我解释。
+按 FP-COMPOSE-001 那次的经验（`analyze.py` 的路线覆盖缺陷是**独立重算**抓到的，
+`L12M`/`L12S` 两次撤回是**外部审阅**抓到的），**唯一还没买到的仍是"不共享我思路的读者"**。
