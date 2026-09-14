@@ -85,7 +85,35 @@ a single `4×` rung; here it is a curve, on two families, with the matched-cost 
 | `H4` every conjunctive marginal step `<` the per-state average | **PASS** on both families |
 | `H5` cost reported as total items, with chains, steps and wall clock | **PASS**, §2 |
 
-## 6. What this establishes, and what it does not
+## 6. Verification
+
+`verify_fp_cost_001.py` replays the ladder from the sealed bundle: it rebuilds the conjunctive cell's
+policy chain from the recorded decisions, re-runs the family's array route on the replayed policy,
+re-draws each step's batch from the step-indexed schedule at **that cell's own chain count**, and
+re-derives the certificate, the conjunctive decision, the exact values and the cost fields.
+
+**Stage 1 (complete): registered subset.** All records for the `16,384` rung in both families, and the
+first `12` of `48` records per family for the higher rungs — `1,133` replayed steps:
+
+| check | result |
+|---|---|
+| `C1` emission and `min_lb` reproduced from the replayed policy | `0` mismatches |
+| `C2` `E_Q ≥` realized `‖Q̂−Q^π‖∞` | `0` violations |
+| `C3` value deltas recomputed along the replayed chain | `0` degradations |
+| `C4` sealed totals incl. `simulated_steps`, `items_if_run_alone`, `stopped_at` | `0` mismatches |
+| `C5` each step really used the cell's chain count (`items_this_step`) | `0` mismatches |
+| **`failure_count`** | **`0`** |
+
+Together with `H2` (the `16,384` rung reproducing FP-XRULE-002's `conj|frozen` bit for bit, full
+population), the lower rung is fully verified and the higher rungs are verified on a quarter of the
+population.
+
+**Stage 2 (in flight): full replay of the `65,536` and `131,072` rungs**, all `48` records per family.
+It re-draws the same `10.2e9` items and is the only remaining item on this task. Until it lands, §2's
+higher-rung aggregates are **as recorded by the evaluator, checked on 25% of the population**, and the
+report says so rather than implying full verification.
+
+## 7. What this establishes, and what it does not
 
 **Established**
 
