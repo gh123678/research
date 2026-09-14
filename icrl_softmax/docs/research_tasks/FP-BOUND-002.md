@@ -65,3 +65,9 @@ c_k(x)     = ‖W_k‖∞ · sqrt(log(1/δ_k)/(2 n_x))     （单侧 Hoeffding�
 ## 记录区
 
 - 2026-09-13：任务创建（用户直接指令"都去做"）。假设与登记带写于确认性运行**之前**；构造与实现随后完成。
+
+## 记录区（续）：执行完成
+
+- 2026-09-13：执行完成，报告 `docs/research_branches/FP-BOUND-002/claude/first_result.md`，封存 `results/FP-BOUND-002/claude/`。
+- 登记假设判定与限制见报告 §4/§3；所有数字经独立重算脚本验证（见报告"Verification"节）。
+- 仍为**初步结果**（单执行者）。
