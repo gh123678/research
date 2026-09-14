@@ -1,5 +1,38 @@
 # FP-ITER-BOUND-002 first result: the risk schedule is not the lever — and what actually stops the loop
 
+> ## CORRECTIONS 2026-09-13 (independent audit), on top of a withdrawal
+>
+> **Withdrawn.** Every cell here uses `L12M(0.05)`, whose concentration step is not licensed
+> (Hoeffding applied to a function computed from the same successor draws it averages over).
+> The emission counts (`99 / 94 / 79`), the value gains (`2.901 / 2.920 / 2.833`) and the
+> `H1`–`H7` table are therefore withdrawn; the comparison must be re-run with the repaired
+> arm `L12S`.
+>
+> **Three claims narrowed or retracted (audit items 3a–3c).**
+>
+> 1. *"A non-uniform schedule cannot help"* is **too broad**. What is proved is that
+>    `Σ_k log(1/δ_k)` is strictly convex on `Σ_k δ_k = δ_total`, so the equal allocation
+>    uniquely minimises that sum — and, because the radius is monotone in `log(1/δ_k)`, it
+>    also minimises `max_k log(1/δ_k)`. That is a statement about **this** objective, for a
+>    union bound with a monotone radius. It is not a statement about every schedule for
+>    every protocol.
+> 2. *"Shrinking `K` is pure truncation"* is **wrong as written**. `K` sets the per-step
+>    budget `δ_total/K`, which changes each certificate, hence which steps emit, hence the
+>    policy trajectory itself. The measured mean-length ordering (`2.35 < 2.90 < 3.06`) is
+>    the joint effect of the cap and the budget, not truncation alone; my `H2` registration
+>    got the sign wrong for the same reason.
+> 3. *"A confidence sequence is worse"* is **narrower than claimed**. What was compared is
+>    one concrete normal-mixture boundary, `σ√((log n + 2log(1/δ))/n)`, against the
+>    fixed-time union bound, `σ√((2log K + 2log(2/δ))/n)`. At this protocol's parameters
+>    (`log n = 9.70` vs `2 log K = 5.55`) that one form loses. It does **not** follow that
+>    no anytime-valid construction can win; see e.g.
+>    [Howard et al., time-uniform Chernoff bounds](https://arxiv.org/pdf/1810.08240) for the
+>    family this comparison did not cover.
+>
+> **What survives**: the two closed-form arguments above (as scoped), and `H4`'s
+> decomposition of the stops by `E_Q/h` — though its population is `L12M`'s and must be
+> recomputed with the sound arm.
+
 Date: 2026-09-13.
 Branch: `claude/FP-CENSUS-001`. Baseline: `dfe5643`.
 Actor: Claude, under the user's direct instruction of 2026-09-13 ("好").

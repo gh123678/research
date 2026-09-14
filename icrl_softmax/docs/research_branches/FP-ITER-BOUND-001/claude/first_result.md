@@ -1,5 +1,24 @@
 # FP-ITER-BOUND-001 first result: the tightened certificate doubles the certified iteration — and stops being the binding constraint
 
+> ## WITHDRAWN 2026-09-13 (independent audit)
+>
+> The main arm here is `L12M`, whose concentration step is **not licensed** (Hoeffding
+> applied to a function computed from the same successor draws it averages over). **All
+> `L12M` numbers in this file are withdrawn**: `89` emitted steps, `2.8295` mean value
+> gain, `2.854` mean length, the `H2`–`H7` verdicts, and the headline `36 → 89`.
+>
+> **What survives**: `H1`'s two clauses as *measurements* (zero degradations and zero
+> observed coverage violations in every arm), the `frozen` (`36` / `1.7341`) and `L12`
+> (`66` / `2.3771`) rows, and the qualitative finding that the bound was a first-order
+> cost. The load-bearing `C1`–`C4` replay checks were about arithmetic, not about the
+> arm's validity, and they stand.
+>
+> The iteration must be re-run with the repaired arm
+> `L12S(f=0.9, p=0.05)` — see
+> [`FP-BOUND-002-l12m-withdrawal-and-split-repair.md`](../../derivations/FP-BOUND-002-l12m-withdrawal-and-split-repair.md).
+> The corrected step-1 gain is `−31.2%`, not `−37.6%`, so the iteration's `2.75×` should be
+> treated as an **upper bound** on what the sound arm delivers until re-measured.
+
 Date: 2026-09-13.
 Branch: `claude/FP-CENSUS-001`. Baseline: `e1bdc63`.
 Actor: Claude, under the user's direct instruction of 2026-09-13 ("都去做").

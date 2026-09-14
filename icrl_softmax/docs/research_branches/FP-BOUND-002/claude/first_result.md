@@ -1,5 +1,27 @@
 # FP-BOUND-002 first result: the biggest lever no longer needs the kernel
 
+> ## WITHDRAWN 2026-09-13 (independent audit)
+>
+> The `L12M` propagation arm below is **not a valid bound**. Its concentration step
+> applies Hoeffding to `W_k`, which is itself computed from the same successor draws it is
+> being averaged over: the function is not fixed, so the induction is unlicensed. The zero
+> coverage violations reported here are **not** evidence to the contrary.
+>
+> **Every `L12M` number in this file is withdrawn**, and with it the `H2`/`H3`/`H4`/`H5`
+> verdicts that rest on it. See
+> [`FP-BOUND-002-l12m-withdrawal-and-split-repair.md`](../../derivations/FP-BOUND-002-l12m-withdrawal-and-split-repair.md)
+> for the proof of the defect, the repaired split-sample construction `L12S`, and the
+> re-measurement.
+>
+> **What survives**: the `frozen`/`L1`/`L12`/`L123` columns (none uses the defective step),
+> the cross-check against FP-BOUND-001, the per-pair coverage audit, and the qualitative
+> finding that the propagation is estimable from the batch. The repaired arm reaches
+> **`−31.2%`** at `c64k` (not `−37.6%`) and emits the same `44/48` as the kernel arm.
+>
+> The audit also found that Maurer–Pontil Thm 4 is **one-sided**, not two-sided as the
+> derivation text said. The implementation's `log(2/δ′)` is nevertheless exactly the
+> rigorous two-sided constant `log(4/δ_pair)`, so no number moves — only the wording.
+
 Date: 2026-09-13.
 Branch: `claude/FP-CENSUS-001`. Baseline: `e1bdc63`.
 Actor: Claude, under the user's direct instruction of 2026-09-13 ("都去做").

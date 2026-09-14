@@ -1,5 +1,23 @@
 # FP-BOUND-003 first result: the model-free arm, fixed
 
+> ## WITHDRAWN 2026-09-13 (independent audit)
+>
+> This task repaired the *risk allocation* of `L12M`, but the arm itself is **not a valid
+> bound**: its concentration step applies Hoeffding to a function computed from the same
+> successor draws it averages over. **All `L12M(0.05)` numbers here are withdrawn**
+> (`−39.6%` / `−40.4%`, emissions `44` / `28`, recovery `93.1%` / `80.1%`), as is the
+> `H1`–`H6` table that rests on them.
+>
+> Two findings survive and are still useful:
+> 1. the propagation estimates need very little risk budget — the `0.05` vs `0.5` lesson
+>    carries over to the repaired construction;
+> 2. the withdrawal-and-repair note
+>    ([`FP-BOUND-002-l12m-withdrawal-and-split-repair.md`](../../derivations/FP-BOUND-002-l12m-withdrawal-and-split-repair.md))
+>    re-measures the sound arm `L12S(f=0.9, p=0.05)` at **`−31.2%`** with `44/48` emitted —
+>    both knobs matter, in the same direction this task identified.
+>
+> The `frozen`/`L1`/`L12`/`L123` columns are unaffected.
+
 Date: 2026-09-13.
 Branch: `claude/FP-CENSUS-001`. Baseline: `e1bdc63`.
 Actor: Claude, under the user's direct instruction of 2026-09-13 ("都去做").

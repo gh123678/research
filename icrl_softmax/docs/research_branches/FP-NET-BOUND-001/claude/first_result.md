@@ -9,6 +9,27 @@ Code: `evaluate_fp_net_bound_001.py`, `analyze_fp_net_bound_001.py`, `verify_fp_
 
 **Preliminary result, single actor.**
 
+> ## CORRECTIONS 2026-09-13 (independent audit)
+>
+> **1. "Identical `E_Q/h` distributions" was wrong.** A point-by-point recomputation gives
+> **231 of 231** compared points differing, max `|Δ| = 1.44e-4`, median `1.9e-6`; the `E_Q`
+> values differ at 231/231 points (max `1.7e-5`). The distributions agree only **at the
+> precision they were printed to**. The corrected statement is: the two producers agree to
+> float32 rounding, which is small enough not to move any decision, but they are not equal.
+>
+> **2. The implementation scope was overstated.** The network produces `Q̂` and nothing
+> else. The certificate, the `η`-grid search and the update decision are computed by
+> external code (`fixed_policy_tight_certificate` + `fs.improvement_for`) that is identical
+> across both producers. What is established is that **the network's `Q̂` is
+> decision-equivalent to the array route's `Q̂`** under the same certificate — not that the
+> network certifies anything itself.
+>
+> **3. Withdrawn pending re-run.** The `99`-step level comes from `L12M`, whose
+> concentration step is not licensed (see the withdrawal note in
+> [`FP-BOUND-002`](../../derivations/FP-BOUND-002-l12m-withdrawal-and-split-repair.md)). The
+> **producer-agreement** result is independent of which certificate is used and stands; the
+> **emission counts** must be recomputed with the repaired arm `L12S`.
+
 ## 1. Why this task exists
 
 The project's question is whether a **fixed-weight softmax attention network** can turn in-context
@@ -52,11 +73,14 @@ gradient step, weights fixed by construction. Every audit compares `E_Q` against
 | `numpy|L12M` | **`99`** | `3.062` | `0` | **`2.9014`** | `0` | `0` |
 | `network|L12M` | **`99`** | `3.062` | `0` | **`2.9014`** | `0` | `0` |
 
-**The two producers are indistinguishable at every level that matters.** Not merely close: the
-per-record emission counts are identical on all `24` records, the totals are identical (`36` and `99`),
-and the mean value gains agree to seven significant figures (`1.7340969749` vs `1.7340968201`; the
-`1.5e-7` gap is float32 network arithmetic against float64 array arithmetic). The `E_Q/h` distributions
-coincide exactly, median `0.8496` under `L12M` and `1.1416` under `frozen`, identical ranges.
+**The two producers agree to float32 rounding, and no decision separates them.** The
+per-record emission counts are identical on all `24` records and the totals are identical
+(`36` and `99`); the mean value gains agree to seven significant figures (`1.7340969749` vs
+`1.7340968201`); and the `E_Q/h` distributions agree to a median `1.9e-6` and a worst case
+`1.44e-4` — **they are not equal**, and an earlier draft of this report wrongly said they
+were (see the correction notice above). The float32 gap is small enough that every
+decision in this run is the same one, but "same decisions" is the claim, not "identical
+numbers".
 
 ## 4. Verdicts
 
@@ -81,15 +105,17 @@ Read against the three questions in §1:
 2. **The tightening transfers.** The network's certified iteration goes `36 → 99` steps and
    `1.734 → 2.901` mean value gain, exactly the model-free gains the numpy line measured — with `0`
    degradations at every emitted step.
-3. **The network reaches the exact computation's decisions.** `100%` step-1 agreement and identical
-   per-record emission counts. On this population and protocol, the fixed-weight softmax attention
-   network is not an approximation to the certified decision procedure — it **is** the certified
-   decision procedure, up to float32 rounding.
+3. **The network's estimate is decision-equivalent to the exact computation's.** `100%`
+   step-1 agreement and identical per-record emission counts, under a certificate and a
+   decision rule computed by code that is the same for both producers. On this population
+   and protocol the network's `Q̂` is not an approximation that happens to agree — it lands
+   on the same side of the same threshold in every one of the `48` step-1 cells. That is a
+   statement about the **estimator**, not about the network certifying anything: the
+   certificate is external.
 
-**This is the project's headline question answered at the decision level**: a fixed-weight attention
-network, run purely in-context over behaviour data, supports a certified non-degrading policy
-improvement whose decisions match the exact array computation cell for cell — under a certificate
-`39.6%` tighter than any available when the network line was last measured.
+**This is the project's headline question answered at the estimator level**: a fixed-weight
+attention network, run purely in-context over behaviour data, produces action values whose
+certified decisions match the exact array computation's, cell for cell.
 
 ## 6. What this does not establish
 

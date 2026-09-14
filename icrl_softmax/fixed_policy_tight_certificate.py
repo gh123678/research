@@ -68,7 +68,17 @@ MP_CONSTANT = 7.0 / 3.0
 
 REASONS = ("divergence_guard_triggered", "heldout_pair_support_missing", "numerical_nonfinite")
 
-LEVERS = ("frozen", "L1", "L12", "L123", "L12M", "support_range")
+LEVERS = ("frozen", "L1", "L12", "L123", "L12M", "L12S", "support_range")
+#: ``L12M`` is WITHDRAWN as a guarantee (2026-09-13 audit). Its propagation applies
+#: Hoeffding to ``W_k``, which is itself computed from the same successor draws, so
+#: the concentration step is not licensed; a data-dependent ``f`` can be anti-
+#: correlated with the very sample that estimates its mean. ``L12M`` is kept only to
+#: reproduce the 2026-09-13 bundles. ``L12S`` is the repaired construction: each
+#: pair's first-visit sample is split, the intervals come from half A, and every
+#: propagation estimate is computed on half B, which is independent of half A.
+WITHDRAWN_LEVERS = ("L12M",)
+#: fraction of each pair's retained sample used for the interval half (A)
+SPLIT_FRACTION = 0.5
 
 
 def effective_envelope(
@@ -214,6 +224,199 @@ def propagation_data_driven(
     }
 
 
+def split_sample_certificate(
+    q_hat: Any,
+    policy: Any,
+    batch: dict[str, Any],
+    *,
+    min_visits: int,
+    delta_step: float,
+    split_fraction: float = SPLIT_FRACTION,
+    delta_prop_fraction: float = 0.5,
+    n_states: int = N_STATES,
+    n_actions: int = N_ACTIONS,
+    reward_bound: float = R_STAR,
+    gamma: float = GAMMA,
+) -> dict[str, Any]:
+    """L12S: the sound replacement for the withdrawn ``L12M``.
+
+    WHY ``L12M`` WAS WRONG. ``L12M`` estimated ``E_{s'~P}[W_k(s')]`` by the
+    pair's own successor average and charged it a Hoeffding term ``c_k`` built
+    from ``W_k``. But ``W_k`` is itself computed from those same successor draws,
+    so the function being averaged is not fixed: a data-dependent ``f`` may be
+    large exactly on the observed successors, and then ``T_x(f) > E[f] + c`` with
+    probability far above the nominal level. The induction is unlicensed, not
+    merely loose.
+
+    THE REPAIR. Split each pair's retained first-visit sample, in the retained
+    order, into half A (first ``floor(f*n_x)``) and half B. Conditional on half A:
+
+    * the interval ``|rho_x| <= eps_x`` is a FIXED vector (nothing in it uses half
+      B), and the envelope ``E_eff`` is a deterministic function of ``(Qhat, pi)``;
+    * ``V_0 = max_x eps_x/(1-gamma)`` is therefore fixed, and so is every
+      ``V_{k+1}(s) = epsbar(s) + gamma sum_a pi(a|s)[T^B_x(V_k) + c_k(x)]``;
+    * ``T^B_x`` and its Hoeffding term ``c_k(x) = ||V_k||_inf sqrt(log(1/da_k)/(2 n_Bx))``
+      are computed on half B, which is INDEPENDENT of half A and of ``V_k``.
+
+    So each concentration step is applied to a fixed function and is valid, and
+    the induction ``|w| <= V_k`` goes through. The final bound is
+    ``max_{s,a} [ eps(s,a) + gamma (T^B_x(V_K) + c_K(x)) ]``.
+
+    RISK. ``delta_eps + delta_prop = delta_step``: the per-pair intervals are
+    two-sided at total per-pair risk ``delta_eps/d``, and the propagation spends
+    ``delta_prop`` split over ``K*d`` (iteration, pair) events plus ``d`` final
+    ones.
+
+    PRICE. Both halves are smaller than the whole sample, so the interval is
+    looser than ``L12``'s and the successor averages are noisier than ``L12M``'s.
+    That is what being licensed costs; the amount is measured, not assumed.
+    """
+    d = int(n_states) * int(n_actions)
+    reasons = _guards(q_hat, reward_bound=reward_bound, gamma=gamma)
+    q = np.asarray(q_hat, dtype=np.float64)
+    pi = np.asarray(policy, dtype=np.float64)
+    residuals = _residuals(q, pi, batch, gamma=gamma)
+    flat = np.asarray(batch["states"], dtype=np.int64) * N_ACTIONS + np.asarray(
+        batch["actions"], dtype=np.int64
+    )
+    nxt = np.asarray(batch["next_states"], dtype=np.int64)
+
+    y_range = 2.0 * effective_envelope(q, pi, reward_bound=reward_bound, gamma=gamma)
+    delta_prop = float(delta_prop_fraction) * float(delta_step)
+    delta_eps = float(delta_step) - delta_prop
+    # two-sided at total per-pair risk delta_eps/d == one-sided at delta_eps/(2d)
+    # (Maurer-Pontil Thm 4 is one-sided; the absolute-value form is the union of
+    # the two directions, which is exactly log(2/delta_dir) with delta_dir halved)
+    delta_dir = delta_eps / (2.0 * d)
+    log_term = math.log(2.0 / delta_dir)
+
+    sizes_a = np.zeros(d, dtype=np.int64)
+    sizes_b = np.zeros(d, dtype=np.int64)
+    means = np.zeros(d)
+    radii = np.zeros(d)
+    eps = np.zeros(d)
+    counts_b = np.zeros((d, int(n_states)), dtype=np.int64)
+    if not reasons:
+        for pair in range(d):
+            members = np.flatnonzero(flat == pair)
+            n = int(members.size)
+            if n < int(min_visits):
+                reasons = reasons + ["heldout_pair_support_missing"]
+                break
+            cut = int(math.floor(float(split_fraction) * n))
+            cut = max(1, min(n - 1, cut))
+            idx_a, idx_b = members[:cut], members[cut:]
+            sizes_a[pair] = idx_a.size
+            sizes_b[pair] = idx_b.size
+            y_a = residuals[idx_a]
+            v = float(np.var(y_a, ddof=1)) if idx_a.size > 1 else 0.0
+            means[pair] = float(np.mean(y_a))
+            radii[pair] = math.sqrt(2.0 * max(v, 0.0) * log_term / idx_a.size) + (
+                MP_CONSTANT * y_range * log_term / max(idx_a.size - 1, 1)
+            )
+            eps[pair] = abs(means[pair]) + radii[pair]
+            counts_b[pair] = np.bincount(nxt[idx_b], minlength=int(n_states))
+    out: dict[str, Any] = {
+        "status": "not_certified" if reasons else "certificate_emitted",
+        "failure_reasons": reasons,
+        "lever": "L12S",
+        "residual_means": means,
+        "radii": radii,
+        "epsilon_res_by_pair": eps,
+        "pair_sizes": sizes_a + sizes_b,
+        "delta_step": float(delta_step),
+        "delta_each": delta_dir,
+        "y_range": float(y_range),
+        "n_groups": d,
+        "e_q": None,
+        "propagation": None,
+    }
+    if reasons:
+        return out
+
+    prop = propagation_split(
+        eps,
+        sizes_b,
+        counts_b,
+        pi,
+        delta_prop=delta_prop,
+        gamma=gamma,
+        n_states=int(n_states),
+        n_actions=int(n_actions),
+    )
+    prop["kind"] = "split"
+    prop["split_fraction"] = float(split_fraction)
+    prop["delta_prop_fraction"] = float(delta_prop_fraction)
+    prop["sizes_half_a"] = sizes_a.tolist()
+    prop["sizes_half_b"] = sizes_b.tolist()
+    prop["successor_counts_half_b"] = counts_b.tolist()
+    prop["delta_eps"] = delta_eps
+    out["propagation"] = prop
+    out["e_q"] = prop["e_q"]
+    return out
+
+
+def propagation_split(
+    eps: np.ndarray,
+    sizes_b: np.ndarray,
+    counts_b: np.ndarray,
+    policy: Any,
+    *,
+    delta_prop: float,
+    gamma: float = GAMMA,
+    n_iter: int = 12,
+    n_states: int = N_STATES,
+    n_actions: int = N_ACTIONS,
+) -> dict[str, Any]:
+    """The propagation induction of L12S, on half B only (see above).
+
+    ``eps`` and hence every ``V_k`` is fixed given half A; ``counts_b``/``sizes_b``
+    come from half B, which is independent of half A, so each Hoeffding step is
+    applied to a fixed function. Risk ``delta_prop`` is union-bounded over
+    ``n_iter * d`` iteration events and ``d`` final ones.
+    """
+    pi = np.asarray(policy, dtype=np.float64)
+    eps_grid = np.asarray(eps, dtype=np.float64).reshape(int(n_states), int(n_actions))
+    sizes_b = np.asarray(sizes_b, dtype=np.float64)
+    counts_b = np.asarray(counts_b, dtype=np.float64)
+    epsbar = (pi * eps_grid).sum(axis=1)
+
+    delta_k = float(delta_prop) / (2.0 * int(n_iter) * sizes_b.size)
+    log_k = math.log(1.0 / delta_k)
+    delta_f = float(delta_prop) / (2.0 * sizes_b.size)
+    log_f = math.log(1.0 / delta_f)
+
+    def estimate(f):
+        t = (counts_b * f[None, :]).sum(axis=1) / sizes_b
+        c = float(np.max(f)) * np.sqrt(log_k / (2.0 * sizes_b))
+        return t, c
+
+    v = np.full(int(n_states), float(np.max(eps)) / (1.0 - float(gamma)))
+    iterations = 0
+    for _ in range(int(n_iter)):
+        iterations += 1
+        t, c = estimate(v)
+        nxt_v = epsbar + float(gamma) * (
+            pi * (t + c).reshape(int(n_states), int(n_actions))
+        ).sum(axis=1)
+        if float(np.max(np.abs(nxt_v - v))) <= 1e-14:
+            v = nxt_v
+            break
+        v = nxt_v
+
+    t, c = estimate(v)
+    bound = eps_grid + float(gamma) * (t + c).reshape(int(n_states), int(n_actions))
+    return {
+        "e_q": float(np.max(bound)),
+        "w": v.tolist(),
+        "uniform_bound": float(np.max(eps)) / (1.0 - float(gamma)),
+        "delta_per_iteration": delta_k,
+        "delta_final": delta_f,
+        "n_iter": int(n_iter),
+        "iterations_used": iterations,
+    }
+
+
 def _guards(q_hat: Any, *, reward_bound: float, gamma: float) -> list[str]:
     q = np.asarray(q_hat, dtype=np.float64)
     if not np.all(np.isfinite(q)):
@@ -255,6 +458,7 @@ def certificate(
     reward_bound: float = R_STAR,
     gamma: float = GAMMA,
     delta_prop_fraction: float = 0.5,
+    split_fraction: float = SPLIT_FRACTION,
 ) -> dict[str, Any]:
     """One ``E_Q`` per lever, from the chain-replicated first-visit sample.
 
@@ -270,6 +474,13 @@ def certificate(
     """
     if lever not in LEVERS:
         raise ValueError(f"unknown lever {lever!r}")
+    if lever == "L12S":
+        return split_sample_certificate(
+            q_hat, policy, batch, min_visits=min_visits, delta_step=delta_step,
+            split_fraction=split_fraction,
+            delta_prop_fraction=delta_prop_fraction,
+            n_states=n_states, n_actions=n_actions, reward_bound=reward_bound, gamma=gamma,
+        )
     d = int(n_states) * int(n_actions)
     reasons = _guards(q_hat, reward_bound=reward_bound, gamma=gamma)
     q = np.asarray(q_hat, dtype=np.float64)
