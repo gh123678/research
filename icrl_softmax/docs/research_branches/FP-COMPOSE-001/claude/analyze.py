@@ -30,26 +30,22 @@ import numpy as np
 PRODUCERS = ("numpy", "network")
 
 
-def cells_of(record) -> dict[str, dict]:
-    """Flatten a task-instance record into cell key -> {'route', 'producer', ...}."""
-    out = {}
-    for route, per_cell in record["routes"].items():
-        for cell, payload in per_cell.items():
-            out[cell] = {"route": route, "producer": cell.split("|")[0], **payload}
-    return out
-
-
 def route_records(bundle) -> list[dict[str, Any]]:
-    """The 192 analysis units: one per (family, mixing, task_index, route)."""
+    """The 192 analysis units: one per (family, mixing, task_index, route).
+
+    The cells must be selected through rec["routes"][route]: keying them by producer name
+    alone would let the second route silently overwrite the first, which would report
+    expected_finite figures under both route labels and never audit expected_exact.
+    """
     out = []
     for rec in bundle["records"]:
-        flat = cells_of(rec)
         for route in bundle["routes"]:
+            per_cell = rec["routes"][route]
             out.append({
                 "family": rec["family"], "mixing": rec["mixing"],
                 "task_index": rec["task_index"], "route": route,
-                "cells": {p: flat[f"{p}|perstate|L12"] for p in PRODUCERS
-                          if f"{p}|perstate|L12" in flat},
+                "cells": {p: per_cell[f"{p}|perstate|L12"] for p in PRODUCERS
+                          if f"{p}|perstate|L12" in per_cell},
             })
     return out
 
@@ -225,8 +221,17 @@ AUDIT_FIELDS = ("q_pi_audit", "v_audit", "realized_sup_error", "covers", "safety
 def score_d1(bundle, rrs: list[dict]) -> dict[str, Any]:
     missing: list[dict] = []
     steps = 0
+    gap_values = []
+    gap_ok = True
     for rr in rrs:
         for producer, cell in rr["cells"].items():
+            if not gap_values or cell["gap_denom"] not in gap_values:
+                gap_values.append(cell["gap_denom"])
+            if not (cell["gap_denom"] > 0.0):
+                gap_ok = False
+                missing.append({"pair": [rr["family"], rr["task_index"], rr["route"],
+                                         producer], "field": "gap_denom_nonpositive",
+                                "value": cell["gap_denom"]})
             for e in cell["steps"]:
                 steps += 1
                 for f in REQUIRED_STEP_FIELDS:
@@ -246,7 +251,9 @@ def score_d1(bundle, rrs: list[dict]) -> dict[str, Any]:
                                             "emitted_audit_field": f})
     return {"steps_checked": steps, "missing_fields": missing,
             "missing_count": len(missing),
-            "verdict": "PASS" if not missing else "FAIL"}
+            "gap_denominator_positive": gap_ok,
+            "gap_denominator_min": (min(gap_values) if gap_values else None),
+            "verdict": "PASS" if not missing and gap_ok else "FAIL"}
 
 
 # --------------------------------------------------------------------------- #
