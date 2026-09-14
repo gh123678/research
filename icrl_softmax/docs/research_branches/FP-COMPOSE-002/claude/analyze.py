@@ -155,6 +155,7 @@ def main() -> None:
     # ---------------- H1 + H2: safety, and the margin trajectory ---------------- #
     margins, deltas, stops, traj = [], [], [], {}
     coverage_viol, degrading = [], []
+    near_boundary: list[dict] = []
     for rr in rrs:
         for p, cell in rr["cells"].items():
             for e in cell["steps"]:
@@ -173,6 +174,14 @@ def main() -> None:
                         degrading.append({"family": rr["family"], "task_index": rr["task_index"],
                                           "route": rr["route"], "producer": p,
                                           "step": e["step"], "min_delta": float(dv.min())})
+                    if abs(float(dv.min())) <= 1e-8:
+                        near_boundary.append(
+                            {"kind": "tiny_value_delta", "family": rr["family"],
+                             "mixing": rr["mixing"], "task_index": rr["task_index"],
+                             "route": rr["route"], "producer": p, "step": e["step"],
+                             "min_abs_value_delta": float(np.min(np.abs(dv))),
+                             "min_value_delta": float(dv.min()),
+                             "e_q": float(e["e_q"]) if e["e_q"] else None})
                 pi = np.asarray(e["pi_before"], float)
                 qh = np.asarray(e["q_hat"], float)
                 h = float(np.max(row_margins(pi, qh)))
@@ -197,9 +206,14 @@ def main() -> None:
         "componentwise_degrading_steps": len(degrading),
         "min_safety_margin": (min(margins) if margins else None),
         "min_value_delta": (min(deltas) if deltas else None),
+        "near_boundary_points": near_boundary,
+        "points_within_1e-10_of_zero": len(near_boundary),
         "examples": (coverage_viol + degrading)[:20],
         "verdict": "PASS" if not coverage_viol and not degrading else "FALSIFIED",
-        "note": "zero violations is a failure detector, not evidence of validity.",
+        "note": ("zero violations is a failure detector, not evidence of validity. The "
+                 "near-boundary list is reported because the task sheet's section 6 pause "
+                 "trigger is |margin| or |delta| <= 1e-10 and a value only an order of "
+                 "magnitude above that is a numerical finding, not a formality."),
     }
     out["H2"] = {
         "margin_ratio_median_by_family_step": med,
@@ -273,6 +287,9 @@ def main() -> None:
         "e_q_inflation_factor_median": float(np.median(
             [a / b for a, b in zip(new_ratio, old_ratio)])),
         "cells_that_would_stop_at_step1": int(sum(1 for x in old_ratio if x <= 1.0)),
+        "cell_steps_with_closed_gate_sealed": int(sum(1 for x in new_ratio if x <= 1.0)),
+        "cell_steps_with_closed_gate_counterfactual": int(sum(1 for x in old_ratio if x <= 1.0)),
+        "cell_steps_total": len(new_ratio),
         "note": ("EXACT ARITHMETIC on the sealed per-pair statistics under a smaller "
                  "delta_step. Emission COUNTS are deliberately NOT reported: a different "
                  "E_Q changes the decisions, which changes the policy path, which would "
