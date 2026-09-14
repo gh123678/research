@@ -45,6 +45,11 @@ K = 16, 16384 chains × 64 per step, δ_k = 0.05/16, 48 record-routes, task_inde
 | `numpy|L123` *(kernel)* | `110` | `3.292` | `2.9562` | `165,675,008` | `1.88` | `0` | `0` |
 | `network|` all four | **identical to numpy, cell for cell** | | | | | `0` | `0` |
 
+**Per-step certification budget (late addition, 2026-09-14 — see the `H5` row in §3):** every cell drew
+`16,384 chains × 64 steps = ` **`1,048,576` items per simulated step**, recorded per step as
+`items_this_step` and confirmed by the replay (`C5`). The "items if run alone" column above is that
+number times the cell's simulated step count.
+
 Total wall clock for the eight-cell run: **`650 s` (`10.8 min`)**.
 
 **The sound propagation arm is dominated by the free one.** `L12` — the envelope fix plus the full
@@ -61,8 +66,8 @@ machinery costs data and returns nothing.
 | `H2` `L12S ≥ 1.30 × frozen` | **PASS** on both clauses — `1.67×` emissions, `1.30×` value (the value clause clears by `0.003`) |
 | `H3` `L12S ≥ L12` | **FALSIFIED** — `60 < 66` |
 | `H4` producer agreement | **PASS** — `0.0%` gap on every lever, `48/48` step-1 agreement on every lever |
-| `H5` same-total-data does not lose to frozen | **PASS** (`1.9302 ≥ 1.7341`), see §4 |
-| `H6` `L12S ≤` the withdrawn `L12M`'s `99` | **PASS** (`60`), so the batches are consistent and the repair is strictly weaker as it must be |
+| `H5` (as registered: **report** the per-step budget, the items-if-run-alone, and the same-total-cost truncation) | **PASS：交付要求满足** — scored item by item under the user's ruling of 2026-09-14. (b) items-if-run-alone: delivered in §2. (c) same-total-cost truncation: delivered in §4. **(a) per-step budget: ABSENT from this report as first written; supplied below and marked as a late addition** — it was in the bundle (`items_per_step`) and printed by the analyzer, but not stated in the text. The value threshold I had substituted for `H5` is **not a registered hypothesis**; it is recorded as a post-hoc observation only |
+| `H6` `L12S ≤` the withdrawn `L12M`'s `99` | **INVALID — 任务条款冲突且判据不能检验所称目标.** It requires citing a withdrawn number while this task's prohibitions forbid citing one, and `60 ≤ 99` cannot test the batch consistency it was meant to test. Acceptance force revoked under the user's ruling; the original clause and its recorded value are retained for traceability. **The batch consistency of this run against the withdrawn `L12M` run remains unchecked and is NOT superseded by any other check** — in particular not by FP-COST-001's `H2`, which compares two *different* runs (FP-COST-001's own conjunctive 16k ladder against FP-XRULE-002) and says nothing about this task |
 
 `H3` is the result. It was registered because the step-1 grid had `L12S` beating `L12` by `20%`; in the
 loop the ordering reverses. The reason is visible in the two budgets: at step 1 the certificate runs at
