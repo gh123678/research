@@ -1,5 +1,13 @@
 # FP-BOUND-002/003 勘误与修复：`L12M` 的浓度步不成立，改用切半协议 `L12S`
 
+> **⛔ WITHDRAWN 2026-09-14 (third-party review, FAIL).** `L12S` is **not a licensed bound**. The
+> split protects only the `k = 0` step: `V_0` is fixed given half A and `B ⊥ A`, so `T^B(V_0)` may
+> be concentrated, but `V_1` itself depends on B, so every later step applies Hoeffding to a
+> function computed from the same B — the `L12M` defect, entering one iteration later. Only
+> `n_iter = 1` is licensed; the runs used `n_iter = 12`. See
+> [`docs/derivations/FP-L12S-REVIEW-001-withdrawal.md`](../../../derivations/FP-L12S-REVIEW-001-withdrawal.md).
+> The **measurements** in this file stand; any "sound/licensed" characterisation of `L12S` does not.
+
 - 日期：2026-09-13
 - 触发：独立审计（用户，2026-09-13）第 1 条与第 2 条
 - 影响范围：`FP-BOUND-002`、`FP-BOUND-003`、`FP-ITER-BOUND-001`、`FP-ITER-BOUND-002`、`FP-NET-BOUND-001` 中一切引用 `L12M` 的数字
@@ -83,3 +91,4 @@ E[Z] − (1/n)Σ Z_i ≤ sqrt(2 V_n(Z) ln(2/δ)/n) + 7 ln(2/δ) / (3(n−1))    
   - `FP-NET-BOUND-001` 的**生产者一致性**结论：网络与 numpy 在同一证书下逐格一致，这是两个生产者之间的比较，与证书用哪一个臂无关；
   - `frozen`/`L1`/`L12`/`L123` 的逐对覆盖检查（`240/240`）与风险账务。
 - **下一步（按用户给的优先级）**：把 `L12S(f=0.9, p=0.05)` 接入迭代与网络格重跑；做一轮新环境族的预注册比较；证明闭合后再谈维度与 horizon。
+

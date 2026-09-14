@@ -1,5 +1,13 @@
 # FP-RERUN-001 first result: the sound arm is dominated by the free one — the propagation lever closes
 
+> **⛔ WITHDRAWN 2026-09-14 (third-party review, FAIL).** `L12S` is **not a licensed bound**. The
+> split protects only the `k = 0` step: `V_0` is fixed given half A and `B ⊥ A`, so `T^B(V_0)` may
+> be concentrated, but `V_1` itself depends on B, so every later step applies Hoeffding to a
+> function computed from the same B — the `L12M` defect, entering one iteration later. Only
+> `n_iter = 1` is licensed; the runs used `n_iter = 12`. See
+> [`docs/derivations/FP-L12S-REVIEW-001-withdrawal.md`](../../../derivations/FP-L12S-REVIEW-001-withdrawal.md).
+> The **measurements** in this file stand; any "sound/licensed" characterisation of `L12S` does not.
+
 Date: 2026-09-13.
 Branch: `claude/FP-CENSUS-001`. Baseline: `b2c39a0`.
 Actor: Claude, under the user's direct instruction of 2026-09-13 ("好去做"), executing item 3 of the
@@ -131,3 +139,4 @@ and re-derives the certificate, the decision, the exact values and the cost fiel
 `C1` is the load-bearing one: the network's output reproduces the sealed values **bit for bit**, so the
 replay is of the same computation and not merely of a similar one. `C6` is new and covers the repaired
 arm's configuration, which the withdrawal made necessary.
+

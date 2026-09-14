@@ -1,5 +1,13 @@
 # FP-XRULE-002 first result: under the per-state rule the certified iteration has no stopping point within 12 steps
 
+> **⛔ WITHDRAWN 2026-09-14 (third-party review, FAIL).** `L12S` is **not a licensed bound**. The
+> split protects only the `k = 0` step: `V_0` is fixed given half A and `B ⊥ A`, so `T^B(V_0)` may
+> be concentrated, but `V_1` itself depends on B, so every later step applies Hoeffding to a
+> function computed from the same B — the `L12M` defect, entering one iteration later. Only
+> `n_iter = 1` is licensed; the runs used `n_iter = 12`. See
+> [`docs/derivations/FP-L12S-REVIEW-001-withdrawal.md`](../../../derivations/FP-L12S-REVIEW-001-withdrawal.md).
+> The **measurements** in this file stand; any "sound/licensed" characterisation of `L12S` does not.
+
 Date: 2026-09-13.
 Branch: `claude/FP-CENSUS-001`. Baseline: `583bcaa`.
 Actor: Claude, under the user's direct instruction of 2026-09-13 ("继续").
@@ -135,3 +143,4 @@ difference between 25 and 100 minutes).
 The `states_updated` figures quoted in §3 come from the bundle rather than from the replay; they are
 consistent with the replayed `min_lb` in every step, since a state is updated exactly when its row has a
 strictly positive lower bound.
+

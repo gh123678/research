@@ -1,5 +1,13 @@
 # FP-XRULE-001 first result: both levers transfer to two new MDP families — and they are substitutes, not complements
 
+> **⛔ WITHDRAWN 2026-09-14 (third-party review, FAIL).** `L12S` is **not a licensed bound**. The
+> split protects only the `k = 0` step: `V_0` is fixed given half A and `B ⊥ A`, so `T^B(V_0)` may
+> be concentrated, but `V_1` itself depends on B, so every later step applies Hoeffding to a
+> function computed from the same B — the `L12M` defect, entering one iteration later. Only
+> `n_iter = 1` is licensed; the runs used `n_iter = 12`. See
+> [`docs/derivations/FP-L12S-REVIEW-001-withdrawal.md`](../../../derivations/FP-L12S-REVIEW-001-withdrawal.md).
+> The **measurements** in this file stand; any "sound/licensed" characterisation of `L12S` does not.
+
 Date: 2026-09-13.
 Branch: `claude/FP-CENSUS-001`. Baseline: `3dfa1e9`.
 Actor: Claude, under the user's direct instruction of 2026-09-13 ("好的去做"), executing item 3 of the
@@ -137,3 +145,4 @@ batch, and re-derives the certificate, the **rule's own decision** (both branche
 | `C3` value deltas recomputed along the replayed chain | `0` degradations, max `\|Δ\|` `0.0` |
 | `C4` sealed totals incl. `simulated_steps`, `items_if_run_alone`, `stopped_at` | `0` mismatches |
 | `C5` the `L12S` cells ran the registered configuration, halves sum, risk sums to `δ_k` | `0` mismatches |
+
