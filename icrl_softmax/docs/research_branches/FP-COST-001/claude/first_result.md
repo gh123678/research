@@ -117,10 +117,24 @@ Together with `H2` (the `16,384` rung reproducing FP-XRULE-002's `conj|frozen` b
 population), the lower rung is fully verified and the higher rungs are verified on a quarter of the
 population.
 
-**Stage 2 (in flight): full replay of the `65,536` and `131,072` rungs**, all `48` records per family.
-It re-draws the same `10.2e9` items and is the only remaining item on this task. Until it lands, §2's
-higher-rung aggregates are **as recorded by the evaluator, checked on 25% of the population**, and the
-report says so rather than implying full verification.
+**Stage 2 (complete): full replay of every rung over the whole population**, all `48` records per
+family at the `65,536` and `131,072` rungs as well — **`2,446` replayed steps** over `2,446` batch draws,
+re-drawing the same `10.2e9` items:
+
+| check | stage 1 (subset) | stage 2 (full) |
+|---|---|---|
+| `C1` emission and `min_lb` reproduced | `0` mismatches | `0` mismatches |
+| `C2` `E_Q ≥` realized `‖Q̂−Q^π‖∞` | `0` violations | `0` violations |
+| `C3` value deltas recomputed, non-degradation re-checked | `0` degradations | `0` degradations |
+| `C4` sealed totals incl. `simulated_steps`, `items_if_run_alone`, `stopped_at` | `0` mismatches | `0` mismatches |
+| `C5` each step used its cell's own chain count | `0` mismatches | `0` mismatches |
+| **`failure_count`** | **`0`** | **`0`** |
+
+**Every measurement in §2 is now replayed end to end on the full population.** What that buys is
+bounded and worth stating precisely: the *recorded numbers* are reproducible from the sealed bundle by
+an independent replay of the decision chain. It does **not** upgrade the §3 correction — the review's
+objection there was about what the numbers *entitle me to claim*, and that narrowing stands regardless
+of how completely the numbers reproduce.
 
 ## 7. What this establishes, and what it does not
 
