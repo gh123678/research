@@ -4,7 +4,8 @@
 - 日期：2026-09-14
 - 任务单：`docs/research_tasks/FP-COMPOSE-001.md` v1，基线 `d175379`
 - 前置条件：本验证在 `first_result.md` **封存之后**才开始（封存提交 `629d4fa`，
-  `first_result.md` SHA256(LF) = `95b1baa491afdc6d7851439d03a13e1b825199ad2c05f51b7acc8156aff33a04`），
+  `first_result.md` 封存版 SHA256(LF) = `95b1baa491afdc6d7851439d03a13e1b825199ad2c05f51b7acc8156aff33a04`；
+  该文件此后追加了 §8 封存后修订记录，只涉及我自己的 §6 诊断工具，见下），
   满足任务单 §8 与 AGENTS §五的盲态要求。
 
 ## 结论

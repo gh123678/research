@@ -60,9 +60,9 @@ def mp_q_pi(P, R, policy, gamma):
             row = s * A + a
             acc = mp.mpf(0)
             for sp in range(S):
+                acc += P[s][a][sp] * R[s][a][sp]
                 for ap in range(A):
                     M[row, sp * A + ap] = -gamma * P[s][a][sp] * policy[sp][ap]
-                    acc += P[s][a][sp] * R[s][a][sp]
             M[row, row] += 1
             rhs[row, 0] = acc
     sol = mp.lu_solve(M, rhs)
