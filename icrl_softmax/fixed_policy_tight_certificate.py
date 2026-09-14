@@ -128,14 +128,16 @@ def support_range(
     return (hi - lo).reshape(-1)
 
 
-def successor_counts(batch: dict[str, Any], d: int, n_states: int = N_STATES) -> np.ndarray:
+def successor_counts(
+    batch: dict[str, Any], d: int, n_states: int = N_STATES, n_actions: int = N_ACTIONS
+) -> np.ndarray:
     """Per-pair successor histogram ``C[x, s'] = #{i in pair x : s'_i = s'}``.
 
     A sufficient statistic of the batch for every propagation estimate below: the
     same iid draws of ``s' ~ P(.|s,a)`` that produced the residuals also estimate
     ``E_{s'~P(.|s,a)}[f(s')]`` for ANY ``f``, with no kernel.
     """
-    flat = np.asarray(batch["states"], dtype=np.int64) * N_ACTIONS + np.asarray(
+    flat = np.asarray(batch["states"], dtype=np.int64) * int(n_actions) + np.asarray(
         batch["actions"], dtype=np.int64
     )
     nxt = np.asarray(batch["next_states"], dtype=np.int64)
@@ -276,7 +278,7 @@ def split_sample_certificate(
     q = np.asarray(q_hat, dtype=np.float64)
     pi = np.asarray(policy, dtype=np.float64)
     residuals = _residuals(q, pi, batch, gamma=gamma)
-    flat = np.asarray(batch["states"], dtype=np.int64) * N_ACTIONS + np.asarray(
+    flat = np.asarray(batch["states"], dtype=np.int64) * int(n_actions) + np.asarray(
         batch["actions"], dtype=np.int64
     )
     nxt = np.asarray(batch["next_states"], dtype=np.int64)
@@ -426,8 +428,8 @@ def _guards(q_hat: Any, *, reward_bound: float, gamma: float) -> list[str]:
     return []
 
 
-def _pair_slices(batch: dict[str, Any], d: int) -> dict[int, np.ndarray]:
-    flat = np.asarray(batch["states"], dtype=np.int64) * N_ACTIONS + np.asarray(
+def _pair_slices(batch: dict[str, Any], d: int, n_actions: int = N_ACTIONS) -> dict[int, np.ndarray]:
+    flat = np.asarray(batch["states"], dtype=np.int64) * int(n_actions) + np.asarray(
         batch["actions"], dtype=np.int64
     )
     return {pair: np.flatnonzero(flat == pair) for pair in range(d)}
@@ -486,7 +488,7 @@ def certificate(
     q = np.asarray(q_hat, dtype=np.float64)
     pi = np.asarray(policy, dtype=np.float64)
     residuals = _residuals(q, pi, batch, gamma=gamma)
-    groups = _pair_slices(batch, d)
+    groups = _pair_slices(batch, d, int(n_actions))
     sizes = np.array([groups[p].size for p in range(d)], dtype=np.int64)
     if int(sizes.min()) < int(min_visits):
         reasons = reasons + ["heldout_pair_support_missing"]
@@ -569,7 +571,7 @@ def certificate(
     elif lever == "L12M":
         # Model-free: the propagation is estimated from the batch's own successor
         # draws, so half the risk budget is reserved for those estimates.
-        cnt = successor_counts(batch, d, n_states=int(n_states))
+        cnt = successor_counts(batch, d, n_states=int(n_states), n_actions=int(n_actions))
         delta_prop = float(delta_prop_fraction) * float(delta_step)
         prop = propagation_data_driven(
             eps,
