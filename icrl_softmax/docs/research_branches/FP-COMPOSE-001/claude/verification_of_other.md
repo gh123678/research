@@ -73,4 +73,14 @@
 
 ---
 
-**终行判定：`NOT PERFORMED (BLOCKED: the codex route has produced no artefacts)`**
+## 后续：用户裁决豁免（2026-09-14）
+
+本文件写出后，用户裁定采用**选项 A：豁免本次交叉验证**，FP-COMPOSE-001 据此记为
+`VERIFIED`（依据 AGENTS §七的例外条款），并**要求把"仅单侧证据"写进结论而非抹掉**。
+裁决全文与限制条件见 `user_ruling_verification_waiver.md`。
+
+**本文件的判定不变**：交叉验证**确实没有发生**，上面列出的缺口**依然存在**。
+豁免改变的是任务的**验收状态**，不是**已发生的事实**。
+
+**终行判定：`NOT PERFORMED (BLOCKED: the codex route has produced no artefacts)` — 经用户 2026-09-14 裁决豁免；
+任务按例外条款记为 `VERIFIED`，并携带"仅单侧证据、无独立作者验证"的限制。**

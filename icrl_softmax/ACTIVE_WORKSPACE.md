@@ -79,9 +79,11 @@
 >
 > **方向选择（我的建议：先走方向一）**：把分别成立的三段**接成一个明确、可复核的有限结论**，比扩维度或延长轨迹更有价值。冻结内容见对照表 §4：有限主张 = 在已测环境与协议下 `network × perstate × L12` 的每步 `E_Q ≥` 网络自身实测误差、逐分量不退化、并报数据量与墙钟；**明确不主张**一般等成本优势、后段收益为零或非零、跨精度跨种子稳定性、网络自身完成认证；`K` **由问题决定，不先认定 `K≈6`**。方向二（找新发现）则须先写清"当前生成器之外哪一种变化可能让按状态规则失效、为何值得研究"，再登记实验。
 
-> ## 🧩 2026-09-14 方向一已执行：FP-COMPOSE-001 的 `network × perstate × L12` 接缝（**初步结果，未 VERIFIED**）
+> ## 🧩 2026-09-14 方向一已执行：FP-COMPOSE-001 的 `network × perstate × L12` 接缝（**用户豁免交叉验证后记 `VERIFIED`**）
 >
 > 任务单 [`FP-COMPOSE-001`](docs/research_tasks/FP-COMPOSE-001.md) v1，基线 `d175379`；Claude 分支 `claude/FP-COMPOSE-001`，封存提交 `629d4fa`（首次结果），代码提交 `f57db67`。这是**承接上面证据对照表"方向一"的那次接缝验证**，不是新发现实验。
+>
+> **有限结论草案**（Claude 起草，**待 GPT 采纳为正式结论**）：[`finite_conclusion_draft.md`](docs/research_branches/FP-COMPOSE-001/claude/finite_conclusion_draft.md)。证据对照表 ② 行已同步修订（原"三项组合从未运行过"已登记为**已补齐**），**其余各行未放宽**。
 >
 > **我这一侧已交付**：理论门禁 T1–T5 **全 PASS**（[premise_audit](docs/research_branches/FP-COMPOSE-001/claude/premise_audit.md)）；正式矩阵 96/96 记录、25.3 min、exit 0；[first_result](docs/research_branches/FP-COMPOSE-001/claude/first_result.md) 已封存；C1 同执行者复现 **PASS**。
 >
@@ -95,7 +97,9 @@
 > - **成本（仅记录）**：配对真实抽取 384 批 / `402,653,184` 项；若各格单独运行 `1,610,612,736` 项；网络前向 768 次 —— 三个数字与任务单 §9 的上界逐位吻合。**不主张等成本优势。**
 > - **机制描述（不构成收益主张）**：7680 个状态-行里 **1038 行（13.5%）** 在 K=4 内从未满足 `LB_s>0` 而保持不动，但每格每步仍至少更新一行；若改用合取规则，这些行会在该步**让整格停止**。
 >
-> **⚠️ 本任务的独立验证被阻塞，不得写成已验证**：对方 `codex/FP-COMPOSE-001` 工作树仍在**基线 `d175379`**，无 `premise_audit.md` / `evaluate.py` / `results/FP-COMPOSE-001/codex/formal/` / `first_result.md` 中的**任何一个**，因此 [verification_of_other](docs/research_branches/FP-COMPOSE-001/claude/verification_of_other.md) 记录为 **`NOT PERFORMED (BLOCKED)`**，**没有**给出 PASS/FAIL/OBJECTION。按 AGENTS §九，FP-COMPOSE-001 记为 **`ACTIVE`（我这一侧已交付，等对方路线与双向验证）**；我这一侧全部结果保持**初步结果**。
+> **⚠️ 本任务的交叉验证没有发生，且不得写成发生过**：对方 `codex/FP-COMPOSE-001` 工作树仍在**基线 `d175379`**，无 `premise_audit.md` / `evaluate.py` / `results/FP-COMPOSE-001/codex/formal/` / `first_result.md` 中的**任何一个**，因此 [verification_of_other](docs/research_branches/FP-COMPOSE-001/claude/verification_of_other.md) 记录为 **`NOT PERFORMED (BLOCKED)`**，**没有**给出 PASS/FAIL/OBJECTION。
+>
+> **用户已于 2026-09-14 裁决采用选项 A：豁免本次交叉验证**（裁决全文与限制条件：[`user_ruling_verification_waiver.md`](docs/research_branches/FP-COMPOSE-001/claude/user_ruling_verification_waiver.md)）。据此本任务按 AGENTS §七的**例外条款**记为 **`VERIFIED`**，**但该状态永远附带限制**：**只有一位作者的路线**；存在的是 C1 同执行者复现与另写核的独立重算，**不是独立作者的验证**；能抓算术/实现错误，**抓不到共同的 conceptual 错误**。**注意：任务单文件本身仍显示 `ACTIVE`**——按 AGENTS §一/§四，任务定义的修订只能由 GPT 进行，我不修改它；待 GPT 可用时把裁决写入任务单 §11 并发布修订版。**本裁决只豁免这一个任务，不是合并 `main` 的批准，也不豁免任何已撤回的保证。**
 >
 > **封存前自查抓到的两个实现缺陷（已修，记录在案）**：① `analyze.py` 用"生产者名"作键展开格，导致第二条路线**覆盖**第一条——`expected_exact` 从未被审计，两组路线均值在 12 位小数上相同；修复后最小价值增量由 `0.004015` 更正为 **`0.002863`**，总体闭合率由 `[0.3404,0.5974,0.7436,0.8144]` 更正为 `[0.3394,0.5964,0.7431,0.8147]`。**封存数据不受影响**（两条路线都正确落盘）。② network 格的"同策略额外 numpy 审计"被计入生产者墙钟，违反 §9 单列要求。两次正式尝试因此中止并**原样保留**在 `formal_aborted_*/`（交付格式与协议守卫缺陷，**不是科学失败**）。
 >
