@@ -276,17 +276,25 @@
 > **`main` 未动**（本地 = `origin/main` = `c1e03dd`）。推的是**新增分支引用**，不是合并，按 AGENTS §六无需批准。
 > 意义：**`results/` 被 Git 忽略**，远端同步的只有代码与文档——此前这些只存在于本机。
 >
-> ### 📌 新登记的缺口（下一条候选任务，**不在本任务范围内**）
+> ### 📌 `model.py` 实现审计（`FP-MODEL-REVIEW-001`，已完成；不升级原任务状态）
 >
-> **没有任何人审过 `model.py` 的实现本身**（不是它的输出，而是它**是否真的算它 docstring 声称的东西**）。
-> 两条路线**都调用** `model.py`，因为 T4 冻结要求"实际调用 `model.py`"，所以实现内部的错误**对双方同时不可见**。
-> - **不影响组合主张**："对这个网络，这条链成立"——无论 `model.py` 算什么，它都是关于**实际那个网络**的陈述。
-> - **但打穿了另一类主张**：任何形如"**一个 masked-softmax Expected-SARSA 注意力网络**能做到 X"的说法。
->   若 `model.py` 并不实现其 docstring 声称的算法，**主问题里"网络"那一半就是关于一个未被界定的对象**。
-> - 这是一个**独立、可命名**的任务（网络实现对照规格审计），我已按"不顺手塞进已收口任务"的建议单列。
-> - **我在这个分析里自己错了两次**（都已记录在输出里）：① 硬编码 `κ=0.114` 而**同一脚本已测出 0.438/0.299**，
->   于是预测"`d=12`/`d=24` 支持度已失效"——封存 `n_min` 11,464/7,432 直接反驳；
->   ② 直接按半径公式绝对预测 `E_Q`，**漏掉"对 `d` 个对取最大"与 `|mean|` 项**，偏低约 1.5×，已改为锚定实测值只外推比值。
+> 报告：[`model_spec_audit.md`](docs/research_branches/FP-MODEL-REVIEW-001/claude/model_spec_audit.md)；
+> 程序：`model_spec_audit.py`；机器结果：`results/FP-MODEL-REVIEW-001/model_spec_audit.json`。
+>
+> **结论：有效输入下 PASS，但带 API 边界。**
+> - 既有 `verify_fixed_policy_expected_sarsa.py`：**13,550 checks PASS**。
+> - 新增随机/边界审计：**721/721 PASS**，60 个 fixture（float64/float32、多维度、随机与强制未访问 pair）。
+> - masked/finite 端到端输出均与纯 NumPy 参考路线一致；singleton retrieval、exact write-back、finite 三处 softmax、
+>   未访问 null/leakage、attention 归一化均通过；两类实现无参数、空 `state_dict`。
+> - **API 契约缺口**：非法 policy（未归一化、含 0、含负值）当前会被接受并输出；这不影响有效概率 policy，
+>   但应在入口拒绝或明确写成调用方前置条件。
+> - **数值边界**：sharpness `8/50/100/500` 有限；`1000` 在 `math.exp(tau)` 抛 `OverflowError`。
+>   任务配置 `8,8,8` 不受影响；这是通用 API 鲁棒性缺口。
+> - **设备边界未测**：CUDA 不可用；源码中 index tensor 只 `.long()`、未显式移动到 `q_values.device`，
+>   混合 device 可能报错，尚未做 GPU 结论。
+>
+> **审计边界**：这是实现与本地纯 NumPy 参考的一致性审计，**不是从论文规格独立重写网络**；
+> 不能排除参考路线与 `model.py` 共享的概念错误。**它补的是实现层，不升级 FP-COMPOSE-002 的 `VERIFIED` 状态。**
 
 > ## ⛔ 2026-09-14 第三方审阅 FAIL：**`L12S` 的保证声明撤回，证书修复未通过**
 >
