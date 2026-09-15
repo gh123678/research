@@ -1,0 +1,63 @@
+[
+  {
+    "kind": "cost",
+    "family": "f1",
+    "chains": 65536,
+    "mixing": 0.08,
+    "task_index": 200,
+    "route": "expected_exact",
+    "steps": 11,
+    "max_eq_error": 5.551115123125783e-17,
+    "max_value_error": 1.3322676295501878e-15,
+    "decision_mismatches": 0,
+    "seconds": 9.988132953643799
+  },
+  {
+    "kind": "cost",
+    "family": "f1",
+    "chains": 131072,
+    "mixing": 0.08,
+    "task_index": 200,
+    "route": "expected_exact",
+    "steps": 12,
+    "max_eq_error": 2.7755575615628914e-17,
+    "max_value_error": 1.3322676295501878e-15,
+    "decision_mismatches": 0,
+    "seconds": 18.025760889053345
+  },
+  {
+    "kind": "cost",
+    "family": "f2",
+    "chains": 65536,
+    "mixing": 0.2,
+    "task_index": 300,
+    "route": "expected_exact",
+    "steps": 12,
+    "max_eq_error": 5.551115123125783e-17,
+    "max_value_error": 0.0,
+    "decision_mismatches": 0,
+    "seconds": 9.732012271881104
+  },
+  {
+    "kind": "network",
+    "family": "f1",
+    "mixing": 0.08,
+    "task_index": 200,
+    "steps": 16,
+    "max_q_error": 0.0,
+    "max_eq_error": 5.551115123125783e-17,
+    "decision_mismatches": 0,
+    "seconds": 17.817191123962402
+  },
+  {
+    "kind": "network",
+    "family": "f2",
+    "mixing": 0.2,
+    "task_index": 300,
+    "steps": 16,
+    "max_q_error": 0.0,
+    "max_eq_error": 5.551115123125783e-17,
+    "decision_mismatches": 0,
+    "seconds": 11.820006132125854
+  }
+]
