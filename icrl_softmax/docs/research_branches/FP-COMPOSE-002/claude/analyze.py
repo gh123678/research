@@ -233,21 +233,43 @@ def main() -> None:
     mean_by_step = arr.mean(axis=0).tolist()
     increments = [mean_by_step[0]] + [mean_by_step[i] - mean_by_step[i - 1]
                                       for i in range(1, horizon)]
-    tail = float(mean_by_step[horizon - 1] - mean_by_step[4])      # k=5..12 growth
-    tail_6_12 = float(mean_by_step[horizon - 1] - mean_by_step[5])  # k=6..12 contribution
+
+    # Index discipline. mean_by_step[i] is the curve value AFTER step i+1, so the
+    # contribution of steps a..b is mean_by_step[b-1] - mean_by_step[a-2] (with a-2 < 0
+    # meaning 0, i.e. measured from the start). An earlier version wrote the labels one
+    # step too low: it called mean[-1]-mean[4] "steps 5..12" when that difference is
+    # exactly the contribution of steps 6..12. Caught by an external review.
+    def contrib(a, b):
+        lo = mean_by_step[a - 2] if a >= 2 else 0.0
+        return float(mean_by_step[b - 1] - lo)
+
+    tail_6_12 = contrib(6, horizon)
+    tail_5_12 = contrib(5, horizon)
+    share_cumulative_positive = (arr > 0).mean(axis=0).tolist()
+    # per-STEP increment positivity -- a different and stricter statement than the
+    # cumulative one, which is trivially 1.0 once anything is positive. An earlier version
+    # reported the cumulative share while the text claimed every step gained.
+    inc_pos = (np.diff(np.concatenate([np.zeros((arr.shape[0], 1)), arr], axis=1),
+                       axis=1) > 0).mean(axis=0).tolist()
+    inc_count = (np.diff(np.concatenate([np.zeros((arr.shape[0], 1)), arr], axis=1),
+                         axis=1) > 0).sum(axis=0).tolist()
     out["H3"] = {
         "denominator": int(arr.shape[0]),
         "mean_closure_by_step": mean_by_step,
         "per_step_increment": increments,
         "tail_contribution_k6_to_k12_points": tail_6_12 * 100.0,
-        "tail_contribution_k5_to_k12_points": tail * 100.0,
-        "share_positive_by_step": (arr > 0).mean(axis=0).tolist(),
+        "tail_contribution_k5_to_k12_points": tail_5_12 * 100.0,
+        "share_cumulative_positive_by_step": share_cumulative_positive,
+        "share_with_positive_STEP_increment_by_step": inc_pos,
+        "count_with_positive_STEP_increment_by_step": inc_count,
         "share_at_ceiling_by_step": (arr >= 1 - 1e-9).mean(axis=0).tolist(),
         "verdict": ("non-negligible" if tail_6_12 * 100.0 >= 2.0
                     else "negligible" if tail_6_12 * 100.0 < 1.0 else "inconclusive"),
         "note": ("fixed denominator over all route-records, stopped trajectories hold their "
                  "last value, no rows dropped. Descriptive only; no convergence rate is "
-                 "claimed and no equal-cost advantage is implied."),
+                 "claimed and no equal-cost advantage is implied. The CUMULATIVE share stays "
+                 "1.0 by construction once any gain exists; the per-STEP share is the "
+                 "stricter statistic and is the one to quote."),
     }
 
     # ---------------- H4: producer correspondence ---------------- #
@@ -304,6 +326,9 @@ def main() -> None:
                       "cells_total": out["H2"]["cells_total"],
                       "first_stop_step_min": out["H2"]["first_stop_step_min"],
                       "tail_k6_12_points": out["H3"]["tail_contribution_k6_to_k12_points"],
+                      "tail_k5_12_points": out["H3"]["tail_contribution_k5_to_k12_points"],
+                      "positive_step_increment_counts":
+                          out["H3"]["count_with_positive_STEP_increment_by_step"],
                       "mean_closure_by_step": [round(x, 4) for x in
                                                out["H3"]["mean_closure_by_step"]]},
                      indent=2))
