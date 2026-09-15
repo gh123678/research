@@ -1,0 +1,22 @@
+{
+  "codex": {
+    "head": "16ee0f652cde56b4f2ef6e3f1a43b58818bb0108",
+    "files": {
+      "model.py": "99303c0b00d12a29262c0b33431a041cc8d70dfb367b57f358b065e78d976ff2",
+      "fixed_policy_expected_sarsa.py": "ebea85c455c8c2eb62fcf0ccdf93ce3e3b005b105b58198721ed0e0d181d8ea0",
+      "fixed_policy_expected_sarsa_scaled.py": "21e177c27a91e75f06eb7c11349fc940bee454632e0bc286b9c609ed94cd5ad8"
+    },
+    "tracked_diff": "",
+    "first_result_sha256": "1a3dd3e1b0d5b62de5f440f5c1e2ef6b0dd7bf245b6fe5545a60cfbd8760fe49"
+  },
+  "claude": {
+    "head": "16ee0f652cde56b4f2ef6e3f1a43b58818bb0108",
+    "files": {
+      "model.py": "99303c0b00d12a29262c0b33431a041cc8d70dfb367b57f358b065e78d976ff2",
+      "fixed_policy_expected_sarsa.py": "ebea85c455c8c2eb62fcf0ccdf93ce3e3b005b105b58198721ed0e0d181d8ea0",
+      "fixed_policy_expected_sarsa_scaled.py": "21e177c27a91e75f06eb7c11349fc940bee454632e0bc286b9c609ed94cd5ad8"
+    },
+    "tracked_diff": "",
+    "first_result_sha256": "72e3d57046097f3507cccd36bf8b39cca51396d3788288e86b285ce575d159a9"
+  }
+}

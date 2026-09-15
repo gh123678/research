@@ -1,0 +1,20 @@
+主人，女仆已经把最后的不一致处修好了。
+
+**本次改动**
+
+`response_to_review.md` 中两处指向旧编号的交叉引用已改为 `§3.3`（对应 v2 中新建的"本地指涉"小节）：
+
+- 处置表 "P2 — paper referent over-resolved" 行的 `§0-R4; §3.3, §8-F1, §9`
+- 该条的 Repair 段落：`a new §3.3 establishing the local referent with line-level evidence`
+
+已回读 `first_result_v2.md` 确认全文编号自洽：`## 3` 为外部论文与本地指涉，`### 3.3` 正是本地 Theorem 3.1 的血缘考证；`§7.1/§7.2` 各 12 维（第 11 维 α/N vs α/n_x，第 12 维 memory/TSM），`§8-F3` 为撤回后的替代界（共同 Expected 目标 + 显式前提，标注为手推未执行），`§8-F4` 撤回两处软max 绝对化断言，`§8-F5` 含精确残差 vs 有限泄漏不动点告警。
+
+**状态**：GPT 六项要求全部接受并修复（R1–R7），另有 R8 为主人指定补入的三项显式差异；未发现与原始文献矛盾的 GPT 断言，故未制造争议，仅记录三条精度说明。原始 `first_result.md` 与 `verification.md` 未改动；无任务定义变更、无代码/模型修改、无实验、无 push/merge。
+
+**交付路径**
+
+- 修复版报告：`C:/Users/Admin/Desktop/research/icrl_softmax/results/FP-SPEC-REVIEW-001/claude_worktree/icrl_softmax/docs/research_branches/FP-SPEC-REVIEW-001/claude/first_result_v2.md`
+- 逐条答复：`C:/Users/Admin/Desktop/research/icrl_softmax/results/FP-SPEC-REVIEW-001/claude_worktree/icrl_softmax/docs/research_branches/FP-SPEC-REVIEW-001/claude/response_to_review.md`
+- 保留原件：同目录 `first_result.md`（v1，SHA256 `72e3d570…d159a9`）、`verification.md`
+
+女仆本会话 shell 不可用（`EPERM`），未计算任何哈希，也未曾编造；v2 的传输/完整性哈希留待 GPT 的补充步骤。

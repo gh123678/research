@@ -1,5 +1,15 @@
 # 当前研究状态
 
+> ## 2026-09-15 规格对应审查 FP-SPEC-REVIEW-001：VERIFIED（仅本审查）
+>
+> [任务单](docs/research_tasks/FP-SPEC-REVIEW-001.md)；[最终审查报告](docs/research_branches/FP-SPEC-REVIEW-001/codex/final_synthesis.md)。GPT 与实际 Claude Code 从同一基线分别导出／比对原文算子，首次结果封存后交叉复核，修订后双向 PASS。
+>
+> **当前两个 Expected-SARSA 实现有明确本地规格，但不是 Xie／Liang–Lai 原网络的直接复现。** 本地 sampled-SARSA 结构经 FP-ESARSA-001 扩展为固定策略 Expected 后继及无 gate 有限版。有限 writer 的 one-hot 内积核是 Xie score 形式的特例，不能据此继承完整架构或收敛定理。
+>
+> **措辞边界**：可称“本仓库构造的固定策略 Expected-SARSA 注意力算子实现”，区分精确路由版／有限-logit 近似版。精确动作期望头直接构造策略权重，与合法输入下的 masked log-softmax 代数等价，但没有实际调用该 softmax。`model.py` 的“论文 Theorem 3.1”可定位到本地构造定理，裸引用含糊；不能认作外部同号定理。证书和策略更新在网络外部。
+>
+> 不改模型，不重跑封存实验；FP-COMPOSE-001/002 的状态与结论边界不变。此前“网络未被界定”的说法现收紧为：**实现／本地算子已界定，外部论文原网络身份不成立**。本审查未重新证明外部论文全部定理、构造完整 Transformer 图或验证可学习性／CUDA。Claude 无法运行 shell，报告指纹由 GPT 补充核对，独立验证为原文读取与手算；不伪称双路线实验复现。
+
 > ## ✅ 2026-09-14 第二轮审阅（FP-SURVIVOR-REVIEW-001）：三项**实质判定 PASS**，表述三处须改
 >
 > 审阅（基线 `325140b`，另一方独立执行，未启动依赖 `L12S` 的新实验、未做任何新传播尝试）判定：
