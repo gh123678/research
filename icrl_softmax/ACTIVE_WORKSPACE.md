@@ -10,11 +10,11 @@
 >
 > 不改模型，不重跑封存实验；FP-COMPOSE-001/002 的状态与结论边界不变。此前“网络未被界定”的说法现收紧为：**实现／本地算子已界定，外部论文原网络身份不成立**。本审查未重新证明外部论文全部定理、构造完整 Transformer 图或验证可学习性／CUDA。Claude 无法运行 shell，报告指纹由 GPT 补充核对，独立验证为原文读取与手算；不伪称双路线实验复现。
 
-> ## 2026-09-15 GPT 补审 FP-COMPOSE-REVIEW-003（本隔离工作区）
+> ## 2026-09-15 GPT 补审 FP-COMPOSE-REVIEW-003：VERIFIED（仅本审查，本隔离工作区）
 >
 > 用户指出上一轮未重采样/重跑网络、未审定理、未复算扩维数字、未确认远端。任务单见 docs/research_tasks/FP-COMPOSE-REVIEW-003.md。
 > 独立 T1–T5/单侧界/条件性不退化重证已写入 docs/research_branches/FP-COMPOSE-REVIEW-003/codex/theory_review.md：理想采样与实数协议限定下 PASS；远端 G 查询已完成并存档 remote_heads.txt/remote_review.md。全量 R 已完成：96/96 记录、1136 批、4534 步、2267 网络前向，独立重放 PASS；完整限制与分层结论见 final_report.md。
-> Claude 只读预审的 O1/O2 已由用户“批准”具体修订解除；GPT 发布任务 v1.1，状态 ACTIVE。全量 R 重放与 D 扩维算术现在获准执行；作者模块采用目录级导入禁令，兼核001前四步；不升级任何原任务 VERIFIED。
+> Claude 只读预审的 O1/O2 已由用户“批准”具体修订解除；GPT 已按 v1.1 完成全量 R 重放与 D 扩维算术，作者模块采用目录级导入禁令，兼核001前四步。实际 Claude Code 已对完整最终产物交叉检查并给出 `PASS`（原始输出：`docs/research_branches/FP-COMPOSE-REVIEW-003/codex/claude_final_cross_review.json`）；任务据此为 `VERIFIED`。该结论仅验证本补审的限定发现，**不升级** FP-COMPOSE-001/002 为 VERIFIED。
 
 
 > ## ✅ 2026-09-14 第二轮审阅（FP-SURVIVOR-REVIEW-001）：三项**实质判定 PASS**，表述三处须改
