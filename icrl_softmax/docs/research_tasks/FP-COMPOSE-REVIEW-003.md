@@ -1,6 +1,6 @@
 # FP-COMPOSE-REVIEW-003：补齐定理、全量输入/网络重放、扩维算术与远端核查
 
-- 起草：GPT；日期 2026-09-15；v1.1；状态 VERIFYING（执行完成，等待 Claude 对完整最终产物的交叉检查）。
+- 起草：GPT；日期 2026-09-15；v1.1；状态 VERIFIED（GPT 执行完成，Claude 对完整最终产物交叉检查 PASS）。
 - 基线：bcec1fe（正式执行前记录完整哈希）；审查对象 FP-COMPOSE-001/002 现存 Claude 产物。
 - 用户直接要求补齐上一轮四个缺口；这是对既有封存结果的事后独立验证，不是新的盲态发现实验。GPT 已读过作者结果，不得声称盲态。
 
@@ -44,3 +44,9 @@ Claude 登录/额度/权限不可用则记录阻塞并通知用户；不以 Code
 2026-09-15：T、R、D 算术及 G 已按 v1.1 完成；完整命令、来源哈希、异常记录和逐层判定均已存入 `docs/research_branches/FP-COMPOSE-REVIEW-003/codex/` 与 `results/FP-COMPOSE-REVIEW-003/codex/`，最终分层结论见 `final_report.md`。其中扩维推论为 FAIL，已据此撤回越界表述；该 FAIL 不改变本任务定义，故任务依法从 ACTIVE 进入 VERIFYING。
 
 在 Claude 针对**完整** R 结果、最终报告和撤回边界给出可检查的 PASS／FAIL／OBJECTION 前，本任务不得标记 VERIFIED。即使本审查本身最终通过，也不得自动升级 FP-COMPOSE-001 或 FP-COMPOSE-002 为 VERIFIED。
+
+## Claude 最终交叉检查与收束
+
+2026-09-15：在用户明确授权的只读外部审查中，实际 Claude Code 对完整产物给出 **PASS**，无 OBJECTION。原始 stdout 已逐字归档为 `docs/research_branches/FP-COMPOSE-REVIEW-003/codex/claude_final_cross_review.json`（SHA256 `fd824f1816992228cead897e58890db9d07bad6cdac1b244b2173f0de89bf0aa`）。其逐层结论为 T PASS、R PASS、D 算术 PASS、D 推论对“扩维外推 FAIL”之撤回 PASS、G PASS；并明确本次是对 GPT 补审的交叉检查，不能升级 FP-COMPOSE-001/002。
+
+Claude 记录的非阻断保留包括：`theory_review.md` 的三处时效/措辞、R 结果缺机器可读 limitation 字段、共享模块哈希的事后记录、严格 `>1e-10` 重放闸的假阴性风险、001/002 共有错误盲区，以及 Claude 未能亲自重算 SHA256／读取宿主封存包原件／查询远端。这些均已披露或限定，未改变验收判定。GPT 复核该 PASS 与冻结任务的短任务分工一致，故本审查任务从 VERIFYING 收束为 VERIFIED；原任务状态保持不变。
