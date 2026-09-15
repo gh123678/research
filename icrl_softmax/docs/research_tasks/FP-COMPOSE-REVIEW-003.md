@@ -50,3 +50,7 @@ Claude 登录/额度/权限不可用则记录阻塞并通知用户；不以 Code
 2026-09-15：在用户明确授权的只读外部审查中，实际 Claude Code 对完整产物给出 **PASS**，无 OBJECTION。原始 stdout 已逐字归档为 `docs/research_branches/FP-COMPOSE-REVIEW-003/codex/claude_final_cross_review.json`（SHA256 `fd824f1816992228cead897e58890db9d07bad6cdac1b244b2173f0de89bf0aa`）。其逐层结论为 T PASS、R PASS、D 算术 PASS、D 推论对“扩维外推 FAIL”之撤回 PASS、G PASS；并明确本次是对 GPT 补审的交叉检查，不能升级 FP-COMPOSE-001/002。
 
 Claude 记录的非阻断保留包括：`theory_review.md` 的三处时效/措辞、R 结果缺机器可读 limitation 字段、共享模块哈希的事后记录、严格 `>1e-10` 重放闸的假阴性风险、001/002 共有错误盲区，以及 Claude 未能亲自重算 SHA256／读取宿主封存包原件／查询远端。这些均已披露或限定，未改变验收判定。GPT 复核该 PASS 与冻结任务的短任务分工一致，故本审查任务从 VERIFYING 收束为 VERIFIED；原任务状态保持不变。
+
+## 补充审计脚本归档（不改变结论）
+
+2026-09-16：为清理宿主工作树，三个曾位于 `icrl_softmax/tmp/` 的只读核对脚本原样副本归档至 `docs/research_branches/FP-COMPOSE-REVIEW-003/codex/supplemental_audits/`。它们是事后诊断辅助材料，不是冻结执行器、独立验证路线或新增验收证据，故不改变本任务的状态与结论：`quantify_range_looseness.py`（SHA256 `e89fa1748ee9be064f8605d3585e966b2760be9a665e3eb26b0f8006aab7929c`）、`tail_delta_distribution.py`（`bd0bfabb4b24b2b899a3f4907cfc60fcceee7beb7ef7bbbdd4ca47d254b8cf2`）和 `verify_review_claims.py`（`43587c7b865f44eb2cdccc97d3635fa09d34beb2c9ffee108dd93a47a4c455fa`）。
