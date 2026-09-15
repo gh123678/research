@@ -1,0 +1,85 @@
+{
+  "baseline": "05f59890f9d00e3de831beea1c13431a5fa11d17",
+  "record_routes": 48,
+  "cells": {
+    "numpy|frozen": {
+      "emitted": 36,
+      "gain_mean": 1.7340969748863992,
+      "items": 88080384,
+      "truncated_items": 88080384,
+      "truncated_emitted": 36,
+      "truncated_gain_mean": 1.7340969748863992,
+      "coverage_flags_failed": 0
+    },
+    "numpy|L12": {
+      "emitted": 66,
+      "gain_mean": 2.3770509703876406,
+      "items": 119537664,
+      "truncated_items": 87031808,
+      "truncated_emitted": 49,
+      "truncated_gain_mean": 2.117549528991839,
+      "coverage_flags_failed": 0
+    },
+    "numpy|L12S": {
+      "emitted": 60,
+      "gain_mean": 2.2589780830462565,
+      "items": 113246208,
+      "truncated_items": 85983232,
+      "truncated_emitted": 43,
+      "truncated_gain_mean": 1.93020248918131,
+      "coverage_flags_failed": 0
+    },
+    "numpy|L123": {
+      "emitted": 110,
+      "gain_mean": 2.9561584376718515,
+      "items": 165675008,
+      "truncated_items": 88080384,
+      "truncated_emitted": 55,
+      "truncated_gain_mean": 2.3727682051501557,
+      "coverage_flags_failed": 0
+    },
+    "network|frozen": {
+      "emitted": 36,
+      "gain_mean": 1.7340968200901445,
+      "items": 88080384,
+      "truncated_items": 88080384,
+      "truncated_emitted": 36,
+      "truncated_gain_mean": 1.7340968200901445,
+      "coverage_flags_failed": 0
+    },
+    "network|L12": {
+      "emitted": 66,
+      "gain_mean": 2.3770509067315255,
+      "items": 119537664,
+      "truncated_items": 87031808,
+      "truncated_emitted": 49,
+      "truncated_gain_mean": 2.1175494249062377,
+      "coverage_flags_failed": 0
+    },
+    "network|L12S": {
+      "emitted": 60,
+      "gain_mean": 2.2589779422762963,
+      "items": 113246208,
+      "truncated_items": 85983232,
+      "truncated_emitted": 43,
+      "truncated_gain_mean": 1.9302023421659475,
+      "coverage_flags_failed": 0
+    },
+    "network|L123": {
+      "emitted": 110,
+      "gain_mean": 2.9561584505099976,
+      "items": 165675008,
+      "truncated_items": 88080384,
+      "truncated_emitted": 55,
+      "truncated_gain_mean": 2.3727681562329876,
+      "coverage_flags_failed": 0
+    }
+  },
+  "hashes": {
+    "docs/derivations/FP-BOUND-002-l12m-withdrawal-and-split-repair.md": "6f76f7297bce464d59ab6e25ca5d798c3a23cf1352ce6dff14f95f5f3f05b321",
+    "docs/research_tasks/FP-RERUN-001.md": "c87af397b49745b2ca00b0fb4b0faf659eeaa27f0efbb9e45ef5a6f155f92993",
+    "docs/research_branches/FP-RERUN-001/claude/first_result.md": "c7e27be98cdf978ba80b875e9a56b1b46c9ef4ba73b4a0c22d8df6c81d5edf3d",
+    "fixed_policy_tight_certificate.py": "57bfce52b37bdf0e58fd14e0cbab5e10d937d92a8b8f36e5798f30bca9ed3b7d",
+    "results/FP-RERUN-001/claude/fresh_K16/task_results.json": "5c6e5c0887fbb2f33391095981513d0e98d983a562f88d3fb95d093eaee1d7f8"
+  }
+}
