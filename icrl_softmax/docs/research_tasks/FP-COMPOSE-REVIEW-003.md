@@ -1,6 +1,6 @@
 # FP-COMPOSE-REVIEW-003：补齐定理、全量输入/网络重放、扩维算术与远端核查
 
-- 起草：GPT；日期 2026-09-15；v1.1；状态 ACTIVE（用户批准具体修订，O1/O2 已裁决解除）。
+- 起草：GPT；日期 2026-09-15；v1.1；状态 VERIFYING（执行完成，等待 Claude 对完整最终产物的交叉检查）。
 - 基线：bcec1fe（正式执行前记录完整哈希）；审查对象 FP-COMPOSE-001/002 现存 Claude 产物。
 - 用户直接要求补齐上一轮四个缺口；这是对既有封存结果的事后独立验证，不是新的盲态发现实验。GPT 已读过作者结果，不得声称盲态。
 
@@ -38,3 +38,9 @@ Claude 登录/额度/权限不可用则记录阻塞并通知用户；不以 Code
 3. 默认 6 线程。若单/6线程桥接差>1e-9则必须回到6线程；后续单线程差异也不能直接豁免。可以全程6线程。
 4. 增补 dimension_scaling.json/md 源哈希，执行前冻结本任务单、代码哈希与命令。Claude 最后检查为对 GPT 审阅的交叉检查，不是对原 Claude 实验的独立佐证。
 其余冻结协议与资源上限不变。不修改原作者代码，不合并 main。
+
+## 执行完成与验证门槛
+
+2026-09-15：T、R、D 算术及 G 已按 v1.1 完成；完整命令、来源哈希、异常记录和逐层判定均已存入 `docs/research_branches/FP-COMPOSE-REVIEW-003/codex/` 与 `results/FP-COMPOSE-REVIEW-003/codex/`，最终分层结论见 `final_report.md`。其中扩维推论为 FAIL，已据此撤回越界表述；该 FAIL 不改变本任务定义，故任务依法从 ACTIVE 进入 VERIFYING。
+
+在 Claude 针对**完整** R 结果、最终报告和撤回边界给出可检查的 PASS／FAIL／OBJECTION 前，本任务不得标记 VERIFIED。即使本审查本身最终通过，也不得自动升级 FP-COMPOSE-001 或 FP-COMPOSE-002 为 VERIFIED。
