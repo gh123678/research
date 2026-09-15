@@ -1,0 +1,10 @@
+Done. Two files written; no existing reports were touched.
+
+**`.../claude_worktree/icrl_softmax/docs/research_branches/FP-SPEC-REVIEW-001/claude/final_report.md`** — self-contained, ~2,300 words, supersedes `first_result_v1/v2` (both preserved). §1 corrects the three identified errors and withdraws the replacement bound:
+- **C-A**: with common α, `Δ_impl = (N/n_x)·Δ_Liang`; at `n_x = N/m` the factor is `m`, not 1. Equality only if `n_x = N` (or `S_x = 0`); balance-matching needs the explicit `α_local = α_global/m` convention.
+- **C-B**: at finite τ, `W^τ = e^τ/(n_x e^τ+N−n_x)` on matches and `1/(n_x e^τ+N−n_x)` on each non-match; the `α/n_x` mean is only the τ→∞ limit (or the `n_x = N` case).
+- **C-C**: finite current-read residual is `γ/2 − 1/(e^ξ+1)`; only the exact Expected residual is `γ/2`. The limit contradiction refutes the blanket transfer; it does not refute any bound at every finite parameter. Overstatement removed.
+- **C-D**: F3's replacement bound withdrawn (its δ-bound did not cover the residual being bounded).
+Carries all 10 frozen dimensions plus the 2 added ones for both classes and the helper, with equations, page/equation and code-line citations, findings F1–F7, terminology, and limitations.
+
+**`.../claude/.../claude/verification_v2.md`** — check of Codex `first_result_v2.md` and `response_to_review.md`: C1–C4 and N1–N3 resolved; the new one-hot kernel sentence confirmed against Xie eqs. (9)/(12) and p. 5 text as an exact instance of the score form (kernel-family claim only, correctly bounded), with two non-blocking precision notes. Verdict: **PASS**.

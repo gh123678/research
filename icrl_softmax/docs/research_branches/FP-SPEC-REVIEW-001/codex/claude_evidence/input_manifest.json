@@ -1,0 +1,46 @@
+[
+  {
+    "path": "C:\\Users\\Admin\\Desktop\\research\\icrl_softmax\\papers\\Xie_2026_beyond_linear_attention.pdf",
+    "sha256": "04aef63b86239100c0ec836e6105486db125a4b4ec1dbfdbc0138bfc2f9647d3",
+    "pages": 28,
+    "metadata": {
+      "format": "PDF 1.7",
+      "title": "Beyond Linear Attention: Softmax Transformers Implement In-Context Reinforcement Learning",
+      "author": "Zixuan Xie; Xinyu Liu; Claire Chen; Shuze Daniel Liu; Rohan Chandra; Shangtong Zhang",
+      "subject": "",
+      "keywords": "",
+      "creator": "arXiv GenPDF (tex2pdf:a6404ea)",
+      "producer": "pikepdf 8.15.1",
+      "creationDate": "",
+      "modDate": "",
+      "trapped": "",
+      "encryption": null
+    },
+    "extracted_text": "C:\\Users\\Admin\\Desktop\\research\\icrl_softmax\\results\\FP-SPEC-REVIEW-001\\input\\Xie_2026_beyond_linear_attention.txt",
+    "text_sha256": "9026158eef03b6d5c8bd83f0742a99f30aa882b63c0d7e2cbbc220e7941134f7",
+    "printed_arxiv_version": "arXiv:2605.07333v2  [cs.LG]  17 May 2026",
+    "pdf_hash_rechecked": true
+  },
+  {
+    "path": "C:\\Users\\Admin\\Desktop\\research\\icrl_softmax\\papers\\Liang_Lai_2026_linear_attention_policy_improvement.pdf",
+    "sha256": "6f579b4fdc818d493350878ba042bba6ae324d8631c8ed9a8341298c4eed7f9b",
+    "pages": 25,
+    "metadata": {
+      "format": "PDF 1.7",
+      "title": "Transformers Provably Implement In-Context Reinforcement Learning with Policy Improvement",
+      "author": "Haodong Liang; Lifeng Lai",
+      "subject": "",
+      "keywords": "",
+      "creator": "arXiv GenPDF (tex2pdf:a6404ea)",
+      "producer": "pikepdf 8.15.1",
+      "creationDate": "",
+      "modDate": "",
+      "trapped": "",
+      "encryption": null
+    },
+    "extracted_text": "C:\\Users\\Admin\\Desktop\\research\\icrl_softmax\\results\\FP-SPEC-REVIEW-001\\input\\Liang_Lai_2026_linear_attention_policy_improvement.txt",
+    "text_sha256": "bf254437a04af611d531b4f706a4d4093674684c6d15351880f5d67cb0ccbe52",
+    "printed_arxiv_version": "arXiv:2605.05755v1  [stat.ML]  7 May 2026",
+    "pdf_hash_rechecked": true
+  }
+]

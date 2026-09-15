@@ -1,0 +1,16 @@
+Verification written. Summary of what I found:
+
+**Verdict: PASS** (no objection, no FAIL).
+
+Checked independently against the frozen task, the frozen page-indexed paper texts, the local construction manuscript, the FP-ESARSA-001 contract, and `model.py` at the baseline:
+
+- **Equations (§4 of Codex's report): correct.** I re-derived both operators from the code. The exact route's `A_cur`/`A_exp`/`1/n_x` writer/null-token rule matches `model.py:960–971`, `888–915`, `990`, `992–1011`. The finite route's three matrices match `model.py:1065–1086`, including the successor denominator `e^ζ+S−1` (which follows from policy-row normalisation), the requested masses, and the `n_x=0 ⇒ W=1/N` fact that blocks `τ→∞` convergence on unvisited pairs.
+- **Hand counterexample: correct.** Recomputed from scratch: reads `1/(e^ξ+1)`, `e^ξ/(e^ξ+1)`; residuals `∓1/(e^ξ+1)`; updates `±α(e^τ−1)/[(e^τ+1)(e^ξ+1)]`. `Q*` is a fixed point of the exact operator but not of the finite one at full coverage — and FP-ESARSA-001 anticipates exactly this.
+- **Paper citations: correct** for every claim I checked (Xie eqs. (1)–(4), (8)–(19), Thms 1–2, Assumption 5.1, pp. 3–7; Liang–Lai eqs. (1), (2), (4), (5), Thm 3.1, Algorithm 1, pp. 2–5). `evaluate.py:151/180/220/375` are exact.
+- **One point where Codex is better supported than my own sealed report.** Codex resolves the docstring's "论文 Theorem 3.1" to the *local* construction manuscript, not an external paper. The evidence is decisive: `model.py:633` refers to a "论文声明的 visited-query gate", which exists only in the manuscript's §7; and the manuscript's 定理 3.1 is exactly the structured equality-mask construction, while Liang–Lai's Theorem 3.1 has no softmax and hence no mask. My route's `first_result.md` F1/F2 stopped at "does not resolve" — I recorded this divergence rather than editing the sealed report.
+
+**Defects recorded (all documentary, none affects a conclusion).** Three code-line ranges are imprecise: "952–965 … singleton softmax" (softmax is at 970), "979–985 … forms the signed residual" (residual is at 990), "987–1008 … adds one synchronous update" (the add is at 1009–1011); plus a range overrunning the file end, table rows not using the task's four required classification labels, and a duplicated/undefined `P1`/`P2` severity scale.
+
+**Path:** `C:/Users/Admin/Desktop/research/icrl_softmax/results/FP-SPEC-REVIEW-001/claude_worktree/icrl_softmax/docs/research_branches/FP-SPEC-REVIEW-001/claude/verification.md`
+
+**Hash: not computed — and I will not guess one.** The Bash tool aborted on every invocation this session, before the command ran (`EPERM: operation not permitted, mkdir 'C:\Users\Admin\.claude\session-env\09d7ddd7-7699-4f69-88db-be30823bd3e1'`), including with the sandbox disabled, so no SHA256 of this file, of `model.py`, or of the two PDFs could be produced (the memory directory was equally unwritable). The same limitation cost me `git hash-object`, so Codex's quoted `model.py` blob hash `947542e…` stays unverified — I verified the cited code by reading both worktrees instead. Section 9 of the report states this explicitly and names what a reader with a working shell must re-derive.

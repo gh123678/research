@@ -1,0 +1,92 @@
+[
+  {
+    "source": "C:\\Users\\Admin\\Desktop\\research\\icrl_softmax\\results\\FP-SPEC-REVIEW-001\\claude_worktree\\icrl_softmax\\docs\\research_branches\\FP-SPEC-REVIEW-001\\claude\\first_result.md",
+    "archived": "claude_evidence\\first_result.md",
+    "sha256_raw": "72e3d57046097f3507cccd36bf8b39cca51396d3788288e86b285ce575d159a9",
+    "sha256_lf": "72e3d57046097f3507cccd36bf8b39cca51396d3788288e86b285ce575d159a9"
+  },
+  {
+    "source": "C:\\Users\\Admin\\Desktop\\research\\icrl_softmax\\results\\FP-SPEC-REVIEW-001\\claude_worktree\\icrl_softmax\\docs\\research_branches\\FP-SPEC-REVIEW-001\\claude\\first_result_v2.md",
+    "archived": "claude_evidence\\first_result_v2.md",
+    "sha256_raw": "68d9806ae4e55a6bd043ad1cab8fd7cb63c42bfe26ae93d3bcfec1be8e804026",
+    "sha256_lf": "68d9806ae4e55a6bd043ad1cab8fd7cb63c42bfe26ae93d3bcfec1be8e804026"
+  },
+  {
+    "source": "C:\\Users\\Admin\\Desktop\\research\\icrl_softmax\\results\\FP-SPEC-REVIEW-001\\claude_worktree\\icrl_softmax\\docs\\research_branches\\FP-SPEC-REVIEW-001\\claude\\response_to_review.md",
+    "archived": "claude_evidence\\response_to_review.md",
+    "sha256_raw": "60112b8512cb672411694678183e7cf77165cbf541298508b5816cee0e69fc10",
+    "sha256_lf": "60112b8512cb672411694678183e7cf77165cbf541298508b5816cee0e69fc10"
+  },
+  {
+    "source": "C:\\Users\\Admin\\Desktop\\research\\icrl_softmax\\results\\FP-SPEC-REVIEW-001\\claude_worktree\\icrl_softmax\\docs\\research_branches\\FP-SPEC-REVIEW-001\\claude\\final_report.md",
+    "archived": "claude_evidence\\final_report.md",
+    "sha256_raw": "d52a83e293241516c5c5b5966c7b57bbbc074c9e2e6477689e3e6611a52c6da9",
+    "sha256_lf": "d52a83e293241516c5c5b5966c7b57bbbc074c9e2e6477689e3e6611a52c6da9"
+  },
+  {
+    "source": "C:\\Users\\Admin\\Desktop\\research\\icrl_softmax\\results\\FP-SPEC-REVIEW-001\\claude_worktree\\icrl_softmax\\docs\\research_branches\\FP-SPEC-REVIEW-001\\claude\\verification.md",
+    "archived": "claude_evidence\\verification.md",
+    "sha256_raw": "1329053258b4d4effe399e52f6e88151d79e138b635be7e19d27db99f85d9bc2",
+    "sha256_lf": "1329053258b4d4effe399e52f6e88151d79e138b635be7e19d27db99f85d9bc2"
+  },
+  {
+    "source": "C:\\Users\\Admin\\Desktop\\research\\icrl_softmax\\results\\FP-SPEC-REVIEW-001\\claude_worktree\\icrl_softmax\\docs\\research_branches\\FP-SPEC-REVIEW-001\\claude\\verification_v2.md",
+    "archived": "claude_evidence\\verification_v2.md",
+    "sha256_raw": "a5ff5f72f6ad83e99ae51493ade792fdd06a4880f3d0de969190144cbc587d25",
+    "sha256_lf": "a5ff5f72f6ad83e99ae51493ade792fdd06a4880f3d0de969190144cbc587d25"
+  },
+  {
+    "source": "C:\\Users\\Admin\\Desktop\\research\\icrl_softmax\\results\\FP-SPEC-REVIEW-001\\claude_worktree\\icrl_softmax\\results\\FP-SPEC-REVIEW-001\\claude\\evidence_and_commands.md",
+    "archived": "claude_evidence\\evidence_and_commands.md",
+    "sha256_raw": "600048d79ee78048674aae7c4389b724adc19e09bece0fd434c7b53dbdd7a196",
+    "sha256_lf": "600048d79ee78048674aae7c4389b724adc19e09bece0fd434c7b53dbdd7a196"
+  },
+  {
+    "source": "C:\\Users\\Admin\\Desktop\\research\\icrl_softmax\\results\\FP-SPEC-REVIEW-001\\input\\pre_review.txt",
+    "archived": "claude_evidence\\input_pre_review.txt",
+    "sha256_raw": "2c5f82f46500499cd11a2ac5f506345108c74d81872bbf787ca9295c72ef4474",
+    "sha256_lf": "2c5f82f46500499cd11a2ac5f506345108c74d81872bbf787ca9295c72ef4474"
+  },
+  {
+    "source": "C:\\Users\\Admin\\Desktop\\research\\icrl_softmax\\results\\FP-SPEC-REVIEW-001\\input\\pre_review_retry.txt",
+    "archived": "claude_evidence\\input_pre_review_retry.txt",
+    "sha256_raw": "6cf0d2a74d48c3c23fccb1876116a4e45697ec554eea94be6d24972c5e6f176b",
+    "sha256_lf": "6cf0d2a74d48c3c23fccb1876116a4e45697ec554eea94be6d24972c5e6f176b"
+  },
+  {
+    "source": "C:\\Users\\Admin\\Desktop\\research\\icrl_softmax\\results\\FP-SPEC-REVIEW-001\\input\\claude_independent_execution.txt",
+    "archived": "claude_evidence\\input_claude_independent_execution.txt",
+    "sha256_raw": "7d8dcb20cb9aad7c78db4a6aff7b26dc940761b6a0a8eaa60734facfb267a9cb",
+    "sha256_lf": "7d8dcb20cb9aad7c78db4a6aff7b26dc940761b6a0a8eaa60734facfb267a9cb"
+  },
+  {
+    "source": "C:\\Users\\Admin\\Desktop\\research\\icrl_softmax\\results\\FP-SPEC-REVIEW-001\\input\\claude_cross_review.txt",
+    "archived": "claude_evidence\\input_claude_cross_review.txt",
+    "sha256_raw": "e00579f2debfb73256265770589d23facd120b68f6ac479ec3235fe6e92bee74",
+    "sha256_lf": "e00579f2debfb73256265770589d23facd120b68f6ac479ec3235fe6e92bee74"
+  },
+  {
+    "source": "C:\\Users\\Admin\\Desktop\\research\\icrl_softmax\\results\\FP-SPEC-REVIEW-001\\input\\claude_revision.txt",
+    "archived": "claude_evidence\\input_claude_revision.txt",
+    "sha256_raw": "455f5b949187c41e049ada29262fb431337da15e941b0891b2e9836dfb075916",
+    "sha256_lf": "455f5b949187c41e049ada29262fb431337da15e941b0891b2e9836dfb075916"
+  },
+  {
+    "source": "C:\\Users\\Admin\\Desktop\\research\\icrl_softmax\\results\\FP-SPEC-REVIEW-001\\input\\claude_final_revision_review.txt",
+    "archived": "claude_evidence\\input_claude_final_revision_review.txt",
+    "sha256_raw": "246aa1afd472675d9e2066de1f45d904a33efe75674ab2014e85a1cd694e0201",
+    "sha256_lf": "246aa1afd472675d9e2066de1f45d904a33efe75674ab2014e85a1cd694e0201"
+  },
+  {
+    "source": "C:\\Users\\Admin\\Desktop\\research\\icrl_softmax\\results\\FP-SPEC-REVIEW-001\\input\\manifest.json",
+    "archived": "claude_evidence\\input_manifest.json",
+    "sha256_raw": "d97d5f43b7f8f72ce0caf28473362e21db5de736db185e518d6e0a3349f23780",
+    "sha256_lf": "4b58537c45dd1623e62f262077b77be6d143f48accd765502564aeace0daf919"
+  },
+  {
+    "source": "C:\\Users\\Admin\\Desktop\\research\\icrl_softmax\\results\\FP-SPEC-REVIEW-001\\codex_worktree\\icrl_softmax\\results\\FP-SPEC-REVIEW-001\\codex\\integrity_crosscheck.json",
+    "archived": "integrity_crosscheck.json",
+    "sha256_raw": "6b9c2800d541b30dbbda96fb8377ef06170db3b8da983e81dc089dd540388e47",
+    "sha256_lf": "541e9b66b4dd4b27a4246f9632c0d1b12aef8a3b0e8fd560256eb005e838c4b8"
+  }
+]

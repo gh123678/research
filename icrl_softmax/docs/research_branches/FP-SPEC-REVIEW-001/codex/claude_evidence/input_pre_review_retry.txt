@@ -1,0 +1,52 @@
+Read-only pre-review complete. Verdict and checklist below.
+
+---
+
+# Pre-review — FP-SPEC-REVIEW-001 (read-only)
+
+**Conduct.** Read-only throughout; nothing written, edited, committed, or executed. Documents examined: `AGENTS.md`, `icrl_softmax/ACTIVE_WORKSPACE.md`, `FP-SPEC-REVIEW-001.md` (read from `codex_worktree` as directed; it is not present on `claude/FP-SPEC-REVIEW-001`), and `input/manifest.json`. I did **not** read any Codex/GPT result or conclusion artifact, and did not perform the correspondence analysis. `model.py` was opened only to confirm that the classes named in the task resolve at the baseline.
+
+**Verdict: APPROVED** — no task-level defects. Activation prerequisites are listed in §C; they are pre-activation steps, not objections.
+
+## A. AGENTS §三 mandatory task-record elements
+
+| Required element | Status | Evidence in task record |
+|---|---|---|
+| Task id / state / date / baseline | present | `FP-SPEC-REVIEW-001`; `REVIEW`; 2026-09-15; baseline `16ee0f6` — matches current branch HEAD |
+| Research question + falsifiable hypotheses | present | H1/H2/H3 (line 13), with explicit allowance that mismatch / justified adaptation / unresolved is an acceptable scientific result |
+| Inputs | present | frozen PDFs (line 17) + local sources at baseline (line 19) |
+| Evaluation protocol | present | 11 per-operator comparison dimensions (line 23) |
+| Allowed methods / prohibitions | present | algebra, source inspection, bounded hand examples allowed; no reruns, training, parameter changes, or edits to `model.py`/NumPy reference/sealed outputs (line 23) |
+| Deliverables and exact locations | present | `results/FP-SPEC-REVIEW-001/{codex\|claude}/` and `docs/research_branches/FP-SPEC-REVIEW-001/{codex\|claude}/first_result.md` (line 27) |
+| Acceptance criteria / failure basis / stop conditions | present | line 29 (acceptance, "missing evidence stays unresolved"); line 27 ("must not infer correspondence merely from numerical agreement"); line 37 (stop only for task-level objection) |
+| Estimated time and resources | present | 1–3 h, local reading/algebra, no GPU or paid service (line 37) |
+| Execution scope per actor | present | line 35 |
+| Verification each actor must perform | present | reciprocal `verification.md` ending PASS/FAIL/OBJECTION (line 31) |
+| Objection / user ruling / evidence record | present | lines 35, 37, 39–43 (handoff clause: see D2) |
+
+## B. Governance conformance
+
+- **§一/§四** — task drafted by GPT; Claude's role is pre-review then independent execution; no unilateral task changes. The task is in `REVIEW`, the correct pre-activation state.
+- **§五** — correctly classified as long (conclusion-critical independent construction) and structured for it: separate branches and result directories, and neither actor reads the other's conclusions before submitting its first result (lines 8, 21).
+- **§六** — branches `codex/…` and `claude/…` from the common baseline; per-actor output directories; no merge to main (line 31); commit-prefix convention observed in recent history.
+- **§七** — deliverables require code/source hashes, commands, failed retrievals, and a per-item acceptance judgement.
+- **Authorization** — line 5 records the user's instruction. Per your clarification, the absent `ACTIVE_WORKSPACE.md` index entry is a pending activation step and **not** an authorization gap; I have not treated it as a defect.
+
+## C. Activation prerequisites (discharge before `REVIEW → ACTIVE`)
+
+- **C1 — manifest page-indexed text.** Line 17 requires freezing the SHA256 **and** extracting page-indexed text into the common manifest before activation. `input/manifest.json` currently contains path, SHA256, page count, and embedded PDF metadata, but **no extracted text**. This is the one substantive gap between the task's own protocol and the artifact on disk; it is a pending pre-activation step, not a task-definition defect.
+- **C2 — byte-level input integrity not verified here.** I could not recompute the two SHA256 values or open the PDFs in this session: no shell/hashing facility is available, and both PDF reads failed with `EPERM: operation not permitted, mkdir …` — an environment permission error, not evidence of absence. **Recorded as a failed retrieval.** Recommend each actor recompute the two hashes and confirm the files resolve before its first result; any version discrepancy is reported unresolved per line 17.
+
+## D. Non-blocking observations
+
+- **D1 — version metadata.** Manifest metadata has empty `creationDate`/`modDate` and carries no arXiv version label (v1/v2). SHA256 pins the bytes, so silent replacement is detectable; actors should record the version as unresolved rather than infer it. Optionally add the arXiv version to the manifest.
+- **D2 — handoff clause.** The record has no explicit §八 handoff provision (line 35 covers only Claude-unavailable). At a 1–3 h budget §八 is unlikely to bind; an optional one-line addition would close the §三 checklist item literally.
+- **D3 — path anchor.** Deliverable paths are written relative to the repo content root (i.e. `<worktree>/icrl_softmax/results/FP-SPEC-REVIEW-001/<actor>/`). This is consistent with §六/§十; a one-line anchor would remove ambiguity.
+- **D4 — wording "both classes".** Line 19 lists three primary classes (`EndToEndMaskedSoftmaxExpectedSARSA`, `EndToEndFiniteSoftmaxExpectedSARSA`, `FixedPolicyActionExpectation`) while acceptance (line 29) says "both classes covered". Actors should treat the expectation head as part of the primary operator set; otherwise coverage of the successor term is ambiguous. Minor clarification only.
+- **D5 — failure criteria** are expressed indirectly (an unsupported correspondence fails; an accurate negative audit passes). Acceptable as written.
+
+## E. Input resolution confirmed
+
+`model.py` contains `EndToEndMaskedSoftmaxExpectedSARSA` (line 918), `EndToEndFiniteSoftmaxExpectedSARSA` (line 1027), and `FixedPolicyActionExpectation` (line 888), with helpers `_masked_singleton_retrieval` and `_validate_inputs`. `fixed_policy_expected_sarsa.py`, `fixed_policy_expected_sarsa_scaled.py`, `docs/research_tasks/FP-ESARSA-001.md`, `docs/research_tasks/FP-ATTN-001.md`, and `论文_草稿/端到端_softmax_SARSA_构造性证明.md` all resolve at the baseline.
+
+**No objection raised.** The task definition is complete and internally consistent with `AGENTS.md`; it may proceed to `ACTIVE` once C1 and C2 are discharged. I have not started the audit.
