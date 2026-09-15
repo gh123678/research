@@ -310,12 +310,17 @@
 > 只作为**未跟踪文件**存在于 `results/` 下（该目录被 Git 忽略）。已**逐字保留**入库（`09ba11f`），
 > 前后 SHA256(LF) 均为 `fa7b622b…`，**与封存输入清单记录一致**，故可验证为实验实际依据的同一版。
 >
-> **⚠️ 同类风险仍然存在（未处理，其他执行者的未提交工作）**：三处工作树里有**未提交**的审查成果——
-> `FP-L12S-REVIEW-001`、`FP-SURVIVOR-REVIEW-001` 各含**整份任务单 + 报告目录**（未跟踪）且改了索引，
-> `FP-SPEC-REVIEW-001/claude_worktree` 含 Claude 侧证据目录（未跟踪）。
-> **这些只存在于被忽略的 `results/` 下**，工作树一旦删除即不可恢复。
-> 按 AGENTS §六"不得把他人的未提交改动带入自己的提交"，**我未触碰它们**；
-> 若要保留，应由其作者提交，或经你指示由我在**其各自分支**上代为提交（不并入我的分支）。
+> **✅ 同类风险已处理（2026-09-15，用户指示后由 Claude 代为提交，内容一字未改）**：三处工作树的**未提交**审查成果已入库并推送——
+>
+> | 分支 | 提交 | 内容 |
+> |---|---|---|
+> | `codex/FP-L12S-REVIEW-001` | `e270a9e` | 任务单 + `claude/read_only_review.md` + `codex/{read_only_check,review_summary,statistics_check}` |
+> | `codex/FP-SURVIVOR-REVIEW-001` | `53408a5` | 任务单 + `claude/{cross_review,read_only_review}` + `codex/{review_report,first_independent_review,bounded_replay,check_survivors,independent_checks,environment}` |
+> | `claude/FP-SPEC-REVIEW-001` | `0446303` | Claude 侧 6 份：`first_result(_v2)`、`verification(_v2)`、`response_to_review`、`final_report` |
+>
+> 三条分支**均已推送并核对一致**（本地=远端）；三处工作树现为 **clean**。
+> `FP-SURVIVOR-REVIEW-001/codex/__pycache__/*.pyc` 属可复现构建产物、已被仓库 gitignore，**刻意未入库**。
+> 这两轮审查（`L12S` 撤回、幸存者三项 PASS）是索引里反复引用的依据，**此前只存在于被忽略的 `results/` 下**，现已脱离该风险。
 >
 > ### 📌 `model.py` 实现审计（`FP-MODEL-REVIEW-001`，已完成；不升级原任务状态）
 >
