@@ -325,6 +325,10 @@ v*：greedy 初值全 1/3；重复至多 1000 轮：
 `A_[TRAIN_LENGTH] = rng.choice(3, p=π[S[TRAIN_LENGTH]])`——这是**消费 RNG 的确定调用**（使环境 rng 流与基线一致；
 本流此后不再被使用，认证批另起独立流）。`Rew[TRAIN_LENGTH]` 保持占位 `0`，`S` 不再有后继。
 
+**`Rew` 的 dtype（起草期勘误，见 §14）**：`Rew` 是 **float32** 数组，`Rew[t+1] = R[...]` 的赋值先把 float64 的
+`R` 值舍入为 float32；返回时 `rewards` 再把 float32 值转回 float64。因此训练批的 `rewards` 携带 float32 舍入。
+（认证批的 `rewards` 直接以 float64 存储，不经 float32。）
+
 **存储字段**（长度均为 65536）：
 `states = S[0:65536]`；`actions = A_[0:65536]`；`rewards = Rew[1:65537]`；
 `next_states = S[1:65537]`；`next_actions = A_[1:65537]`。
@@ -487,3 +491,8 @@ eps_x = |mean_x| + radius_x；E_Q = max_x eps_x/(1−γ)
   η 网格约束可执行；基线哈希 `1da7162abb662142332eaf4493209f73f41fb5c4` 与当前 `main` 一致；工作树干净，未运行实验。
 - **据此进入 `ACTIVE`**。执行约束（不变）：**GPT 在 `codex/FP-INDEP-001` 执行自己的路线；Claude 路线保持隔离；
   双方各自封存首次结果并记录哈希后才能互读**。任何一方因额度不可用时不启动另一方代跑。
+- **起草期勘误（2026-09-15，实现起草阶段发现，先于任何运行）**：§10.4 初版未写明基线 `rollout` 把奖励存进
+  **float32** 数组再转回 float64——训练批 `rewards` 因此携带 float32 舍入（认证批的 rewards 不经 float32）。
+  这是**位级**细节，遗漏它会让 G2 的训练批哈希与 oracle 不符。已在 §10.4 补上，方向是**回到已获预审的意图**
+  （逐位复现 v2 输入），实质不变。**按 §一/§四 任务定义修订本属 GPT；GPT 额度不可用，此勘误须在其恢复后复核**——
+  若其不认可，本任务回到 `BLOCKED_BY_OBJECTION` 等裁决，不以既成事实推进。
