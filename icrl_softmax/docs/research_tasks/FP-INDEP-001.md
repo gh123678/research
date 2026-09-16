@@ -15,7 +15,7 @@
 - 任务编号：`FP-INDEP-001`
 - 版本：v1，2026-09-15
 - 状态：`REVIEW`（待非起草方预审；**在预审通过前不得执行**）
-- 代码基线：`1da7162b3fa3b343a3a146b61a0a2e9f6b20b0d5`（当前 `main`）
+- 代码基线：`1da7162abb662142332eaf4493209f73f41fb5c4`（当前 `main`）
 - 上游：`docs/2026-09-14-main-question-evidence-map.md`；`FP-COMPOSE-001`/`FP-COMPOSE-002` 的封存与 `FP-COMPOSE-REVIEW-003` 的独立审阅；`FP-SPEC-REVIEW-001` 的规格对应结论；`FP-EARLYSTOP-001` 的 v2 封存（引理 A' 协议）
 
 ## 1. 为什么是这个任务（动机与缺口）
