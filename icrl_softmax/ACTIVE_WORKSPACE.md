@@ -32,6 +32,14 @@
 > ④ 训练批 `A_[TRAIN_LENGTH]` 未定义 → 钉死末项抽取及其 RNG 消费语义；`next_actions` 全定义、入哈希但不被任何路线读取；
 > ⑤ "按 IEEE 位模式逐位比较 JSON number"不可复现 → 改为**规范序列化 + 封存往返完整性检查 + 解析后 float64 精确相等**。
 > **状态仍为 `REVIEW`**：v3 仍是起草者自修，**仍须非起草方重新预审**。
+>
+> **2026-09-15 第三轮预审 OBJECTION（仅剩 R1 统计维度缺口，成立）→ v4 已修订（`1cc65d4`）**：
+> 每条记录同时有 `numpy`/`network` 两生产者，而 R1 没冻结统计维度，且"路线"一词在 actor 与 algorithm 之间多义。
+> v4：§2 顶部新增**术语表**（actor / algorithm / arm / producer / record）并全文替换多义用法；
+> R1 改为**按 `(actor, producer)` 分格验收（4 格）、每格在自己的 48 条 `(environment, algorithm)` 记录上统计、
+> 明确不先合并 producer、不存在"取哪一个"**（两 producer 判决不同先由 R2 判 FALSIFIED）；
+> R3 明确只比对 **numpy producer**（v2 封存没有 network producer）。
+> **状态仍为 `REVIEW`**：v4 仍是起草者自修，**仍须非起草方重新预审**。
 
 > ## 2026-09-15 规格对应审查 FP-SPEC-REVIEW-001：VERIFIED（仅本审查）
 >
