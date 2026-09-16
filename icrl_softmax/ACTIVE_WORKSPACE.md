@@ -15,6 +15,14 @@
 > 关键设计（已定调）：numpy 原语可共享（视同 IEEE float64）；算法件各自从规格重写；
 > 基线模块只作参考 oracle、不进生产路径；复现对象用 frozen 包络证书（非 L12）；
 > 判决必须两路线逐位一致（不设容差），数值用冻结容差。
+>
+> **2026-09-15 预审 OBJECTION（五项阻断，全部成立）→ v2 已修订（`6d63e12`）**：
+> ① §10 非自足 → 网络算子全量内联（token 集合/softmax 轴/mask/null token/dtype/更新顺序）、§9 与 §6 自足化；
+> ② RNG 逐位缺口 → float32 转换时点、P0 归一化公式与 dtype、μ 末行方程、argmax 平局约定、Rew 索引语义、π 数组定义，逐字钉死；
+> ③ G2 不封闭 → 新增 §2.1 封闭决策树（终态四：`PASS`/`DEVIATION-BENIGN`/`DEVIATION-DECISION-IMPACT`/`SPEC-DEFECT`，后两者即 `BLOCKED_BY_OBJECTION`）；
+> ④ R3 的 `e_q` 未定义 → 新增 §6.1 字段/序列化对照表（`e_q` ≡ `E_Q`）；
+> ⑤ R1 语法歧义 → 显式 `count(...)` 计数 + 冻结 `1e-9` 平局容差。
+> **状态仍为 `REVIEW`**：v2 是起草者（我）自修，**仍须非起草方重新预审**；预审通过前不执行任何实验。
 
 > ## 2026-09-15 规格对应审查 FP-SPEC-REVIEW-001：VERIFIED（仅本审查）
 >
