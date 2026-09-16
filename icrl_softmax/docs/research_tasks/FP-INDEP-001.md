@@ -14,7 +14,7 @@
 
 - 任务编号：`FP-INDEP-001`
 - 版本：v4，2026-09-15（v1、v2、v3 各经预审 **OBJECTION**，本版逐项修复；记录见 §11–§13）
-- 状态：`REVIEW`（**修订后仍须非起草方重新预审；通过前不得执行**）
+- 状态：`ACTIVE`（**2026-09-15 第四轮预审 APPROVED**，见 §13；执行约束不变：两 actor 各自封存首次结果后方可互读）
 - 代码基线：`1da7162abb662142332eaf4493209f73f41fb5c4`（当前 `main`）
 - 上游：`FP-EARLYSTOP-001` v2 封存（引理 A' 协议，复现对象）；`FP-COMPOSE-REVIEW-003`（定理层复核）；`FP-SPEC-REVIEW-001`（网络算子的本地规格对应，VERIFIED 仅本审查）；证据对照表 `docs/2026-09-14-main-question-evidence-map.md`
 
@@ -478,3 +478,12 @@ eps_x = |mean_x| + radius_x；E_Q = max_x eps_x/(1−γ)
     P1/P2/P3/R2/X1 的"每路线"全部改为按四轴点名。
 - 2026-09-15：**预审缺口仍在**：起草方即 Claude；GPT 额度不可用。v4 须由 **GPT（恢复后）或用户**重新预审；
   通过前本任务单**不构成执行授权**，任务保持 `REVIEW`。
+
+## 14. 第四轮预审记录（v4 → APPROVED → ACTIVE）
+
+- 2026-09-15：**预审 APPROVED**（非起草方完成）。确认：术语轴 `actor × algorithm × arm × producer × record` 明确；
+  R1 按 `(actor, producer)` 四格独立验收、每格 48 条 `(environment, algorithm)` 记录；R2 承担 network/numpy 判决一致性；
+  R3 仅核对 numpy producer、与 v2 封存范围一致；§2.1 五终态无未定义归宿；§6.1 的 JSON 往返检查、float64 精确比较与
+  η 网格约束可执行；基线哈希 `1da7162abb662142332eaf4493209f73f41fb5c4` 与当前 `main` 一致；工作树干净，未运行实验。
+- **据此进入 `ACTIVE`**。执行约束（不变）：**GPT 在 `codex/FP-INDEP-001` 执行自己的路线；Claude 路线保持隔离；
+  双方各自封存首次结果并记录哈希后才能互读**。任何一方因额度不可用时不启动另一方代跑。
