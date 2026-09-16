@@ -13,7 +13,7 @@
 >   Claude **没有也绝不能**对自己的草案出具"预审通过"。
 
 - 任务编号：`FP-INDEP-001`
-- 版本：v2，2026-09-15（v1 经预审 **OBJECTION**，五项阻断，本版逐项修复；记录见 §11）
+- 版本：v3，2026-09-15（v1、v2 各经预审 **OBJECTION**，本版逐项修复；记录见 §11）
 - 状态：`REVIEW`（**修订后仍须非起草方重新预审；通过前不得执行**）
 - 代码基线：`1da7162abb662142332eaf4493209f73f41fb5c4`（当前 `main`）
 - 上游：`FP-EARLYSTOP-001` v2 封存（引理 A' 协议，复现对象）；`FP-COMPOSE-REVIEW-003`（定理层复核）；`FP-SPEC-REVIEW-001`（网络算子的本地规格对应，VERIFIED 仅本审查）；证据对照表 `docs/2026-09-14-main-question-evidence-map.md`
@@ -53,8 +53,9 @@ A 零发出 35 条中 C 救出 33 条）**至今只有单作者的实现路径**
   弃权原因序列**在两路线间**逐位一致**。判决是离散量，**必须逐位一致，不设容差**。
 - **P3（跨路线数值一致）**：numpy 路径 `|Δ| ≤ 1e-9`（绝对）；网络路径（float32）`|Δ| ≤ 1e-4`（绝对）；
   `E_Q` 差 ≤ `1e-9`。
-- **R1（限定结论复现，每路线各自；全部用显式计数）**：
-  - `count(C 闭合 − A 闭合)`：**均值差 ≥ 40 个百分点**；
+- **R1（限定结论复现，每路线各自；全部用显式计数/显式均值）**：
+  - **`mean(closure_C) − mean(closure_A) ≥ 0.40`**（`closure_x` 为该臂在 48 条记录上的 `fraction_gap_closed`；
+    均值按记录数取算术平均；`0.40` 为分数单位，即 40 个百分点。封存对照：`0.744 − 0.179 = 0.565`）；
   - `count(C 首步发出) ≥ 40` 且 `count(A 首步发出) ≤ 20` 且 `count(C 首步发出) ≥ 2 × count(A 首步发出)`；
   - `count(win(C,A)) ≥ 40`；`count(loss(C,A)) ≤ 2`；
   - `count(救出) ≥ 25`；
@@ -67,27 +68,41 @@ A 零发出 35 条中 C 救出 33 条）**至今只有单作者的实现路径**
   判决类字段**逐位一致**；`e_q`、`min_lb` 差 ≤ `1e-9`；臂级汇总（闭合、收益、初始量）差 ≤ `1e-6`。
 - **X1（最终交叉）**：两路线的结论表逐格一致（判决）或落在 P3 容差内（数值）。
 
-### 2.1 G2 的封闭决策树（预审第 3 条的修复）
+### 2.1 G2 的封闭决策树（预审第 3 条的修复；v3 补齐至全集）
 
-G2 发现某输入产物的 spec 哈希 ≠ oracle 哈希时，按以下顺序处理，**终态只有四种**：
+G2 发现某输入产物的 spec 哈希 ≠ oracle 哈希时，按下述顺序处理。**每一步都只走向五个终态之一，
+不存在"以上皆非"**：
 
-1. **定位**：先确定差异落在哪一类（环境 `P/R/p0/π` / 训练批 / 认证批 / 首访压缩）与第一个不同下标。
-2. **分类**：
-   - **(a) 仅浮点**：整数/下标字段完全相同，且浮点字段 `max|Δ| ≤ 1e-12`；
-   - **(b) 结构性**：任一整数/下标字段不同。
-3. **(a) 仅浮点分支**：双方各自用**两种**运算次序（规格钉死的次序、oracle 的次序）重算该产物。
-   - 若规格次序复现 spec 产物、oracle 次序复现 oracle 产物 → 差异是**运算次序**。
-     随后在**两套产物**上各跑完整判决链并比对**全部判决**：
-     - 判决完全一致 → 终态 **`G2-DEVIATION-BENIGN`**：生产继续用 spec 产物；差异按类与位置记录；
-       R3 还须**额外**在 oracle 产物跑出的判决上成立。
-     - 任一判决不同 → 终态 **`G2-DEVIATION-DECISION-IMPACT`**：复现目标歧义 → **`BLOCKED_BY_OBJECTION`**，
-       用户裁决（选项：修订 spec / 认 oracle 产物为准 / 放弃本任务）。
-   - 若规格次序**不能**复现 spec 产物（即规格文本对运算次序的钉死本身是错的或含糊的）→
-     终态 **`G2-SPEC-DEFECT`**：任务单有缺陷 → **`BLOCKED_BY_OBJECTION`**；**只能由 GPT 发布修订版**。
-4. **(b) 结构性分支**：规格的钉死调用序列无法复现 oracle → 终态 **`G2-SPEC-DEFECT`**，同上。
+**第 1 步：整数/下标字段是否全部一致？**
 
-**终态全集**：`G2-PASS` / `G2-DEVIATION-BENIGN` / `G2-DEVIATION-DECISION-IMPACT` / `G2-SPEC-DEFECT`。
-后两者**不进入生产运行**；`G2-DEVIATION-BENIGN` 允许继续但**必须**在报告中带偏差记录。
+- **任一整数/下标字段不同** → 终态 **`G2-SPEC-DEFECT`**（规格的钉死调用序列在结构上无法复现 oracle）。
+- **全部一致** → 第 2 步。
+
+**第 2 步：双序重算自检。** 双方各自用**两种**运算次序（规格钉死的次序、oracle 的次序）重算该产物：
+
+- 规格次序**不能**复现 spec 产物，**或** oracle 次序**不能**复现 oracle 产物
+  （含"两种次序都无法复现各自产物"的情形）→ 终态 **`G2-SPEC-DEFECT`**
+  （规格文本对运算次序的钉死是错的、含糊的，或不可实现）。
+- 两种次序各自复现各自产物 → 差异确属**运算次序**，进入第 3 步。
+
+**第 3 步：判决影响探针。** 在**两套产物**上各跑完整判决链（48 记录 × 3 臂 × 2 生产者的全部步），
+比对全部判决字段（`emitted`、`eta_selected`、`states_updated`、`ordered_reasons`）：
+
+- **任一判决不同** → 终态 **`G2-DEVIATION-DECISION-IMPACT`**（复现目标歧义 → `BLOCKED_BY_OBJECTION`，用户裁决）。
+- **全部判决一致** → 第 4 步。
+
+**第 4 步：浮点幅度分流。**
+
+- `max|Δ| ≤ 1e-12` → 终态 **`G2-DEVIATION-BENIGN-ROUNDING`**：生产继续用 spec 产物，记录偏差位置与幅度；
+  R3 照常对 v2 成立。
+- `max|Δ| > 1e-12` → 终态 **`G2-DEVIATION-BENIGN-MATERIAL`**：允许继续，但有三条强制要求——
+  ① 偏差位置与幅度必须写在报告**最前面**；② R3 的**数值**比对须改为：在 **oracle 产物**上重跑生产链，
+  其输出须与 v2 封存在容差内一致（这同时证明生产链本身无误）；③ 若该 oracle 产物重跑不满足 R3 →
+  转入终态 **`G2-SPEC-DEFECT`**。
+
+**终态全集（五态）**：`G2-PASS`、`G2-DEVIATION-BENIGN-ROUNDING`、`G2-DEVIATION-BENIGN-MATERIAL`、
+`G2-DEVIATION-DECISION-IMPACT`、`G2-SPEC-DEFECT`。后两者为 `BLOCKED_BY_OBJECTION`，不进入生产运行；
+两个 BENIGN 终态允许继续但都必须带偏差记录。
 **证据要求**：每个终态都要给出定位坐标、双序重算结果、（如适用）两套产物上的判决比对输出位置。
 
 ## 3. 冻结输入与评价协议
@@ -158,12 +173,22 @@ G2 发现某输入产物的 spec 哈希 ≠ oracle 哈希时，按以下顺序�
 
 v2 封存包每步字段与本任务的对应关系（**v2 的 `e_q` 就是 §10.8 的 `E_Q`**，JSON number，float64）：
 
+> **"逐位"的可复现定义（预审第 5 条的修复）**：JSON 文本本身不保证保留 IEEE-754 位模式，
+> 故本任务规定**规范序列化 + 封存完整性检查**：
+> - 封存时一律用**可完整往返的序列化**（Python `json.dumps` 的 float64 默认 repr 即满足；或用显式十六进制位模式）；
+> - 封存者在封存前必须运行**往返完整性检查**：把写出的 JSON 重新解析为 float64，
+>   确认每个浮点字段**按 float64 相等**于内存值（`parsed == original`，含 `-0.0` 与 NaN 的位级语义——本任务不产生这两者）；
+>   检查不通过则**不得封存**。
+> - 比对时"逐位"= 解析为 float64 后按 `==` 精确相等；`eta_selected` 的每个非 null 元素**必须**
+>   恰为冻结网格 `(1.0, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01)` 中的常数（网格常数本身按 float64 精确表示，
+>   比较时以网格常数判定，不做近似匹配）。
+
 | 字段 | 类型/序列化 | 比对方式 |
 |---|---|---|
-| `emitted` | JSON bool | **逐位** |
-| `eta_selected` | A/B 臂：JSON number 或 null；C 臂：长度 4 的 JSON 数组，元素 number 或 null | **逐位**（浮点按 IEEE 位模式） |
+| `emitted` | JSON bool | **逐位**（见下方"逐位"的可复现定义） |
+| `eta_selected` | A/B 臂：JSON number 或 null；C 臂：长度 4 的 JSON 数组，元素 number 或 null | **逐位** |
 | `states_updated` | JSON integer | **逐位** |
-| `ordered_reasons` | JSON 字符串数组，规范次序：证书原因按 `(divergence_guard_triggered, heldout_pair_support_missing, numerical_nonfinite, pair_count_mismatch)` 排序；证书通过而未发出时为 `["improvement_lcb_nonpositive"]`；发出时为 `[]` | **逐位** |
+| `ordered_reasons` | JSON 字符串数组；规范次序仅含本协议可产生的三种原因，按 `(divergence_guard_triggered, heldout_pair_support_missing, numerical_nonfinite)` 排序；证书通过而未发出时为 `["improvement_lcb_nonpositive"]`；发出时为 `[]`。**本协议不产生 `pair_count_mismatch`**（那是已废止的固定计数协议的原因）；若任何记录出现该字符串或其它未列原因 → **协议异常，停止该路线并记录** | **逐位** |
 | `min_pair_count_observed` | JSON integer | **逐位** |
 | `e_q` | JSON number（float64）或 null | `≤1e-9` |
 | `min_lb` | JSON number（发出时为 `min_s LB_s`；未发出时为 `0.0`） | `≤1e-9` |
@@ -275,10 +300,19 @@ v*：greedy 初值全 1/3；重复至多 1000 轮：
 每步 `a = rng.choice(3, p=π[s])`、`s' = rng.choice(4, p=P[s,a])`、`r = R[s,a,s']`。
 
 `rollout` 返回 `S, A_, Rew`（长度均为 `TRAIN_LENGTH+1`），其语义：
-`S[0]=start`；`Rew[0]=0` 为**占位**；对 `t ≥ 0`：`Rew[t+1] = R[S[t], A_[t], S[t+1]]`。
-**存储字段**：`states = S[0:65536]`；`actions = A_[0:65536]`；`rewards = Rew[1:65537]`；
+`S[0]=start`；`Rew[0]=0` 为**占位**；对 `t = 0..TRAIN_LENGTH−1`：
+`A_[t] = rng.choice(3, p=π[S[t]])`、`S[t+1] = rng.choice(4, p=P[S[t], A_[t]])`、`Rew[t+1] = R[S[t], A_[t], S[t+1]]`。
+**末项（预审第 4 条的修复，必须钉死）**：循环结束后**再抽一次**动作
+`A_[TRAIN_LENGTH] = rng.choice(3, p=π[S[TRAIN_LENGTH]])`——这是**消费 RNG 的确定调用**（使环境 rng 流与基线一致；
+本流此后不再被使用，认证批另起独立流）。`Rew[TRAIN_LENGTH]` 保持占位 `0`，`S` 不再有后继。
+
+**存储字段**（长度均为 65536）：
+`states = S[0:65536]`；`actions = A_[0:65536]`；`rewards = Rew[1:65537]`；
 `next_states = S[1:65537]`；`next_actions = A_[1:65537]`。
 即第 `t` 条记录项 = `(S[t], A_[t], Rew[t+1], S[t+1])`。
+**`next_actions` 的全部定义**：`next_actions[t] = A_[t+1]`，含 `next_actions[65535] = A_[65536]`（即上句那次额外抽取）。
+**它进入训练批的内容哈希**（与基线封存格式一致），但**本任务两条数组路线与两条网络路线都不读取它**；
+把它列入哈希仅是为了与基线参考产物可逐位比对，不构成任何判决输入。
 
 ### 10.5 认证批（每记录一步一批；与 10.2/10.4 的 rng 流无关）
 
@@ -321,7 +355,9 @@ radius_x = sqrt(2·max(var_x,0)·lt/N_x) + (7/3)·20·lt/max(N_x−1, 1)
 eps_x = |mean_x| + radius_x；E_Q = max_x eps_x/(1−γ)
 ```
 
-弃权原因序列化规范次序：`(divergence_guard_triggered, heldout_pair_support_missing, numerical_nonfinite, pair_count_mismatch)`。
+弃权原因序列化规范次序（**本协议可产生的全部原因**）：`(divergence_guard_triggered, heldout_pair_support_missing, numerical_nonfinite)`。
+**本协议不产生 `pair_count_mismatch`**（它属于已废止的固定计数协议）；
+任何记录若出现该字符串或其它未列原因 → **协议异常，停止该路线并记录**。
 
 ### 10.9 判决
 
@@ -394,5 +430,17 @@ eps_x = |mean_x| + radius_x；E_Q = max_x eps_x/(1−γ)
   3 → 新增 §2.1 封闭决策树（四个终态）；4 → 新增 §6.1 字段/序列化对照表（`e_q` ≡ `E_Q`）；
   5 → §2 改为显式 `count(...)` 计数并冻结 `1e-9` 平局容差。
 - **预审缺口仍在**：起草方即 Claude；GPT 额度不可用。v2 须由 **GPT（恢复后）或用户**重新预审；
+  通过前本任务单**不构成执行授权**，任务保持 `REVIEW`。（随后发生第二轮预审，见 §12。）
+
+## 12. 第二轮预审记录（v2 → OBJECTION → v3）
+
+- 2026-09-15：**第二轮预审 OBJECTION**（确认 v1 五项已实质修复、基线哈希正确，但新发现五项缺口）：
+  1. §2 R1 第一项 `count` 与"均值差"混用 → **v3 改为 `mean(closure_C) − mean(closure_A) ≥ 0.40`（显式分数单位）**；
+  2. §2.1 决策树非全集：缺"整数相同、浮点差 >1e-12"分支，缺"双序重算都无法复现各自产物"终态 →
+     **v3 补齐为四步流程、五个终态**（含 `BENIGN-ROUNDING`/`BENIGN-MATERIAL` 分流与 oracle 产物重跑要求）；
+  3. `pair_count_mismatch` 有规范次序却无生产规则 → **v3 从可产生原因集中删除，并规定出现即协议异常、停路线**；
+  4. 训练批 `A_[TRAIN_LENGTH]` 未定义 → **v3 钉死末项抽取（含其 RNG 消费语义）、`next_actions` 全定义及其入哈希但不被任何路线读取的地位**；
+  5. "JSON number 按 IEEE 位模式逐位比较"不可复现 → **v3 改为规范序列化 + 封存往返完整性检查 + 解析后 float64 精确相等的可复现定义**。
+- 2026-09-15：**预审缺口仍在**：起草方即 Claude；GPT 额度不可用。v3 须由 **GPT（恢复后）或用户**重新预审；
   通过前本任务单**不构成执行授权**，任务保持 `REVIEW`。
 - 执行还需 GPT 跑 `codex/FP-INDEP-001` 路线；**两条路线绝不由同一执行者承担**。
