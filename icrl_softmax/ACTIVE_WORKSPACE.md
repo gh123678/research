@@ -1,5 +1,21 @@
 # 当前研究状态
 
+> ## 📝 2026-09-15 已起草：`FP-INDEP-001`（双路线独立复现），**状态 REVIEW，预审前不得执行**
+>
+> 用户裁决收口完成、转研究决策，并直接指令 Claude 起草。任务单：[`FP-INDEP-001.md`](docs/research_tasks/FP-INDEP-001.md)（基线 `1da7162`）。
+>
+> **核心问题**：在不共享 `model.py`、MDP/训练数据生成器、数组生产者与判决实现的前提下，
+> 能否复现"按状态保守更新缓解早停"的限定结论（`FP-EARLYSTOP-001` v2：C 胜 A 46/48、闭合 74.4% vs 17.9%）。
+> **成败线写在任务单上**：§10 规格附录必须自足——若还需看 .py 才能实现，"独立实现"从第一天起就是假的。
+>
+> **起草者是 Claude（例外，非先例）**。因此：① `REVIEW` 必须由 **GPT（恢复后）或用户**预审，
+> Claude **不能**预审自己的草案；② 执行需 GPT 跑 `codex/FP-INDEP-001` 路线——
+> **两条路线绝不由同一执行者承担**，GPT 不可用期间本任务停在 `REVIEW`；③ 未跑任何实验。
+>
+> 关键设计（已定调）：numpy 原语可共享（视同 IEEE float64）；算法件各自从规格重写；
+> 基线模块只作参考 oracle、不进生产路径；复现对象用 frozen 包络证书（非 L12）；
+> 判决必须两路线逐位一致（不设容差），数值用冻结容差。
+
 > ## 2026-09-15 规格对应审查 FP-SPEC-REVIEW-001：VERIFIED（仅本审查）
 >
 > [任务单](docs/research_tasks/FP-SPEC-REVIEW-001.md)；[最终审查报告](docs/research_branches/FP-SPEC-REVIEW-001/codex/final_synthesis.md)。GPT 与实际 Claude Code 从同一基线分别导出／比对原文算子，首次结果封存后交叉复核，修订后双向 PASS。
