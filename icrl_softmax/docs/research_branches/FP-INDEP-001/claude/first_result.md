@@ -40,10 +40,11 @@
 | 网络前向 | **810**（轨迹提前停止，故低于上限 3,456） |
 | 总墙钟 | **1288.5 s（21.5 min）** |
 | 退出码 | `0`，**无任何异常触发**（故 §6 高精度复核未被触发；仪器要求已在任务单 §6 自足化） |
-| 封存往返完整性 | **176 个判决关键字段，0 不一致**（`seal_integrity.json`） |
+| 封存往返完整性 | **1620 个判决关键字段，0 不一致**（`seal_integrity.json`；初稿误写 176，那是 `_smoke/` 烟测同名文件的值，2026-09-17 自审计更正，见 §8） |
 | 环境 | Python 3.13.9 / numpy 2.4.6；CPU |
 
 **失败与中断记录**：无中断、无异常、无重跑。烟测（`--limit 1`）输出留在 `_smoke/`，**明确非正式协议**。
+`formal/task_results.partial.json` 是本次运行自身的增量检查点（写入时间与运行结束同一秒），**不是**中断或重跑的残留。
 
 ## 3. 逐项明细
 
@@ -107,8 +108,23 @@
 | 理论门禁 | `docs/research_branches/FP-INDEP-001/claude/premise_audit.md` | — |
 | 程序 | `docs/research_branches/FP-INDEP-001/claude/{evaluate,analyze,verify}.py` | — |
 | smoke（非正式） | `results/FP-INDEP-001/claude/_smoke/` | — |
+| **R3 比对输入（v2 封存包）** | `results/FP-EARLYSTOP-001/claude/formal_fv/task_results.json` | **`8070ee7d89c1c0aa`（2026-09-17 补记，完整哈希见 §8）** |
 
 `results/` 被 Git 忽略，数据不进仓库；代码、门禁与本报告按任务单 §5 提交。
+
+## 8. 勘误记录（2026-09-17 自审计）
+
+封存后由 Claude 做证据一致性审计（从 `task_results.json` 原始记录独立重算，不经 `analyze.py`），
+全部声称（P1/R1/R2/R3/哈希/停发分布/import 隔离）与原始证据一致；发现两处文档级缺陷，本版更正：
+
+1. §2 封存往返完整性字段数 **176 → 1620**：初稿抄用了 `_smoke/seal_integrity.json` 的值；
+   正式 `seal_integrity.json` 实为 `float_fields_compared: 1620, mismatches: 0`。实质无害（检查范围更大）。
+2. §6 **补记 R3 比对输入的哈希**：v2 封存包 `results/FP-EARLYSTOP-001/claude/formal_fv/task_results.json`
+   的 SHA256 = `8070ee7d89c1c0aa643ec6af11d0bc13888696a9e08700e1f834c17acfa84b3f`。
+   R3 的"0 差异"以该包未被改动为前提，此前清单中无此锚点。
+3. §2 补充说明 `task_results.partial.json` 的性质（同一运行的检查点，非中断残留）。
+
+以上更正均为文档级，**不改变任何实验数据与结论**；任务状态不变（仍待 GPT 路线封存后的交叉验证）。
 
 ## 7. 后续
 
